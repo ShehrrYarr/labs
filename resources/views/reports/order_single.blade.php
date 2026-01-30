@@ -226,13 +226,6 @@
 </div>
 
 {{-- FOOTER 2: DOCTORS --}}
-
-
-<div class="footer-note-fixed">
-    Electronically generated report — No need of signature
-</div>
-<div class="footer-divider"></div>
-
 <div class="footer-doctors">
     <table class="footer-grid">
         <tr>
@@ -267,6 +260,11 @@
     </table>
 </div>
 
+<div class="footer-divider"></div>
+
+<div class="footer-note-fixed">
+    Electronically generated report — No need of signature
+</div>
 
 </body>
 </html>

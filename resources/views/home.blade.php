@@ -102,10 +102,10 @@
                 <!-- Navbar Icons -->
                 <ul class="navbar-nav icons">
                     <li class="nav-item social">
-                        <a href="https://www.tiktok.com/@alikhokhar2222?_t=ZS-8yZo1AGjsN6&_r=1"></i></a>
+                        <a href="https://www.tiktok.com/@alghani.lab?_r=1&_t=ZS-93ToeGITuOj"></i></a>
                     </li>
                     <li class="nav-item social">
-                        <a href="https://www.facebook.com/share/1MCLU6RjLC/?mibextid=wwXIfr"></i></a>
+                        <a href="https://www.facebook.com/share/1Cx1hMr1kd/"></i></a>
                     </li>
                 </ul>
 
@@ -163,8 +163,8 @@
             <div class="row justify-content-center text-center items">
                 <div class="col-12 col-md-6 col-lg-4 item">
                     <div class="card no-hover">
-                        <i class="bi bi-apple custom-apple"></i>
-                        <h4>iphone</h4>
+                        <i class="bi bi-lab"></i>
+                        <h4>Alghani Lab</h4>
                         <p>We deal with all kind of lab tests
                         </p>
                     </div>
@@ -212,14 +212,14 @@
                                             -->
                                     </a>
                                 </div>
-                                <p>We are selling PTA,NON-PTA Iphones and Andriods at affordable prices</p>
+                                <p>We are selling </p>
                                 <ul class="navbar-nav social share-list mt-0 ml-auto">
 
                                     <li class="nav-item">
-                                        <a href=""><i class="icon-social-facebook"></i></a>
+                                        <a href="https://www.facebook.com/share/1Cx1hMr1kd/"><i class="icon-social-facebook"></i></a>
                                     </li>
                                     <li class="nav-item">
-                                        <a href="" class="nav-link"><i class="bi bi-tiktok"></i></a>
+                                        <a href="https://www.tiktok.com/@alghani.lab?_r=1&_t=ZS-93ToeGITuOj" class="nav-link"><i class="bi bi-tiktok"></i></a>
                                     </li>
                                     <li class="nav-item">
                                         <a href="#" class="nav-link"><i class="bi bi-whatsapp"></i></a>
@@ -237,14 +237,12 @@
                                 <h4 class="title">Our Services</h4>
                                 <ul class="navbar-nav">
                                     <li class="nav-item">
-                                        <a href="#" class="nav-link">iphones</a>
+                                        <a href="#" class="nav-link">Tests</a>
                                     </li>
                                     <li class="nav-item">
-                                        <a href="#" class="nav-link">Andriod</a>
+                                        <a href="#" class="nav-link">Sub tests</a>
                                     </li>
-                                    <li class="nav-item">
-                                        <a href="#" class="nav-link">Accessories</a>
-                                    </li>
+                                    
                                 </ul>
                             </div>
 
@@ -254,7 +252,7 @@
                                     <li class="nav-item">
                                         <a href="#" class="nav-link">
                                             <i class="icon-phone mr-2"></i>
-                                          +92300000000
+                                          +923328684574
 
                                         </a>
                                     </li>
@@ -268,7 +266,7 @@
                                     <li class="nav-item">
                                         <a href="#" class="nav-link">
                                             <i class="icon-location-pin mr-2"></i>
-                                            Office Street, 123
+                                            Zafar UL Road, opposite to leprosy hospital glass factory chowk Rawalpindi
                                         </a>
                                     </li>
 
