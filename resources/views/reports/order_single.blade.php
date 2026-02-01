@@ -203,10 +203,10 @@
 
             {{-- Test Type Title (this page) --}}
             <div class="type-title">{{ $typeName }}</div>
-            <div class="type-subtitle">
+            {{-- <div class="type-subtitle">
                 Included tests: <b>{{ $typeItems->count() }}</b>
                 • Order Status: <b>{{ $order->status }}</b>
-            </div>
+            </div> --}}
 
             {{-- Tests grouped by category --}}
             @foreach($grouped as $categoryName => $items)
@@ -251,9 +251,9 @@
                         <tr>
                             <td>
                                 {{ $it->test_name_snapshot }}
-                                @if($parentName)
+                                {{-- @if($parentName)
                                     <div class="muted">Parent: {{ $parentName }}</div>
-                                @endif
+                                @endif --}}
                             </td>
                             <td>
                                 @if($it->result_status === 'ready')
