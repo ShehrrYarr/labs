@@ -58,12 +58,14 @@ class OrderReportController extends Controller
         abort(403);
     }
 
-    $order->load([
-        'customer.user',
-        'branch',
-        'items.labTest.testCategory',
-        'items.resultPostedByUser',
-    ]);
+   $order->load([
+    'customer.user',
+    'branch',
+    'items',
+    'items.labTest.testCategory',
+    'items.testType',
+    'items.resultPostedByUser',
+]);
 
     // Branch can only view its own customers' orders
     if ($user->category === 'branch') {
