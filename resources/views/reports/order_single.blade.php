@@ -169,14 +169,23 @@
 <body>
 
 @foreach($itemsByType as $typeId => $typeItems)
-    @php
-        $typeName = $typeItems->first()?->testType?->name ?? ($typesMap[$typeId] ?? ('Type #'.$typeId));
+  @php
+    $typeName = $typeItems->first()?->testType?->name ?? ($typesMap[$typeId] ?? ('Type #'.$typeId));
 
-        // Group within this type by category
-        $grouped = $typeItems->groupBy(function ($it) {
-            return $it->labTest?->testCategory?->name ?? 'Other';
-        });
-    @endphp
+    // Group within this type by category
+    $grouped = $typeItems->groupBy(function ($it) use ($typeName) {
+
+        $category = $it->labTest?->testCategory?->name;
+
+        // ✅ CBC special case
+        if (!$category && strtoupper(trim($typeName)) === 'CBC') {
+            return 'Diff. Leuc Count (DLC)';
+        }
+
+        return $category ?? 'Other';
+    });
+@endphp
+
 
     <div class="page">
         <div class="content">
