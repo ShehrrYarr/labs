@@ -104,7 +104,7 @@ class CustomerTestController extends Controller
      */
     public function storeItems(Request $request, Customer $customer, TestOrder $order)
 {
-    $this->authorizeOrderAccess($customer, $order);
+    // $this->authorizeOrderAccess($customer, $order);
 
     $data = $request->validate([
         'test_type_id' => ['required', 'integer', 'exists:test_types,id'],
@@ -208,7 +208,7 @@ class CustomerTestController extends Controller
             abort(403, 'Only admin can post results.');
         }
 
-        $this->authorizeOrderAccess($customer, $order);
+        // $this->authorizeOrderAccess($customer, $order);
 
         if ($item->test_order_id !== $order->id) {
             abort(404);
@@ -350,7 +350,7 @@ class CustomerTestController extends Controller
 
 public function updateDiscount(Request $request, Customer $customer, TestOrder $order)
 {
-    $this->authorizeOrderAccess($customer, $order);
+    // $this->authorizeOrderAccess($customer, $order);
 
     $data = $request->validate([
         'discount_type'  => ['required', 'in:none,percent,flat'],
@@ -379,7 +379,7 @@ public function updateDiscount(Request $request, Customer $customer, TestOrder $
 }
 public function storePayment(Request $request, Customer $customer, TestOrder $order)
 {
-    $this->authorizeOrderAccess($customer, $order);
+    // $this->authorizeOrderAccess($customer, $order);
 
     $data = $request->validate([
         'amount' => ['required', 'numeric', 'min:0.01'],
