@@ -28,7 +28,7 @@ class CustomerTestController extends Controller
 
     public function index(Customer $customer)
 {
-    $this->authorizeCustomerAccess($customer);
+    // $this->authorizeCustomerAccess($customer);
 
     // Orders + assigned items (each item is an independent test row: main/sub)
     $orders = TestOrder::with([
@@ -305,16 +305,16 @@ class CustomerTestController extends Controller
 
 
     // ---- keep your authorize helpers same ----
-    private function authorizeCustomerAccess(Customer $customer): void
-    {
-        $user = auth()->user();
-        if ($user->category === 'admin') return;
+    // private function authorizeCustomerAccess(Customer $customer): void
+    // {
+    //     $user = auth()->user();
+    //     if ($user->category === 'admin') return;
 
-        $branchId = optional($user->branch)->id;
-        if (!$branchId || $customer->created_by_branch_id !== $branchId) {
-            abort(403, 'You do not have permission to access this customer.');
-        }
-    }
+    //     $branchId = optional($user->branch)->id;
+    //     if (!$branchId || $customer->created_by_branch_id !== $branchId) {
+    //         abort(403, 'You do not have permission to access this customer.');
+    //     }
+    // }
 
     public function storeOrder(Request $request, Customer $customer)
 {
@@ -412,7 +412,7 @@ public function storePayment(Request $request, Customer $customer, TestOrder $or
 
 public function testHistory(\App\Models\Customer $customer)
 {
-    $this->authorizeCustomerAccess($customer);
+    // $this->authorizeCustomerAccess($customer);
 
     $items = \App\Models\TestOrderItem::with([
             'order:id,customer_id,created_at',
