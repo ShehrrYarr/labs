@@ -318,7 +318,7 @@ class CustomerTestController extends Controller
 
     public function storeOrder(Request $request, Customer $customer)
 {
-    $this->authorizeCustomerAccess($customer);
+    // $this->authorizeCustomerAccess($customer);
 
     $data = $request->validate([
         'visited_at' => ['nullable', 'date'],
