@@ -439,12 +439,12 @@ public function testHistory(\App\Models\Customer $customer)
 
 
 
-    private function authorizeOrderAccess(Customer $customer, TestOrder $order): void
-    {
-        $this->authorizeCustomerAccess($customer);
+    // private function authorizeOrderAccess(Customer $customer, TestOrder $order): void
+    // {
+    //     $this->authorizeCustomerAccess($customer);
 
-        if ($order->customer_id !== $customer->id) {
-            abort(404);
-        }
-    }
+    //     if ($order->customer_id !== $customer->id) {
+    //         abort(404);
+    //     }
+    // }
 }
