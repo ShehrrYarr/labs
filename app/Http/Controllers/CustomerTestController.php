@@ -208,7 +208,7 @@ class CustomerTestController extends Controller
         if (auth()->user()->category !== 'admin') {
             abort(403, 'Only admin can post results.');
             }
-                dd($item->all());
+                dd($item);
             
             // $this->authorizeOrderAccess($customer, $order);
             
