@@ -256,7 +256,7 @@ table.report td {
 <div class="footer-doctors">
 <table class="footer-grid">
 <tr>
-<td><div class="doctor-name">Dr Amna Shujaat Ali Naqvi</div><div class="doctor-desc">MBBS, MPhil Pathology</div></td>
+<td><div class="doctor-name">Dr Amna Shujaat Ali Naqvi</div><div class="doctor-desc">MBBS, MPhil Pathology (Consultant Pathologist)</div></td>
 <td><div class="doctor-name">Dr Shafqat Iqbal</div><div class="doctor-desc">MBBS, FCPS (Gastro) • BSc, CHPE<br>Consultant Gastroenterologist & hepatologist</div></td>
 <td><div class="doctor-name">Dr Sobia Ikhlaq</div><div class="doctor-desc">MBBS, RMP • SMO Federal GH<br>Islamabad</div></td>
 <td><div class="doctor-name">Atif Iqbal</div><div class="doctor-desc">BS & MPhil Microbiology</div></td>
