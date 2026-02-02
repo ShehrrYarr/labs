@@ -208,6 +208,7 @@ class CustomerTestController extends Controller
         if (auth()->user()->category !== 'admin') {
             abort(403, 'Only admin can post results.');
             }
+                dd($item->all());
             
             // $this->authorizeOrderAccess($customer, $order);
             
@@ -215,7 +216,6 @@ class CustomerTestController extends Controller
                 abort(404);
                 }
                 
-                dd('helo moon');
         // Don't allow results on charge row
         if ($item->item_kind === 'charge') {
             return redirect()
