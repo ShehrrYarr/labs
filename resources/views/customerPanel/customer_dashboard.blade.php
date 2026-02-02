@@ -188,7 +188,14 @@
                                         <span class="badge b-ready">Ready</span>
                                     @endif
                                 </td>
-                                <td style="white-space:pre-wrap;">{{ $it->result_text ?: '—' }}</td>
+                                <td style="white-space:pre-wrap;">
+    @if($it->result_status === 'ready')
+        {{ $it->result_text ?: '—' }}
+    @else
+        <span class="small muted">Result not ready</span>
+    @endif
+</td>
+
                                 <td>{{ $unit ?: '—' }}</td>
                                 <td>{{ $range ?: '—' }}</td>
                             </tr>
@@ -268,7 +275,15 @@
                                 <span class="small">Not ready</span>
                             @endif
                         </td>
-                        <td style="white-space:pre-wrap;">{{ $result !== '' ? $result : '—' }}</td>
+                        {{-- <td style="white-space:pre-wrap;">{{ $result !== '' ? $result : '—' }}</td> --}}
+                        <td style="white-space:pre-wrap;">
+    @if($it->result_status === 'ready')
+        {{ $result !== '' ? $result : '—' }}
+    @else
+        <span class="small muted">Result not ready</span>
+    @endif
+</td>
+
                         <td>{{ $unit ?: '—' }}</td>
                         <td>{{ $range ?: '—' }}</td>
                     </tr>
