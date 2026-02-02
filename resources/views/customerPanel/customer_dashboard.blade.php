@@ -73,7 +73,7 @@
             <div class="muted">{{ $customer->user->login_id }} • {{ $customer->phone ?? '-' }}</div>
         </div>
         <div style="display:flex;gap:10px;flex-wrap:wrap;">
-            <a class="btn btn-ghost" href="{{ $allOrdersPdfUrl }}" target="_blank">Download All Reports (PDF)</a>
+            {{-- <a class="btn btn-ghost" href="{{ $allOrdersPdfUrl }}" target="_blank">Download All Reports (PDF)</a> --}}
         </div>
     </div>
 
@@ -194,7 +194,7 @@
     @endphp
 
     @if(!$isPaid)
-        <span class="small muted">Pay your dues to get the result</span>
+        <span class="small muted" style="color:#b45309;font-weight:700;">Pay your dues to get the result</span>
 
     @elseif($it->result_status === 'ready')
         {{ $it->result_text ?: '—' }}
@@ -285,7 +285,13 @@
                         </td>
                         {{-- <td style="white-space:pre-wrap;">{{ $result !== '' ? $result : '—' }}</td> --}}
                         <td style="white-space:pre-wrap;">
-    @if($it->result_status === 'ready')
+    @php
+        $isPaid = ((float)($inv?->total_amount ?? 0)) <= ((float)($inv?->paid_amount ?? 0));
+    @endphp
+
+    @if(!$isPaid)
+         <span class="small muted" style="color:#b45309;font-weight:700;">Pay your dues to get the result</span>
+    @elseif(($it->result_status ?? 'pending') === 'ready')
         {{ $result !== '' ? $result : '—' }}
     @else
         <span class="small muted">Result not ready</span>
