@@ -284,13 +284,21 @@
                             @endif
                         </td>
                         {{-- <td style="white-space:pre-wrap;">{{ $result !== '' ? $result : '—' }}</td> --}}
-                        <td style="white-space:pre-wrap;">
-    @php
-        $isPaid = ((float)($inv?->total_amount ?? 0)) <= ((float)($inv?->paid_amount ?? 0));
-    @endphp
+                       @php
+    $inv = $it->order?->invoice;
 
+    $total = (float)($inv?->total_amount ?? 0);
+    $paid  = (float)($inv?->paid_amount ?? 0);
+
+    // Fully paid only if paid >= total AND total > 0
+    $isPaid = ($total > 0) && ($paid >= $total);
+
+    $result = trim((string)($it->result_text ?? ''));
+@endphp
+
+<td style="white-space:pre-wrap;">
     @if(!$isPaid)
-         <span class="small muted" style="color:#b45309;font-weight:700;">Pay your dues to get the result</span>
+       <span class="small muted" style="color:#b45309;font-weight:700;">Pay your dues to get the result</span>
     @elseif(($it->result_status ?? 'pending') === 'ready')
         {{ $result !== '' ? $result : '—' }}
     @else

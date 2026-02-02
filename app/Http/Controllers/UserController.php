@@ -151,13 +151,15 @@ class UserController extends Controller
 
         // All tests across all orders for this customer
         $items = TestOrderItem::with([
-                'labTest:id,test_name,test_code,unit,reference_range',
-            ])
-            ->whereHas('order', function ($q) use ($customer) {
-                $q->where('customer_id', $customer->id);
-            })
-            ->orderByDesc('id')
-            ->get();
+        'labTest:id,test_name,test_code,unit,reference_range',
+        'order:id,customer_id',                 // ✅ needed
+        'order.invoice:id,test_order_id,total_amount,paid_amount,status', // ✅ needed
+    ])
+    ->whereHas('order', function ($q) use ($customer) {
+        $q->where('customer_id', $customer->id);
+    })
+    ->orderByDesc('id')
+    ->get();
 
         return view('customerPanel.customer_dashboard', compact('customer', 'orders', 'items'));
     }
