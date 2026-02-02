@@ -122,6 +122,12 @@
                         </li>
                       
                     </ul>
+                    <ul class="menu-content">
+                         <li class="@if (\Request::is('testtypes')) active @endif"><a class="menu-item"
+                                href="/testtypes" data-i18n="1 columns">Test Types</a>
+                        </li>
+                      
+                    </ul>
                 </li>
 
             </ul>

@@ -5,7 +5,18 @@ use App\Models\TestType;
 use Illuminate\Http\Request;
 
 class TestTypeController extends Controller
-{
+{ 
+    
+public function __construct()
+     {
+         $this->middleware('auth');
+     }
+
+public function testType(){
+    $testTypes = TestType::all();
+    return view('branches.testType',compact('testTypes'));
+}
+
      public function index()
     {
         $testTypes = TestType::latest()->paginate(10);

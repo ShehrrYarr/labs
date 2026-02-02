@@ -36,7 +36,7 @@
         <div class="alert">{{ session('success') }}</div>
     @endif
 
-    <table>
+    <table class="table table-striped table-bordered zero-configuration">
         <thead>
             <tr>
                 <th>#</th>
@@ -76,9 +76,9 @@
         </tbody>
     </table>
 
-    <div style="margin-top:12px;">
+    {{-- <div style="margin-top:12px;">
         {{ $testTypes->links() }}
-    </div>
+    </div> --}}
 </div>
 </div>
 </div>

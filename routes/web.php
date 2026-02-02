@@ -39,6 +39,7 @@ Route::get('/', function () {
 
 Route::resource('branches', BranchController::class);
 Route::resource('test-types', TestTypeController::class)->except(['show']);
+Route::get('/testtypes', [TestTypeController::class, 'testType'])->name('testtypes');
 Route::resource('equipment', EquipmentController::class)->except(['show']);
 Route::resource('test-categories', TestCategoryController::class)->except(['show']);
 Route::resource('lab-tests', LabTestController::class)->except(['show']);
