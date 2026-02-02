@@ -177,7 +177,9 @@
 
                                 <div class="field">
                                     <label>Reference Range</label>
-                                    <input type="text" name="reference_range" value="{{ old('reference_range', $labTest->reference_range) }}" placeholder="e.g. 10-50">
+                                    {{-- <input type="text" name="reference_range" value="{{ old('reference_range', $labTest->reference_range) }}" placeholder="e.g. 10-50"> --}}
+                                                        <textarea name="reference_range" placeholder="e.g. 10-50" >{{ old('reference_range', $labTest->reference_range) }}</textarea>
+
                                 </div>
                             </div>
 

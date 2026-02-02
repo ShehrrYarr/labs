@@ -78,6 +78,12 @@
             background-position: center top;
             background-size: 100% 100%;
         }
+        .range-cell{
+      white-space: pre-line;   /* keeps \n line breaks */
+      line-height: 1.1;        /* tight spacing */
+      margin: 0;
+      padding: 0;
+  }
         .page:last-child{ page-break-after: auto; }
 
         .content{
@@ -226,7 +232,16 @@
                         @foreach($items as $it)
                             @php
                                 $unit  = $it->unit_snapshot ?? $it->labTest?->unit ?? '';
-                                $range = $it->reference_range_snapshot ?? $it->labTest?->reference_range ?? '';
+                                // $range = $it->reference_range_snapshot ?? $it->labTest?->reference_range ?? '';
+                                 $rangeText = (string)($it->reference_range_snapshot ?? $it->labTest?->reference_range ?? '');
+
+    // if it was stored with <br> or <p>, convert to plain text safely
+    $rangeText = strip_tags(str_replace(['<br>', '<br/>', '<br />', '</p>', '<p>'], ["\n", "\n", "\n", "\n", ""], $rangeText));
+
+    // normalize Windows newlines + remove extra blank lines
+    $rangeText = str_replace("\r\n", "\n", $rangeText);
+    $rangeText = preg_replace("/\n{3,}/", "\n\n", $rangeText); // prevent huge gaps
+    $rangeText = trim($rangeText);
                             @endphp
                             <tr>
                                 <td>{{ $it->test_name_snapshot }}</td>
@@ -238,7 +253,10 @@
                                     @endif
                                 </td>
                                 <td>{{ $unit }}</td>
-                                <td>{{ $range }}</td>
+                                {{-- <td style="white-space: pre-wrap; line-height:1.1;">
+    {!! nl2br(e($range)) !!}
+</td> --}}
+<td><div class="range-cell">{{ $rangeText ?: '—' }}</div></td>
                             </tr>
                         @endforeach
                     </tbody>
