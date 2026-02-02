@@ -15,7 +15,8 @@ class LabTestController extends Controller
 {
       public function index()
     {
-        $tests = LabTest::with(['testType', 'testCategory']);
+        $tests = LabTest::with(['testType', 'testCategory'])
+            ->get();
 
         return view('lab_tests.index', compact('tests'));
     }
