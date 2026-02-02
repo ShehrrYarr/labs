@@ -19,7 +19,7 @@ public function testType(){
 
      public function index()
     {
-        $testTypes = TestType::latest()->paginate(10);
+        $testTypes = TestType::get();
         return view('test_types.index', compact('testTypes'));
     }
 
