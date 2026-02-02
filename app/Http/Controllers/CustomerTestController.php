@@ -209,13 +209,13 @@ class CustomerTestController extends Controller
             abort(403, 'Only admin can post results.');
             }
             
-            dd('helo sun');
-        // $this->authorizeOrderAccess($customer, $order);
-
-        if ($item->test_order_id !== $order->id) {
-            abort(404);
-        }
-
+            // $this->authorizeOrderAccess($customer, $order);
+            
+            if ($item->test_order_id !== $order->id) {
+                abort(404);
+                }
+                
+                dd('helo moon');
         // Don't allow results on charge row
         if ($item->item_kind === 'charge') {
             return redirect()
