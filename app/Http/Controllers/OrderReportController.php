@@ -14,43 +14,50 @@ class OrderReportController extends Controller
         $this->middleware('auth');
     }
 
-    // public function single(TestOrder $order)
-    // {
-    //     $user = auth()->user();
+    
 
-    //     // Only admin or branch
-    //     if (!in_array($user->category, ['admin', 'branch'], true)) {
-    //         abort(403);
-    //     }
+//     public function single(\App\Models\TestOrder $order)
+// {
+//     $user = auth()->user();
 
-    //     // Branch can only view its own customers' orders
-    //     $order->load([
-    //         'customer.user',
-    //         'customer.createdByBranch',
-    //         'branch',
-    //         'items.labTest.testCategory',
-    //         'items.resultPostedByUser',
-    //     ]);
+//     if (!in_array($user->category, ['admin', 'branch', 'customer'], true)) {
+//         abort(403);
+//     }
 
-    //     if ($user->category === 'branch') {
-    //         $branchId = optional($user->branch)->id;
+//    $order->load([
+//     'customer.user',
+//     'branch',
+//     'items',
+//     'items.labTest.testCategory',
+//     'items.testType',
+//     'items.resultPostedByUser',
+// ]);
 
-    //         // customer created by this branch
-    //         if (!$branchId || $order->customer->created_by_branch_id !== $branchId) {
-    //             abort(403);
-    //         }
-    //     }
+//     // Branch can only view its own customers' orders
+//     if ($user->category === 'branch') {
+//         $branchId = optional($user->branch)->id;
+//         if (!$branchId || $order->customer->created_by_branch_id !== $branchId) {
+//             abort(403);
+//         }
+//     }
 
-    //     $pdf = Pdf::loadView('reports.order_single', [
-    //         'order' => $order,
-    //         'labName' => $order->branch?->branch_name ?? config('app.name'),
-    //         'letterheadPath' => public_path('letterheads/report_letterhead.png'),
-    //     ])->setPaper('a4');
+//     // Customer can only view their own orders
+//     if ($user->category === 'customer') {
+//         if (($order->customer->user_id ?? null) !== $user->id) {
+//             abort(403);
+//         }
+//     }
 
-    //     return $pdf->stream('order-'.$order->id.'-report.pdf');
-    // }
+//     $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('reports.order_single', [
+//         'order' => $order,
+//         'labName' => $order->branch?->branch_name ?? null,
+//         'letterheadPath' => public_path('letterheads/report_letterhead.png'),
+//     ])->setPaper('a4');
 
-    public function single(\App\Models\TestOrder $order)
+//     return $pdf->stream('order-'.$order->id.'-report.pdf');
+// }
+
+public function single(\App\Models\TestOrder $order)
 {
     $user = auth()->user();
 
@@ -58,16 +65,21 @@ class OrderReportController extends Controller
         abort(403);
     }
 
-   $order->load([
-    'customer.user',
-    'branch',
-    'items',
-    'items.labTest.testCategory',
-    'items.testType',
-    'items.resultPostedByUser',
-]);
+    $order->load([
+        'customer.user',
+        'branch',
+        'items' => function ($q) {
+            $q->leftJoin('lab_tests', 'lab_tests.id', '=', 'test_order_items.lab_test_id')
+              ->orderBy('lab_tests.sort_order')   // ✅ MAIN SORT
+              ->orderBy('test_order_items.id')    // ✅ fallback
+              ->select('test_order_items.*');
+        },
+        'items.labTest.testCategory',
+        'items.testType',
+        'items.resultPostedByUser',
+    ]);
 
-    // Branch can only view its own customers' orders
+    // Branch restriction
     if ($user->category === 'branch') {
         $branchId = optional($user->branch)->id;
         if (!$branchId || $order->customer->created_by_branch_id !== $branchId) {
@@ -75,7 +87,7 @@ class OrderReportController extends Controller
         }
     }
 
-    // Customer can only view their own orders
+    // Customer restriction
     if ($user->category === 'customer') {
         if (($order->customer->user_id ?? null) !== $user->id) {
             abort(403);
@@ -90,6 +102,7 @@ class OrderReportController extends Controller
 
     return $pdf->stream('order-'.$order->id.'-report.pdf');
 }
+
 
 
 //     public function customerAll(\App\Models\Customer $customer)
