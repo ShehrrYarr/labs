@@ -16,7 +16,9 @@ class OrderReportController extends Controller
 
     
 
-//     public function single(\App\Models\TestOrder $order)
+
+
+// public function single(\App\Models\TestOrder $order)
 // {
 //     $user = auth()->user();
 
@@ -24,16 +26,21 @@ class OrderReportController extends Controller
 //         abort(403);
 //     }
 
-//    $order->load([
-//     'customer.user',
-//     'branch',
-//     'items',
-//     'items.labTest.testCategory',
-//     'items.testType',
-//     'items.resultPostedByUser',
-// ]);
+//     $order->load([
+//         'customer.user',
+//         'branch',
+//         'items' => function ($q) {
+//             $q->leftJoin('lab_tests', 'lab_tests.id', '=', 'test_order_items.lab_test_id')
+//               ->orderBy('lab_tests.sort_order')   // ✅ MAIN SORT
+//               ->orderBy('test_order_items.id')    // ✅ fallback
+//               ->select('test_order_items.*');
+//         },
+//         'items.labTest.testCategory',
+//         'items.testType',
+//         'items.resultPostedByUser',
+//     ]);
 
-//     // Branch can only view its own customers' orders
+//     // Branch restriction
 //     if ($user->category === 'branch') {
 //         $branchId = optional($user->branch)->id;
 //         if (!$branchId || $order->customer->created_by_branch_id !== $branchId) {
@@ -41,7 +48,7 @@ class OrderReportController extends Controller
 //         }
 //     }
 
-//     // Customer can only view their own orders
+//     // Customer restriction
 //     if ($user->category === 'customer') {
 //         if (($order->customer->user_id ?? null) !== $user->id) {
 //             abort(403);
@@ -70,8 +77,17 @@ public function single(\App\Models\TestOrder $order)
         'branch',
         'items' => function ($q) {
             $q->leftJoin('lab_tests', 'lab_tests.id', '=', 'test_order_items.lab_test_id')
-              ->orderBy('lab_tests.sort_order')   // ✅ MAIN SORT
-              ->orderBy('test_order_items.id')    // ✅ fallback
+              ->leftJoin('lab_sub_tests', 'lab_sub_tests.id', '=', 'test_order_items.lab_sub_test_id')
+
+              ->orderByRaw("
+                  CASE
+                    WHEN test_order_items.item_kind IN ('sub', 'subtest') THEN 1
+                    ELSE 0
+                  END
+              ")
+              ->orderByRaw("COALESCE(lab_tests.sort_order, 999999)")
+              ->orderByRaw("COALESCE(lab_sub_tests.sort_order, 999999)")
+              ->orderBy('test_order_items.id')
               ->select('test_order_items.*');
         },
         'items.labTest.testCategory',
@@ -102,6 +118,7 @@ public function single(\App\Models\TestOrder $order)
 
     return $pdf->stream('order-'.$order->id.'-report.pdf');
 }
+
 
 
 
