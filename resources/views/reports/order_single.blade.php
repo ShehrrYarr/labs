@@ -191,8 +191,8 @@
                 <tr>
                     <td>
                         <div><span class="label">Patient:</span> {{ $patientName }}</div>
-                        <div><span class="label">Panel:</span> {{ $labName }}</div>
-                        <div><span class="label">Order No:</span> {{ str_pad((string)$order->id, 4, '0', STR_PAD_LEFT) }}</div>
+                        <div><span class="label">Panel:</span> {{ $labName ?? 'Al Ghani Labs' }}</div>
+                        <div><span class="label">Lab No:</span> {{ str_pad((string)$order->id, 4, '0', STR_PAD_LEFT) }}</div>
                         <div><span class="label">Ref By:</span> {{ $order->customer->ref_by ?? '-' }}</div>
                     </td>
                     <td>
@@ -261,7 +261,7 @@
                         </td>
                         <td>
                             <div class="doctor-name">Dr Shafqat Iqbal</div>
-                            <div class="doctor-desc">MBBS, FCPS (Gastro) • BSc, CHPE<br>Consultant Gastroenterologist &amp; Hepatologist</div>
+                            <div class="doctor-desc">MBBS, FCPS (Gastro) • BSc, CHPE<br>Consultant pathologist  Gastroenterologist &amp; Hepatologist</div>
                         </td>
                         <td>
                             <div class="doctor-name">Dr Sobia Ikhlaq</div>

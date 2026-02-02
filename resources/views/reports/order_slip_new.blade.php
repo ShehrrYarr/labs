@@ -96,8 +96,8 @@
     <div class="row">
         <div class="col">
             <table class="meta">
-                <tr><td class="label">Lab:</td><td>{{ $labName }}</td></tr>
-                <tr><td class="label">Order #:</td><td>{{ $order->id }}</td></tr>
+                <tr><td class="label">Panel:</td><td>{{ $labName ?? 'Al Ghani Labs' }}</td></tr>
+                <tr><td class="label">Lab #:</td><td>{{ str_pad((string)$order->id, 4, '0', STR_PAD_LEFT) }}</td></tr>
                 <tr><td class="label">Created:</td><td>{{ optional($order->created_at)->format('d-m-Y h:i A') }}</td></tr>
             </table>
         </div>
@@ -115,7 +115,7 @@
         <thead>
         <tr>
             <th>Test Type</th>
-            <th class="right" style="width:90px;">Code</th>
+            {{-- <th class="right" style="width:90px;">Code</th> --}}
             <th class="right" style="width:110px;">Price</th>
         </tr>
         </thead>
@@ -123,7 +123,7 @@
         @forelse($types as $tp)
             <tr>
                 <td>{{ $tp['name'] }}</td>
-                <td class="right">{{ $tp['code'] }}</td>
+                {{-- <td class="right">{{ $tp['code'] }}</td> --}}
                 <td class="right">{{ number_format((float)$tp['price'], 2) }}</td>
             </tr>
         @empty
@@ -152,7 +152,7 @@
     <div class="row">
         <div class="col">
             <table class="meta">
-                <tr><td class="label">Order #:</td><td>{{ $order->id }}</td></tr>
+                               <tr><td class="label">Lab #:</td><td>{{ str_pad((string)$order->id, 4, '0', STR_PAD_LEFT) }}</td></tr>
                 <tr><td class="label">Created:</td><td>{{ optional($order->created_at)->format('d-m-Y h:i A') }}</td></tr>
                 <tr><td class="label">Ref By:</td><td>{{ $customer?->ref_by ?? '-' }}</td></tr>
             </table>
@@ -170,7 +170,7 @@
         <thead>
         <tr>
             <th>Test Type</th>
-            <th class="right" style="width:90px;">Code</th>
+            {{-- <th class="right" style="width:90px;">Code</th> --}}
             <th class="right" style="width:110px;">Price</th>
         </tr>
         </thead>
@@ -178,7 +178,7 @@
         @forelse($types as $tp)
             <tr>
                 <td>{{ $tp['name'] }}</td>
-                <td class="right">{{ $tp['code'] }}</td>
+                {{-- <td class="right">{{ $tp['code'] }}</td> --}}
                 <td class="right">{{ number_format((float)$tp['price'], 2) }}</td>
             </tr>
         @empty
