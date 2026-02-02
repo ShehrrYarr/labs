@@ -188,9 +188,17 @@
                                         <span class="badge b-ready">Ready</span>
                                     @endif
                                 </td>
-                                <td style="white-space:pre-wrap;">
-    @if($it->result_status === 'ready')
+                               <td style="white-space:pre-wrap;">
+    @php
+        $isPaid = ($inv?->total_amount ?? 0) <= ($inv?->paid_amount ?? 0);
+    @endphp
+
+    @if(!$isPaid)
+        <span class="small muted">Pay your dues to get the result</span>
+
+    @elseif($it->result_status === 'ready')
         {{ $it->result_text ?: '—' }}
+
     @else
         <span class="small muted">Result not ready</span>
     @endif
