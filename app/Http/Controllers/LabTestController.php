@@ -15,9 +15,7 @@ class LabTestController extends Controller
 {
       public function index()
     {
-        $tests = LabTest::with(['testType', 'testCategory'])
-            ->latest()
-            ->paginate(10);
+        $tests = LabTest::with(['testType', 'testCategory']);
 
         return view('lab_tests.index', compact('tests'));
     }
