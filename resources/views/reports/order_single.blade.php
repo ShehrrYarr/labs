@@ -257,11 +257,11 @@
                     <tr>
                         <td>
                             <div class="doctor-name">Dr Amna Shujaat Ali Naqvi</div>
-                            <div class="doctor-desc">MBBS, MPhil Pathology</div>
+                            <div class="doctor-desc">MBBS, MPhil Pathology  (Consultant Pathologist)</div>
                         </td>
                         <td>
                             <div class="doctor-name">Dr Shafqat Iqbal</div>
-                            <div class="doctor-desc">MBBS, FCPS (Gastro) • BSc, CHPE<br>Consultant pathologist  Gastroenterologist &amp; Hepatologist</div>
+                            <div class="doctor-desc">MBBS, FCPS (Gastro) • BSc, CHPE<br>Consultant Gastroenterologist &amp; Hepatologist</div>
                         </td>
                         <td>
                             <div class="doctor-name">Dr Sobia Ikhlaq</div>
