@@ -70,6 +70,7 @@
                     <th>Main Test</th>
                     <th>Code</th>
                     <th>Type</th>
+                    <th>Sort Order</th>
                     <th>Category</th>
                     <th>Reporting</th>
                     <th>Status</th>
@@ -99,6 +100,7 @@
 
                         <td style="font-weight:900;">{{ $t->test_code }}</td>
                         <td>{{ $t->testType?->name ?? '-' }}</td>
+                        <td>{{ $t->sort_order ?? '-' }}</td>
                         <td>{{ $t->testCategory?->name ?? '-' }}</td>
                         <td>{{ $t->reporting_time ?? '-' }}</td>
 
