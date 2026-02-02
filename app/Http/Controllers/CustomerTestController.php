@@ -205,11 +205,11 @@ class CustomerTestController extends Controller
      */
     public function postResult(Request $request, Customer $customer, TestOrder $order, TestOrderItem $item)
     {
-        dd('helo world');
         if (auth()->user()->category !== 'admin') {
             abort(403, 'Only admin can post results.');
-        }
-
+            }
+            
+            dd('helo world');
         // $this->authorizeOrderAccess($customer, $order);
 
         if ($item->test_order_id !== $order->id) {
