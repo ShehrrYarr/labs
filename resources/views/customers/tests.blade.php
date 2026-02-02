@@ -141,8 +141,12 @@
                         $status = $inv?->status ?? 'unpaid';
                         $badge = $status === 'paid' ? 'b-paid' : ($status === 'partial' ? 'b-partial' : 'b-unpaid');
 
-                        $itemsText = $order->items->whereIn('item_kind', ['test','subtest'])->pluck('test_name_snapshot')->filter()->take(6)->implode(', ');
-                        $moreCount = max(0, $order->items->whereIn('item_kind', ['test','subtest'])->count() - 6);
+                        // ✅ FORCE PURE INSERTION ORDER (ID ASC) FOR DISPLAY (no alphabetical, no kind priority)
+                        $displayItems = ($order->items ?? collect())->sortBy('id')->values();
+
+                        $displayTests = $displayItems->whereIn('item_kind', ['test','subtest']);
+                        $itemsText = $displayTests->pluck('test_name_snapshot')->filter()->take(6)->implode(', ');
+                        $moreCount = max(0, $displayTests->count() - 6);
                         if ($moreCount > 0) $itemsText .= " +{$moreCount} more";
 
                         $detailsId = 'order-details-'.$order->id;
@@ -163,7 +167,8 @@
                                     <span class="badge {{ $badge }}">{{ strtoupper($status) }}</span>
                                 </div>
 
-                                <div class="order-tests" title="{{ $order->items->whereIn('item_kind',['test','subtest'])->pluck('test_name_snapshot')->implode(', ') }}">
+                                <div class="order-tests"
+                                     title="{{ $displayTests->pluck('test_name_snapshot')->implode(', ') }}">
                                     <b>Assigned:</b> {{ $itemsText ?: 'No tests assigned yet' }}
                                 </div>
 
@@ -175,7 +180,6 @@
                             </div>
 
                             <div class="order-right">
-                                {{-- ✅ Updated summary to show Subtotal/Discount/Total --}}
                                 <div class="order-meta">
                                     Subtotal: <b>{{ number_format($invSubtotal, 2) }}</b><br>
                                     Discount: <b>-{{ number_format($invDiscount, 2) }}</b><br>
@@ -203,7 +207,6 @@
                         <div class="order-details" id="{{ $detailsId }}">
                             <div class="divider"></div>
 
-                            {{-- ✅ Assign by Test Type (searchable) --}}
                             <h4 style="margin:0 0 8px;">Assign by Test Type</h4>
 
                             <form method="POST"
@@ -252,7 +255,6 @@
 
                             <div class="divider"></div>
 
-                            {{-- ✅ Assigned items (tests + subtests) --}}
                             <h4 style="margin:0 0 8px;">Assigned Items</h4>
 
                             <table>
@@ -268,7 +270,8 @@
                                 </thead>
                                 <tbody>
                                 @php
-                                    $assigned = $order->items ?? collect();
+                                    // ✅ USE PURE INSERTION ORDER HERE TOO
+                                    $assigned = $displayItems;
                                 @endphp
 
                                 @forelse($assigned as $it)
@@ -344,7 +347,6 @@
 
                             <div class="divider"></div>
 
-                            {{-- ✅ Discount --}}
                             <h4 style="margin:0 0 8px;">Discount</h4>
                             <form method="POST" action="{{ route('customers.orders.discount', ['customer' => $customer->id, 'order' => $order->id]) }}">
                                 @csrf
@@ -368,7 +370,6 @@
                                 </div>
                             </form>
 
-                            {{-- ✅ Invoice Summary Box (shows discount clearly) --}}
                             @php
                                 $invSubtotal2 = (float)($inv?->subtotal ?? 0);
                                 $invDiscount2 = (float)($inv?->discount_amount ?? 0);
@@ -390,7 +391,6 @@
 
                             <div class="divider"></div>
 
-                            {{-- Payments --}}
                             <h4 style="margin:0 0 8px;">Payments</h4>
                             <form method="POST" action="{{ route('customers.orders.payments.store', ['customer' => $customer->id, 'order' => $order->id]) }}">
                                 @csrf
@@ -459,7 +459,6 @@
 
 <script>
 (function () {
-    // Expand/collapse order details
     function toggle(targetId, orderId) {
         const el = document.getElementById(targetId);
         const chev = document.getElementById('chev-' + orderId);
@@ -483,7 +482,6 @@
         });
     });
 
-    // Auto-open by ?open_order=
     const params = new URLSearchParams(window.location.search);
     const openOrder = params.get('open_order');
     if (openOrder) {
@@ -495,7 +493,6 @@
         }
     }
 
-    // ✅ Types data from controller ($typesForJs)
     const typesData = @json($typesForJs);
 
     function money(n){
@@ -512,7 +509,6 @@
             .replaceAll("'", '&#039;');
     }
 
-    // For each order detail area: searchable type dropdown + preview table
     document.querySelectorAll('.order-details').forEach(details => {
         const searchInput = details.querySelector('.typeSearchInput');
         const dropdown = details.querySelector('.typeDropdown');
@@ -584,7 +580,6 @@
                 return;
             }
 
-            // sort subtests under each test already; this extra sort just keeps subtests ordered
             rows.forEach(r => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
@@ -623,12 +618,10 @@
             dropdown.classList.remove('open');
         });
 
-        // initial
         renderDropdown('');
         buildPreviewRows(null);
     });
 
-    // Discount UX: if "none" selected, force value to 0 (avoid accidental weird states)
     document.querySelectorAll('.discountType').forEach(sel => {
         const box = sel.closest('form');
         const val = box ? box.querySelector('.discountValue') : null;

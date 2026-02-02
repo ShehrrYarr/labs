@@ -23,7 +23,8 @@ class TestType extends Model
 
     public function labTests()
 {
-    return $this->hasMany(\App\Models\LabTest::class, 'test_type_id');
+    return $this->hasMany(\App\Models\LabTest::class, 'test_type_id')->orderBy('sort_order')
+        ->orderBy('id');
 }
 
 

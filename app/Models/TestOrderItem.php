@@ -51,7 +51,8 @@ class TestOrderItem extends Model
 
     public function labTest()
     {
-        return $this->belongsTo(LabTest::class);
+        return $this->belongsTo(LabTest::class)->orderBy('sort_order')
+        ->orderBy('id');
     }
 
     public function subTest()

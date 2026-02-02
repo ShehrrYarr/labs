@@ -150,6 +150,10 @@
                                     <label>Test Reporting Time</label>
                                     <input type="text" name="reporting_time" value="{{ old('reporting_time') }}" required placeholder="e.g. 6 Hours / 24 Hours / 2 Days">
                                 </div>
+                                <div>
+                                    <label>Sort Order</label>
+                                    <input type="number" min="0" name="sort_order" value="{{ old('sort_order', 0) }}">
+                                </div>
 
                                 <div class="field">
                                     <label>Unit (optional)</label>

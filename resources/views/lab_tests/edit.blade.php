@@ -181,6 +181,10 @@
                                                         <textarea name="reference_range" placeholder="e.g. 10-50" >{{ old('reference_range', $labTest->reference_range) }}</textarea>
 
                                 </div>
+                                <div>
+                                    <label>Sort Order</label>
+                                    <input type="number" min="0" name="sort_order" value="{{ old('sort_order', $labTest->sort_order) }}">
+                                </div>
                             </div>
 
                             <div class="field">

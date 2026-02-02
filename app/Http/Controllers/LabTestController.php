@@ -60,6 +60,8 @@ class LabTestController extends Controller
         'reference_range'      => ['nullable', 'string', 'max:1000'],
 
         'is_active'            => ['nullable', 'boolean'],
+            'sort_order'           => ['nullable', 'integer', 'min:0'],
+
     ]);
 
     DB::transaction(function () use ($request, $data) {
@@ -86,6 +88,8 @@ class LabTestController extends Controller
             'reference_range'     => $data['reference_range'] ?? null,
 
             'is_active'           => (bool)($data['is_active'] ?? true),
+                'sort_order'            => (int)($data['sort_order'] ?? 0),
+
         ]);
 
         $test->equipment()->sync($data['equipment_ids'] ?? []);
@@ -128,6 +132,8 @@ public function update(Request $request, LabTest $labTest)
         'additional_notes'     => ['nullable', 'string', 'max:5000'],
         'unit'                 => ['nullable', 'string', 'max:255'],
         'reference_range'      => ['nullable', 'string', 'max:5000'],
+            'sort_order'           => ['nullable', 'integer', 'min:0'],
+
 
         'is_active'            => ['nullable', 'boolean'],
     ]);
@@ -156,6 +162,8 @@ public function update(Request $request, LabTest $labTest)
             'test_instruction'    => $data['test_instruction'] ?? null,
             'additional_notes'    => $data['additional_notes'] ?? null,
             'is_active'           => (bool)($data['is_active'] ?? false),
+                'sort_order'            => (int)($data['sort_order'] ?? 0),
+
         ]);
 
         // ✅ only if relationship exists

@@ -26,16 +26,83 @@ class CustomerTestController extends Controller
         });
     }
 
-    public function index(Customer $customer)
-{
+//     public function index(Customer $customer)
+// {
     
-    // $this->authorizeCustomerAccess($customer);
+//     // $this->authorizeCustomerAccess($customer);
 
-    // Orders + assigned items (each item is an independent test row: main/sub)
+//     // Orders + assigned items (each item is an independent test row: main/sub)
+//     $orders = TestOrder::with([
+//             'items' => function ($q) {
+//                 $q->orderBy('sort_order_snapshot')
+//                   ->orderBy('id');
+//             },
+//             'items.resultPostedByUser:id,name',
+//             'invoice.payments',
+//             'branch',
+//             'createdByUser',
+//         ])
+//         ->where('customer_id', $customer->id)
+//         ->latest()
+//         ->get();
+
+//     // Types -> Tests -> Subtests for "Assign by type" preview + auto add
+//    $types = TestType::where('is_active', true)
+//     ->with(['labTests' => function ($q) {
+//         $q->where('is_active', true)
+//           ->reorder()            // ✅ remove any orderBy from relationship/scope chain
+//           ->orderBy('id')        // ✅ creation order
+//           ->with(['subTests' => function ($sq) {
+//               $sq->where('is_active', true)
+//                  ->reorder()     // ✅ remove any orderBy from relationship/scope chain
+//                  ->orderBy('id'); // ✅ creation order
+//           }]);
+//     }])
+//     ->orderBy('name')
+//     ->get();
+
+//     // Clean array for JS (avoid Blade parsing issues)
+//     $typesForJs = $types->map(function ($tp) {
+//         return [
+//             'id'    => $tp->id,
+//             'name'  => $tp->name,
+//             'price' => (float) ($tp->price ?? 0),
+//             'tests' => $tp->labTests->map(function ($t) {
+//                 return [
+//                     'id'              => $t->id,
+//                     'name'            => $t->test_name,
+//                     'code'            => $t->test_code,
+//                     'unit'            => $t->unit,
+//                     'reference_range' => $t->reference_range,
+//                     'sort_order'      => (int) ($t->sort_order ?? 0),
+//                     'subtests'        => ($t->subTests ?? collect())->map(function ($s) {
+//                         return [
+//                             'id'              => $s->id,
+//                             'name'            => $s->test_name,
+//                             'code'            => $s->test_code,
+//                             'unit'            => $s->unit,
+//                             'reference_range' => $s->reference_range,
+//                             'sort_order'      => (int) ($s->sort_order ?? 0),
+//                         ];
+//                     })->values(),
+//                 ];
+//             })->values(),
+//         ];
+//     })->values();
+
+//     if (auth()->user()->category === 'branch') {
+//         return view('branches.customers.tests', compact('customer', 'orders', 'typesForJs'));
+//     }
+
+//     return view('customers.tests', compact('customer', 'orders', 'typesForJs'));
+// }
+public function index(Customer $customer)
+{
+    // Orders + assigned items (keep exact insertion order)
     $orders = TestOrder::with([
             'items' => function ($q) {
-                $q->orderBy('sort_order_snapshot')
-                  ->orderBy('id');
+                $q->reorder()        // ✅ removes any accidental ordering
+                  ->orderBy('id');   // ✅ pure insertion/creation order
             },
             'items.resultPostedByUser:id,name',
             'invoice.payments',
@@ -46,21 +113,23 @@ class CustomerTestController extends Controller
         ->latest()
         ->get();
 
-    // Types -> Tests -> Subtests for "Assign by type" preview + auto add
+    // Types -> Tests -> Subtests (show in creation order)
     $types = TestType::where('is_active', true)
-        ->with(['labTests' => function ($q) {
-            $q->where('is_active', true)
-              ->orderBy('test_name')
-              ->with(['subTests' => function ($sq) {
-                  $sq->where('is_active', true)
-                     ->orderBy('sort_order')
-                     ->orderBy('test_name');
-              }]);
-        }])
-        ->orderBy('name')
-        ->get();
-
-    // Clean array for JS (avoid Blade parsing issues)
+  ->with(['labTests' => function ($q) {
+      $q->where('is_active', true)
+        ->reorder()
+        ->orderBy('sort_order')
+        ->orderBy('id')
+        ->with(['subTests' => function ($sq) {
+            $sq->where('is_active', true)
+               ->reorder()
+               ->orderBy('sort_order')
+               ->orderBy('id');
+        }]);
+  }])
+  ->orderBy('name')
+  ->get();
+    // Clean array for JS (preserves the order we loaded above)
     $typesForJs = $types->map(function ($tp) {
         return [
             'id'    => $tp->id,
@@ -95,7 +164,6 @@ class CustomerTestController extends Controller
 
     return view('customers.tests', compact('customer', 'orders', 'typesForJs'));
 }
-
     /**
      * ✅ NEW: storeItems now only accepts test_type_id.
      * It will add:

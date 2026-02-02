@@ -40,8 +40,16 @@ class TestOrder extends Model
     // ✅ flat list (main tests and sub tests both)
     public function items()
 {
-    return $this->hasMany(TestOrderItem::class)->orderBy('sort_order_snapshot')->orderBy('id');
+    return $this->hasMany(TestOrderItem::class);
 }
+//     public function items()
+// {
+//     return $this->hasMany(TestOrderItem::class)->orderBy('sort_order_snapshot')->orderBy('id');
+// }
+//     public function items()
+// {
+//     return $this->hasMany(TestOrderItem::class)->orderBy('id', 'asc');
+// }
 // public function items()
 // {
 //     return $this->hasMany(TestOrderItem::class, 'test_order_id')
