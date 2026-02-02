@@ -203,52 +203,96 @@ class CustomerTestController extends Controller
     /**
      * ✅ Results are stored directly on test_order_items now
      */
-    public function postResult(Request $request, Customer $customer, TestOrder $order, TestOrderItem $item)
-    {
-        if (auth()->user()->category !== 'admin') {
-            abort(403, 'Only admin can post results.');
-            }
-                // dd($item);
+    // public function postResult(Request $request, Customer $customer, TestOrder $order, TestOrderItem $item)
+    // {
+    //     if (auth()->user()->category !== 'admin') {
+    //         abort(403, 'Only admin can post results.');
+    //         }
+    //             // dd($item);
             
-            // $this->authorizeOrderAccess($customer, $order);
+    //         // $this->authorizeOrderAccess($customer, $order);
             
-            if ($item->test_order_id !== $order->id) {
-                abort(404);
-                }
+    //         if ($item->test_order_id !== $order->id) {
+    //             abort(404);
+    //             }
                 
-        // Don't allow results on charge row
-        if ($item->item_kind === 'charge') {
-            return redirect()
-                ->route('customers.tests', $customer)
-                ->with('success', 'Charge row has no results.');
-        }
+    //     // Don't allow results on charge row
+    //     if ($item->item_kind === 'charge') {
+    //         return redirect()
+    //             ->route('customers.tests', $customer)
+    //             ->with('success', 'Charge row has no results.');
+    //     }
 
-        $data = $request->validate([
-            'result_text'   => ['nullable', 'string', 'max:10000'],
-            'result_status' => ['required', 'in:pending,processing,ready'],
-        ]);
+    //     $data = $request->validate([
+    //         'result_text'   => ['nullable', 'string', 'max:10000'],
+    //         'result_status' => ['required', 'in:pending,processing,ready'],
+    //     ]);
 
-        $item->update([
-            'result_text'              => $data['result_text'] ?? null,
-            'result_status'            => $data['result_status'],
-            'result_posted_at'         => now(),
-            'result_posted_by_user_id' => auth()->id(),
-        ]);
+    //     $item->update([
+    //         'result_text'              => $data['result_text'] ?? null,
+    //         'result_status'            => $data['result_status'],
+    //         'result_posted_at'         => now(),
+    //         'result_posted_by_user_id' => auth()->id(),
+    //     ]);
 
-        // If all non-charge items are ready -> results_posted
-        $order->load('items');
+    //     // If all non-charge items are ready -> results_posted
+    //     $order->load('items');
 
-        $nonCharge = $order->items->where('item_kind', '!=', 'charge');
-        $allReady = $nonCharge->count() > 0 && $nonCharge->every(fn($i) => $i->result_status === 'ready');
+    //     $nonCharge = $order->items->where('item_kind', '!=', 'charge');
+    //     $allReady = $nonCharge->count() > 0 && $nonCharge->every(fn($i) => $i->result_status === 'ready');
 
-        $order->update([
-            'status' => $allReady ? 'results_posted' : 'in_progress'
-        ]);
+    //     $order->update([
+    //         'status' => $allReady ? 'results_posted' : 'in_progress'
+    //     ]);
 
+    //     return redirect()
+    //         ->route('customers.tests', $customer)
+    //         ->with('success', 'Result saved successfully.');
+    // }
+
+    public function postResult(Request $request, Customer $customer, TestOrder $order, TestOrderItem $item)
+{
+    if (auth()->user()->category !== 'admin') {
+        abort(403, 'Only admin can post results.');
+    }
+
+    // ✅ Force correct item under this order (prevents wrong binding)
+    $item = $order->items()->whereKey($item->getKey())->firstOrFail();
+
+    // Don't allow results on charge row
+    if ($item->item_kind === 'charge') {
         return redirect()
             ->route('customers.tests', $customer)
-            ->with('success', 'Result saved successfully.');
+            ->with('success', 'Charge row has no results.');
     }
+
+    $data = $request->validate([
+        'result_text'   => ['nullable', 'string', 'max:10000'],
+        'result_status' => ['required', 'in:pending,processing,ready'],
+    ]);
+
+    $item->update([
+        'result_text'              => $data['result_text'] ?? null,
+        'result_status'            => $data['result_status'],
+        'result_posted_at'         => now(),
+        'result_posted_by_user_id' => auth()->id(),
+    ]);
+
+    $order->load('items');
+
+    $nonCharge = $order->items->where('item_kind', '!=', 'charge');
+    $allReady  = $nonCharge->count() > 0
+        && $nonCharge->every(fn($i) => $i->result_status === 'ready');
+
+    $order->update([
+        'status' => $allReady ? 'results_posted' : 'in_progress'
+    ]);
+
+    return redirect()
+        ->route('customers.tests', $customer)
+        ->with('success', 'Result saved successfully.');
+}
+
 
   private function recalculateInvoice(TestOrder $order): void
 {
