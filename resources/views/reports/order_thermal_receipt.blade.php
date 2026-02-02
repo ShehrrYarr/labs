@@ -73,7 +73,7 @@
 
 <table>
     <tr>
-        <td class="muted">Order #</td>
+        <td class="muted">Lab #</td>
         <td class="right bold">{{ $order->id }}</td>
     </tr>
     <tr>
