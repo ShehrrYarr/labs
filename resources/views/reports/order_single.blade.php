@@ -233,6 +233,12 @@
             @foreach($grouped as $categoryName => $items)
                 <div class="section-title">{{ $categoryName }}</div>
 
+                @if(in_array(strtoupper(trim($typeName)), ['URINE R/E', 'URINE RE'], true))
+    <div class="small" style="margin:2px 0 6px;font-weight:700;color:#374151;">
+        Physical And Chemical Analysis
+    </div>
+@endif
+
                 <table class="report">
                     <thead>
                         <tr>
