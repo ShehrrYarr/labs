@@ -168,26 +168,40 @@
 <body>
 
 @foreach($itemsByType as $typeId => $typeItems)
-    @php
-        $typeName = $typeItems->first()?->testType?->name
-            ?? ($typesMap[$typeId] ?? ('Type #'.$typeId));
+   @php
+    $typeName = $typeItems->first()?->testType?->name
+        ?? ($typesMap[$typeId] ?? ('Type #'.$typeId));
 
-        // 2) Build category groups in insertion order (first-seen)
-        $grouped = [];
-        foreach ($typeItems as $it) {
-            $category = $it->labTest?->testCategory?->name;
+    // Normalize once (important)
+    $normalizedType = strtoupper(trim((string) $typeName));
 
-            // CBC special case
-            if (!$category && strtoupper(trim((string)$typeName)) === 'CBC') {
-                $category = 'Diff. Leuc Count (DLC)';
-            }
+    // 2) Build category groups in insertion order (first-seen)
+    $grouped = [];
 
-            $category = $category ?: 'Other';
+    foreach ($typeItems as $it) {
+        $category = $it->labTest?->testCategory?->name;
 
-            if (!isset($grouped[$category])) $grouped[$category] = collect();
-            $grouped[$category]->push($it); // keeps PURE inserted order inside category
+        // ✅ CBC special case
+        if (!$category && $normalizedType === 'CBC') {
+            $category = 'Diff. Leuc Count (DLC)';
         }
-    @endphp
+
+        // ✅ Urine R/E special case
+        if (!$category && in_array($normalizedType, ['URINE R/E', 'URINE RE'], true)) {
+            $category = 'Microscopic Analysis';
+        }
+
+        // Fallback
+        $category = $category ?: 'Other';
+
+        if (!isset($grouped[$category])) {
+            $grouped[$category] = collect();
+        }
+
+        // keeps PURE inserted order
+        $grouped[$category]->push($it);
+    }
+@endphp
 
     <div class="page">
         <div class="content">
