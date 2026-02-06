@@ -125,9 +125,9 @@
         <tbody>
             @forelse($branches as $branch)
                 <tr>
-                    <td>{{ $branch->id }}</td>
-                    <td>{{ $branch->branch_name }}</td>
-                    <td>{{ $branch->user->email }}</td>
+                    <td>{{ $branch->id ?? 'N/A'}}</td>
+                    <td>{{ $branch->branch_name ?? 'N/A' }}</td>
+                    <td>{{ $branch->user->email ?? 'N/A' }}</td>
                     <td>
                         @if($branch->is_active)
                             <span class="badge badge-active">Active</span>
