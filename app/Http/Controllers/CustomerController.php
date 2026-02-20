@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
+use App\Models\TestOrder;
+
 
 class CustomerController extends Controller
 {
@@ -27,28 +29,60 @@ public function __construct()
     }
 
 
-     public function index()
-    {
-        $user = auth()->user();
+//      public function index()
+//     {
+//         $user = auth()->user();
 
-        $query = Customer::with(['user', 'createdByBranch']);
+//         $query = Customer::with(['user', 'createdByBranch']);
 
-        // Branch should only see customers created by their branch
-        if ($user->category === 'branch') {
-            $branchId = optional($user->branch)->id;
-            $query->where('created_by_branch_id', $branchId);
-        }
+//         // Branch should only see customers created by their branch
+//         if ($user->category === 'branch') {
+//             $branchId = optional($user->branch)->id;
+//             $query->where('created_by_branch_id', $branchId);
+//         }
 
-        $customers = $query->latest()->paginate(10);
-
-
+//         $customers = $query->latest()->paginate(10);
 
 
-         if (auth()->user()->category === 'branch') {
-            return view('branches.customers.index', compact('customers'));
-}else 
-        return view('customers.index', compact('customers'));
+
+
+//          if (auth()->user()->category === 'branch') {
+//             return view('branches.customers.index', compact('customers'));
+// }else 
+//         return view('customers.index', compact('customers'));
+//     }
+
+
+public function index()
+{
+    $user = auth()->user();
+
+    $query = Customer::query()
+        ->with(['user', 'createdByBranch'])
+        ->addSelect([
+            'latest_order_at' => TestOrder::select('created_at')
+                ->whereColumn('test_orders.customer_id', 'customers.id')
+                ->orderByDesc('created_at')
+                ->limit(1),
+        ])
+        // latest orders first, customers with no orders go last automatically (NULLs last in DESC)
+        ->orderByDesc('latest_order_at')
+        ->orderByDesc('customers.id');
+
+    // Branch should only see customers created by their branch
+    if ($user->category === 'branch') {
+        $branchId = optional($user->branch)->id;
+        $query->where('created_by_branch_id', $branchId);
     }
+
+    $customers = $query->paginate(10);
+
+    if ($user->category === 'branch') {
+        return view('branches.customers.index', compact('customers'));
+    }
+
+    return view('customers.index', compact('customers'));
+}
 
     public function create()
     {
