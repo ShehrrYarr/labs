@@ -68,9 +68,9 @@ public function single(\App\Models\TestOrder $order)
 {
     $user = auth()->user();
 
-    if (!in_array($user->category, ['admin', 'branch', 'customer'], true)) {
-        abort(403);
-    }
+    // if (!in_array($user->category, ['admin', 'branch', 'customer'], true)) {
+    //     abort(403);
+    // }
 
     $order->load([
         'customer.user',
