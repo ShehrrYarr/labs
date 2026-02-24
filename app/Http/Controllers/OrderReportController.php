@@ -95,13 +95,13 @@ public function single(\App\Models\TestOrder $order)
         'items.resultPostedByUser',
     ]);
 
-    // Branch restriction
-    if ($user->category === 'branch') {
-        $branchId = optional($user->branch)->id;
-        if (!$branchId || $order->customer->created_by_branch_id !== $branchId) {
-            abort(403);
-        }
-    }
+    // // Branch restriction
+    // if ($user->category === 'branch') {
+    //     $branchId = optional($user->branch)->id;
+    //     if (!$branchId || $order->customer->created_by_branch_id !== $branchId) {
+    //         abort(403);
+    //     }
+    // }
 
     // Customer restriction
     if ($user->category === 'customer') {
