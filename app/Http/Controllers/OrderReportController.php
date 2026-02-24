@@ -260,9 +260,9 @@ public function invoiceSlip(TestOrder $order)
     $user = auth()->user();
     if (!$user) abort(401);
 
-    if (!in_array($user->category, ['admin', 'branch', 'customer'], true)) {
-        abort(403);
-    }
+    // if (!in_array($user->category, ['admin', 'branch', 'customer'], true)) {
+    //     abort(403);
+    // }
 
     $order->load([
         'customer.user',
@@ -272,12 +272,12 @@ public function invoiceSlip(TestOrder $order)
     ]);
 
     // Branch restriction
-    if ($user->category === 'branch') {
-        $branchId = optional($user->branch)->id;
-        if (!$branchId || ($order->customer?->created_by_branch_id ?? null) !== $branchId) {
-            abort(403);
-        }
-    }
+    // if ($user->category === 'branch') {
+    //     $branchId = optional($user->branch)->id;
+    //     if (!$branchId || ($order->customer?->created_by_branch_id ?? null) !== $branchId) {
+    //         abort(403);
+    //     }
+    // }
 
     // Customer restriction
     if ($user->category === 'customer') {
@@ -335,9 +335,9 @@ public function thermalReceipt(TestOrder $order)
     $user = auth()->user();
     if (!$user) abort(401);
 
-    if (!in_array($user->category, ['admin', 'branch', 'customer'], true)) {
-        abort(403);
-    }
+    // if (!in_array($user->category, ['admin', 'branch', 'customer'], true)) {
+    //     abort(403);
+    // }
 
     $order->load([
         'customer.user',
@@ -347,12 +347,12 @@ public function thermalReceipt(TestOrder $order)
     ]);
 
     // Branch restriction
-    if ($user->category === 'branch') {
-        $branchId = optional($user->branch)->id;
-        if (!$branchId || ($order->customer?->created_by_branch_id ?? null) !== $branchId) {
-            abort(403);
-        }
-    }
+    // if ($user->category === 'branch') {
+    //     $branchId = optional($user->branch)->id;
+    //     if (!$branchId || ($order->customer?->created_by_branch_id ?? null) !== $branchId) {
+    //         abort(403);
+    //     }
+    // }
 
     // Customer restriction
     if ($user->category === 'customer') {
