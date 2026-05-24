@@ -229,25 +229,6 @@
                                     </div>
                                 </div>
 
-                                <div style="margin-top:12px;">
-                                    <label>Preview: Tests & Subtests that will be added</label>
-                                    <div class="small" style="margin-bottom:8px;">These will be inserted as individual rows. Charge will be based on the selected test type.</div>
-
-                                    <table id="previewTable-{{ $order->id }}">
-                                        <thead>
-                                        <tr>
-                                            <th style="width:14%;">Kind</th>
-                                            <th>Name</th>
-                                            <th style="width:18%;">Unit</th>
-                                            <th style="width:28%;">Reference Range</th>
-                                        </tr>
-                                        </thead>
-                                        <tbody class="previewBody">
-                                            <tr><td colspan="4" class="muted">Select a test type to preview items.</td></tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-
                                 <div style="margin-top:10px;">
                                     <button class="btn btn-primary" type="submit">Add to Order</button>
                                 </div>
@@ -515,9 +496,8 @@
         const typeIdInput = details.querySelector('.typeIdInput');
         const typeNameInput = details.querySelector('.typeSelectedName');
         const priceHint = details.querySelector('.typePriceHint');
-        const previewBody = details.querySelector('.previewBody');
 
-        if(!searchInput || !dropdown || !typeIdInput || !typeNameInput || !previewBody) return;
+        if(!searchInput || !dropdown || !typeIdInput || !typeNameInput) return;
 
         function renderDropdown(filterText){
             const q = (filterText || '').trim().toLowerCase();
@@ -546,59 +526,10 @@
             });
         }
 
-        function buildPreviewRows(type){
-            previewBody.innerHTML = '';
-
-            if(!type){
-                previewBody.innerHTML = `<tr><td colspan="4" class="muted">Select a test type to preview items.</td></tr>`;
-                return;
-            }
-
-            const rows = [];
-            (type.tests || []).forEach(test => {
-                rows.push({
-                    kind: 'TEST',
-                    name: test.name,
-                    unit: test.unit || '-',
-                    ref: test.reference_range || '-',
-                    sort: 0
-                });
-
-                (test.subtests || []).forEach(st => {
-                    rows.push({
-                        kind: 'SUBTEST',
-                        name: st.name,
-                        unit: st.unit || '-',
-                        ref: st.reference_range || '-',
-                        sort: Number(st.sort_order || 0)
-                    });
-                });
-            });
-
-            if(rows.length === 0){
-                previewBody.innerHTML = `<tr><td colspan="4" class="muted">No tests found in this type.</td></tr>`;
-                return;
-            }
-
-            rows.forEach(r => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td><span class="param-pill">${escapeHtml(r.kind)}</span></td>
-                    <td style="font-weight:900;color:#0f172a;">${escapeHtml(r.name)}</td>
-                    <td>${escapeHtml(r.unit)}</td>
-                    <td style="white-space:pre-wrap;">${escapeHtml(r.ref)}</td>
-                `;
-                previewBody.appendChild(tr);
-            });
-        }
-
         function selectType(type){
             typeIdInput.value = type.id;
             typeNameInput.value = type.name;
             if(priceHint) priceHint.textContent = `Selected Type Price: PKR ${money(type.price)} (charge at type level)`;
-
-            buildPreviewRows(type);
-
             dropdown.classList.remove('open');
         }
 
@@ -619,7 +550,6 @@
         });
 
         renderDropdown('');
-        buildPreviewRows(null);
     });
 
     document.querySelectorAll('.discountType').forEach(sel => {
