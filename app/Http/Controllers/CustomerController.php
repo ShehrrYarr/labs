@@ -53,9 +53,12 @@ public function __construct()
 //     }
 
 
-public function index()
+public function index(Request $request)
 {
     $user = auth()->user();
+
+    $fromDate = $request->input('from_date');
+    $toDate   = $request->input('to_date');
 
     $query = Customer::query()
         ->with(['user', 'createdByBranch'])
@@ -65,7 +68,6 @@ public function index()
                 ->orderByDesc('created_at')
                 ->limit(1),
         ])
-        // latest orders first, customers with no orders go last automatically (NULLs last in DESC)
         ->orderByDesc('latest_order_at')
         ->orderByDesc('customers.id');
 
@@ -75,13 +77,20 @@ public function index()
         $query->where('created_by_branch_id', $branchId);
     }
 
-    $customers = $query->paginate(10);
-
-    if ($user->category === 'branch') {
-        return view('branches.customers.index', compact('customers'));
+    if ($fromDate) {
+        $query->whereDate('customers.created_at', '>=', $fromDate);
+    }
+    if ($toDate) {
+        $query->whereDate('customers.created_at', '<=', $toDate);
     }
 
-    return view('customers.index', compact('customers'));
+    $customers = $query->paginate(15)->appends($request->only(['from_date', 'to_date']));
+
+    if ($user->category === 'branch') {
+        return view('branches.customers.index', compact('customers', 'fromDate', 'toDate'));
+    }
+
+    return view('customers.index', compact('customers', 'fromDate', 'toDate'));
 }
 
     public function create()

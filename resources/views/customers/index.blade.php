@@ -76,6 +76,41 @@
     }
     .clear-btn:hover{transform:translateY(-1px);box-shadow:0 10px 18px rgba(0,0,0,.08)}
     .hidden{display:none!important;}
+
+    /* Date filter */
+    .date-filter-wrap{
+        margin-top:10px;
+        display:flex;
+        gap:8px;
+        align-items:center;
+        flex-wrap:wrap;
+        background:#f8fafc;
+        border:1px solid #e5e7eb;
+        padding:10px 12px;
+        border-radius:12px;
+    }
+    .date-filter-wrap label{
+        font-size:13px;font-weight:700;color:#374151;white-space:nowrap;
+    }
+    .date-input{
+        border:1px solid #e5e7eb;border-radius:8px;padding:7px 10px;
+        font-size:13px;outline:none;background:#fff;
+    }
+    .date-input:focus{border-color:rgba(37,99,235,.55);box-shadow:0 0 0 3px rgba(37,99,235,.12);}
+    .filter-btn{
+        background:linear-gradient(135deg,#2563eb,#1e40af);color:#fff;
+        padding:8px 16px;border-radius:8px;border:none;cursor:pointer;
+        font-weight:800;font-size:13px;
+    }
+    .filter-clear{
+        background:#fee2e2;color:#991b1b;
+        padding:8px 14px;border-radius:8px;text-decoration:none;
+        font-weight:800;font-size:13px;
+    }
+    .filter-active-chip{
+        background:#fef3c7;color:#92400e;border:1px solid #fde68a;
+        padding:4px 10px;border-radius:999px;font-size:12px;font-weight:900;
+    }
 </style>
 
 <div class="app-content content">
@@ -111,6 +146,23 @@
                 <span id="matchChip" class="chip hidden">0 matches</span>
                 <button id="clearSearch" class="clear-btn hidden" type="button">Clear</button>
             </div>
+
+            {{-- Date Filter --}}
+            <form method="GET" action="{{ route('customers.index') }}" class="date-filter-wrap">
+                <label>From:</label>
+                <input type="date" name="from_date" class="date-input" value="{{ $fromDate ?? '' }}">
+                <label>To:</label>
+                <input type="date" name="to_date" class="date-input" value="{{ $toDate ?? '' }}">
+                <button type="submit" class="filter-btn">Filter</button>
+                @if($fromDate || $toDate)
+                    <a href="{{ route('customers.index') }}" class="filter-clear">Clear Filter</a>
+                    <span class="filter-active-chip">
+                        {{ $fromDate ? \Carbon\Carbon::parse($fromDate)->format('d M Y') : '...' }}
+                        &rarr;
+                        {{ $toDate ? \Carbon\Carbon::parse($toDate)->format('d M Y') : '...' }}
+                    </span>
+                @endif
+            </form>
 
             <table>
                 <thead>
