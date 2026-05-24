@@ -63,6 +63,19 @@
     .param-table th, .param-table td{padding:10px}
     .param-pill{display:inline-flex;gap:6px;align-items:center;border:1px solid #e5e7eb;background:#f8fafc;border-radius:999px;padding:4px 10px;font-size:12px;font-weight:900;color:#0f172a}
 
+    /* type result groups */
+    .type-result-group{border:1px solid #e5e7eb;border-radius:12px;margin-bottom:14px;overflow:hidden;}
+    .type-result-header{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#f8fafc;border-bottom:1px solid #e5e7eb;}
+    .type-result-header .type-result-name{font-weight:950;font-size:14px;color:#0f172a;}
+    .result-table{width:100%;border-collapse:collapse;}
+    .result-table th{background:#f1f5f9;text-align:left;padding:9px 12px;font-size:12px;color:#475569;}
+    .result-table td{padding:9px 12px;border-bottom:1px solid #f1f5f9;vertical-align:top;}
+    .result-table textarea{width:100%;border:1px solid #e5e7eb;border-radius:8px;padding:6px 8px;font-size:12px;min-height:44px;resize:vertical;outline:none;background:#fff;box-sizing:border-box;}
+    .result-table textarea:focus{border-color:rgba(37,99,235,.55);box-shadow:0 0 0 3px rgba(37,99,235,.10);}
+    .result-actions{display:flex;gap:10px;padding:10px 14px;background:#fafafa;border-top:1px solid #e5e7eb;}
+    .pill-ready{background:#dcfce7!important;color:#166534!important;border-color:#bbf7d0!important;}
+    .pill-processing{background:#fef9c3!important;color:#854d0e!important;border-color:#fde68a!important;}
+
     /* type cards */
     .types-grid{
         display:grid;
@@ -242,101 +255,132 @@
 
                             <div class="divider"></div>
 
-                            <h4 style="margin:0 0 8px;">Assigned Items</h4>
+                            <h4 style="margin:0 0 8px;">Assigned Tests</h4>
 
-                            <table>
-                                <thead>
-                                <tr>
-                                    <th>Item</th>
-                                    <th>Kind</th>
-                                    <th>Price</th>
-                                    <th>Status</th>
-                                    <th>Result</th>
-                                    <th style="width:320px;">Actions</th>
-                                </tr>
-                                </thead>
-                                <tbody>
+                            @php
+                                $typeNameMap  = collect($typesForJs)->keyBy('id');
+                                $groupedItems = $displayItems->groupBy('test_type_id');
+                            @endphp
+
+                            @forelse($groupedItems as $gTypeId => $gTypeItems)
                                 @php
-                                    // ✅ USE PURE INSERTION ORDER HERE TOO
-                                    $assigned = $displayItems;
+                                    $typeName    = $typeNameMap[$gTypeId]['name'] ?? ('Type #'.$gTypeId);
+                                    $resultItems = $gTypeItems->where('item_kind', '!=', 'charge')->values();
+                                    $allReady    = $resultItems->count() > 0
+                                                   && $resultItems->every(fn($i) => $i->result_status === 'ready');
                                 @endphp
 
-                                @forelse($assigned as $it)
-                                    <tr>
-                                        <td>
-                                            <div style="font-weight:900;color:#0f172a;">{{ $it->test_name_snapshot }}</div>
-                                            <div class="small">
-                                                Code: {{ $it->test_code_snapshot ?? '-' }}
-                                                @if(!empty($it->unit_snapshot)) • Unit: {{ $it->unit_snapshot }} @endif
-                                            </div>
-                                            @if(!empty($it->reference_range_snapshot))
-                                                <div class="small" style="white-space:pre-wrap;">Ref: {{ $it->reference_range_snapshot }}</div>
-                                            @endif
-                                        </td>
+                                <div class="type-result-group">
+                                    <div class="type-result-header">
+                                        <span class="type-result-name">{{ $typeName }}</span>
+                                        @if($allReady)
+                                            <span class="badge b-paid">ALL READY</span>
+                                        @endif
+                                    </div>
 
-                                        <td>
-                                            <span class="param-pill">{{ strtoupper($it->item_kind ?? '-') }}</span>
-                                            @if(!empty($it->test_type_id))
-                                                <div class="small">Type ID: {{ $it->test_type_id }}</div>
-                                            @endif
-                                        </td>
+                                    @if(auth()->user()->category === 'admin')
+                                    <form method="POST"
+                                          action="{{ route('customers.orders.type.result', ['customer' => $customer->id, 'order' => $order->id]) }}">
+                                        @csrf
+                                        <input type="hidden" name="test_type_id" value="{{ $gTypeId }}">
+                                        <input type="hidden" name="mark_ready" class="markReadyInput" value="0">
 
-                                        <td>{{ number_format((float)($it->price_snapshot ?? 0), 2) }}</td>
+                                        <table class="result-table">
+                                            <thead>
+                                                <tr>
+                                                    <th style="width:28%;">Test Parameter</th>
+                                                    <th style="width:32%;">Result</th>
+                                                    <th style="width:25%;">Notes</th>
+                                                    <th style="width:15%;">Status</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                            @foreach($resultItems as $idx => $it)
+                                                <input type="hidden" name="items[{{ $idx }}][id]" value="{{ $it->id }}">
+                                                <tr>
+                                                    <td>
+                                                        <div style="font-weight:900;color:#0f172a;">{{ $it->test_name_snapshot }}</div>
+                                                        @if($it->unit_snapshot)
+                                                            <div class="small">Unit: {{ $it->unit_snapshot }}</div>
+                                                        @endif
+                                                        @if($it->reference_range_snapshot)
+                                                            <div class="small" style="white-space:pre-wrap;">Ref: {{ \Illuminate\Support\Str::limit($it->reference_range_snapshot, 80) }}</div>
+                                                        @endif
+                                                    </td>
+                                                    <td>
+                                                        <textarea name="items[{{ $idx }}][result_text]"
+                                                                  placeholder="Result value...">{{ $it->result_text }}</textarea>
+                                                    </td>
+                                                    <td>
+                                                        <textarea name="items[{{ $idx }}][result_notes]"
+                                                                  placeholder="Notes (optional)...">{{ $it->result_notes }}</textarea>
+                                                    </td>
+                                                    <td>
+                                                        @php $rs = $it->result_status ?? 'pending'; @endphp
+                                                        <span class="param-pill {{ $rs === 'ready' ? 'pill-ready' : ($rs === 'processing' ? 'pill-processing' : '') }}">
+                                                            {{ strtoupper($rs) }}
+                                                        </span>
+                                                        @if($it->result_posted_at)
+                                                            <div class="small">{{ optional($it->result_posted_at)->format('d-m-Y H:i') }}</div>
+                                                        @endif
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                            </tbody>
+                                        </table>
 
-                                        <td>
-                                            <b>{{ $it->result_status ?? 'pending' }}</b>
-                                            @if($it->result_posted_at)
-                                                <div class="small">
-                                                    Updated: {{ optional($it->result_posted_at)->format('Y-m-d H:i') }}
-                                                    @if($it->resultPostedByUser)
-                                                        • By: {{ $it->resultPostedByUser->name }}
-                                                    @endif
-                                                </div>
-                                            @endif
-                                        </td>
-
-                                        <td>
-                                            @if(!empty($it->result_text))
-                                                <div style="white-space:pre-wrap;">{{ \Illuminate\Support\Str::limit($it->result_text, 180) }}</div>
-                                            @else
-                                                <span class="small">No result yet.</span>
-                                            @endif
-                                            @if(!empty($it->result_notes))
-                                                <div class="small" style="margin-top:4px;white-space:pre-wrap;color:#374151;"><b>Notes:</b> {{ \Illuminate\Support\Str::limit($it->result_notes, 180) }}</div>
-                                            @endif
-                                        </td>
-
-                                        <td>
-                                            @if(auth()->user()->category === 'admin')
-                                                <form method="POST"
-                                                      action="{{ route('customers.orders.items.result', ['customer' => $customer->id, 'order' => $order->id, 'item' => $it->id]) }}">
-                                                    @csrf
-
-                                                    <div style="display:grid;grid-template-columns:1fr 120px;gap:8px;">
-                                                        <div style="display:flex;flex-direction:column;gap:6px;">
-                                                            <textarea name="result_text" placeholder="Result value..." style="min-height:55px;">{{ $it->result_text }}</textarea>
-                                                            <textarea name="result_notes" placeholder="Notes (optional additional info)..." style="min-height:45px;">{{ $it->result_notes }}</textarea>
-                                                        </div>
-                                                        <div>
-                                                            <select name="result_status" required>
-                                                                <option value="pending" {{ ($it->result_status ?? '') === 'pending' ? 'selected' : '' }}>Pending</option>
-                                                                <option value="processing" {{ ($it->result_status ?? '') === 'processing' ? 'selected' : '' }}>Processing</option>
-                                                                <option value="ready" {{ ($it->result_status ?? '') === 'ready' ? 'selected' : '' }}>Ready</option>
-                                                            </select>
-                                                            <button class="btn btn-primary" type="submit" style="margin-top:8px;width:100%;">Save</button>
-                                                        </div>
-                                                    </div>
-                                                </form>
-                                            @else
-                                                <span class="small">View only</span>
-                                            @endif
-                                        </td>
-                                    </tr>
-                                @empty
-                                    <tr><td colspan="6">No items assigned yet.</td></tr>
-                                @endforelse
-                                </tbody>
-                            </table>
+                                        <div class="result-actions">
+                                            <button type="submit" class="btn btn-ghost"
+                                                    onclick="this.form.querySelector('.markReadyInput').value='0';">
+                                                Save (Processing)
+                                            </button>
+                                            <button type="submit" class="btn btn-primary"
+                                                    onclick="this.form.querySelector('.markReadyInput').value='1';">
+                                                Mark {{ $typeName }} Ready ✓
+                                            </button>
+                                        </div>
+                                    </form>
+                                    @else
+                                        <table class="result-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Test Parameter</th>
+                                                    <th>Result</th>
+                                                    <th>Status</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                            @foreach($resultItems as $it)
+                                                <tr>
+                                                    <td>
+                                                        <div style="font-weight:900;">{{ $it->test_name_snapshot }}</div>
+                                                        @if($it->unit_snapshot)<div class="small">Unit: {{ $it->unit_snapshot }}</div>@endif
+                                                    </td>
+                                                    <td>
+                                                        @if($it->result_text)
+                                                            <div style="white-space:pre-wrap;">{{ $it->result_text }}</div>
+                                                        @else
+                                                            <span class="small">No result yet.</span>
+                                                        @endif
+                                                        @if($it->result_notes)
+                                                            <div class="small" style="color:#374151;"><b>Notes:</b> {{ $it->result_notes }}</div>
+                                                        @endif
+                                                    </td>
+                                                    <td>
+                                                        @php $rs = $it->result_status ?? 'pending'; @endphp
+                                                        <span class="param-pill {{ $rs === 'ready' ? 'pill-ready' : ($rs === 'processing' ? 'pill-processing' : '') }}">
+                                                            {{ strtoupper($rs) }}
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                            </tbody>
+                                        </table>
+                                    @endif
+                                </div>
+                            @empty
+                                <div class="muted">No tests assigned yet.</div>
+                            @endforelse
 
                             <div class="divider"></div>
 

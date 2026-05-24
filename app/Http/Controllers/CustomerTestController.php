@@ -335,6 +335,52 @@ public function index(Customer $customer)
 }
 
 
+public function postTypeResult(Request $request, Customer $customer, TestOrder $order)
+{
+    if (auth()->user()->category !== 'admin') {
+        abort(403, 'Only admin can post results.');
+    }
+
+    $data = $request->validate([
+        'test_type_id'          => ['required', 'integer'],
+        'mark_ready'            => ['required', 'boolean'],
+        'items'                 => ['required', 'array'],
+        'items.*.id'            => ['required', 'integer'],
+        'items.*.result_text'   => ['nullable', 'string', 'max:10000'],
+        'items.*.result_notes'  => ['nullable', 'string', 'max:5000'],
+    ]);
+
+    $status = $data['mark_ready'] ? 'ready' : 'processing';
+    $authId = auth()->id();
+    $now    = now();
+
+    DB::transaction(function () use ($data, $order, $status, $authId, $now) {
+        foreach ($data['items'] as $itemData) {
+            $item = $order->items()
+                ->where('id', $itemData['id'])
+                ->where('item_kind', '!=', 'charge')
+                ->first();
+            if (!$item) continue;
+            $item->update([
+                'result_text'              => $itemData['result_text'] ?? null,
+                'result_notes'             => $itemData['result_notes'] ?? null,
+                'result_status'            => $status,
+                'result_posted_at'         => $now,
+                'result_posted_by_user_id' => $authId,
+            ]);
+        }
+    });
+
+    $order->load('items');
+    $nonCharge = $order->items->where('item_kind', '!=', 'charge');
+    $allReady  = $nonCharge->count() > 0 && $nonCharge->every(fn($i) => $i->result_status === 'ready');
+    $order->update(['status' => $allReady ? 'results_posted' : 'in_progress']);
+
+    return redirect()
+        ->to(route('customers.tests', $customer) . '?open_order=' . $order->id)
+        ->with('success', 'Results saved.');
+}
+
   private function recalculateInvoice(TestOrder $order): void
 {
     $order->loadMissing(['items', 'invoice.payments']);

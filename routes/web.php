@@ -45,6 +45,8 @@ Route::post('customers/{customer}/orders/{order}/discount', [CustomerTestControl
 Route::post('customers/{customer}/orders/{order}/payments', [CustomerTestController::class, 'storePayment'])->name('customers.orders.payments.store');
 Route::post('customers/{customer}/orders/{order}/items/{item}/result', [CustomerTestController::class, 'postResult'])
     ->name('customers.orders.items.result');
+Route::post('customers/{customer}/orders/{order}/type-result', [CustomerTestController::class, 'postTypeResult'])
+    ->name('customers.orders.type.result');
 
 // Reports
 Route::get('/orders/{order}/report', [OrderReportController::class, 'single'])->name('orders.report.single');
