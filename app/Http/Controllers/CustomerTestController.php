@@ -113,12 +113,20 @@ public function index(Customer $customer)
         ->latest()
         ->get();
 
-    $types = TestType::where('is_active', true)->orderBy('name')->get();
+    $types = TestType::where('is_active', true)
+        ->with(['labTests' => function ($q) {
+            $q->where('is_active', true)
+              ->orderBy('sort_order')
+              ->orderBy('test_name');
+        }])
+        ->orderBy('name')
+        ->get();
 
     $typesForJs = $types->map(fn($tp) => [
         'id'    => $tp->id,
         'name'  => $tp->name,
         'price' => (float) ($tp->price ?? 0),
+        'tests' => $tp->labTests->pluck('test_name')->values(),
     ])->values();
 
     if (auth()->user()->category === 'branch') {

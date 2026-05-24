@@ -63,23 +63,40 @@
     .param-table th, .param-table td{padding:10px}
     .param-pill{display:inline-flex;gap:6px;align-items:center;border:1px solid #e5e7eb;background:#f8fafc;border-radius:999px;padding:4px 10px;font-size:12px;font-weight:900;color:#0f172a}
 
-    /* type search */
-    .typeSearchWrap{position:relative}
-    .typeDropdown{
-        position:absolute;z-index:20;left:0;right:0;top:100%;
-        background:#fff;border:1px solid #e5e7eb;border-radius:12px;
-        margin-top:6px;max-height:220px;overflow:auto;display:none;
-        box-shadow:0 12px 26px rgba(0,0,0,.10)
+    /* type cards */
+    .types-grid{
+        display:grid;
+        grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
+        gap:10px;
+        margin-top:10px;
     }
-    .typeDropdown.open{display:block}
-    .typeOpt{
-        padding:10px 12px;cursor:pointer;border-bottom:1px solid #f1f5f9;
-        display:flex;justify-content:space-between;gap:10px;align-items:center
+    .type-card{
+        border:1.5px solid #e5e7eb;border-radius:12px;
+        padding:12px;background:#fff;cursor:pointer;
+        transition:all .2s ease;position:relative;
     }
-    .typeOpt:hover{background:#f8fafc}
-    .typeOpt:last-child{border-bottom:0}
-    .typeName{font-weight:900;color:#0f172a}
-    .typePrice{font-size:12px;color:#64748b;font-weight:900}
+    .type-card:hover{
+        border-color:#2563eb;
+        box-shadow:0 6px 18px rgba(37,99,235,.15);
+        transform:translateY(-2px);
+    }
+    .type-card-name{font-weight:950;font-size:14px;color:#0f172a;margin-bottom:4px;}
+    .type-card-price{font-size:12px;font-weight:900;color:#2563eb;margin-bottom:6px;}
+    .type-card-tests{font-size:11px;color:#64748b;line-height:1.4;}
+    .type-card-btn{
+        display:block;width:100%;margin-top:10px;
+        padding:7px 0;border-radius:8px;border:0;cursor:pointer;
+        background:linear-gradient(135deg,#2563eb,#1e40af);color:#fff;
+        font-weight:900;font-size:13px;
+        transition:all .2s ease;
+    }
+    .type-card-btn:hover{box-shadow:0 6px 14px rgba(37,99,235,.35);}
+    .type-search-bar{
+        width:100%;border:1px solid #e5e7eb;border-radius:10px;
+        padding:9px 12px;font-size:14px;outline:none;background:#fff;
+        transition:all .2s ease;box-sizing:border-box;
+    }
+    .type-search-bar:focus{border-color:rgba(37,99,235,.6);box-shadow:0 0 0 4px rgba(37,99,235,.12);}
 </style>
 
 <div class="app-content content">
@@ -207,31 +224,20 @@
                         <div class="order-details" id="{{ $detailsId }}">
                             <div class="divider"></div>
 
-                            <h4 style="margin:0 0 8px;">Assign by Test Type</h4>
+                            <h4 style="margin:0 0 8px;">Assign Tests</h4>
+
+                            <input type="text"
+                                   class="type-search-bar typeFilterInput"
+                                   placeholder="Filter test types..."
+                                   autocomplete="off">
 
                             <form method="POST"
+                                  class="typeForm"
                                   action="{{ route('customers.orders.items.store', ['customer' => $customer->id, 'order' => $order->id]) }}">
                                 @csrf
+                                <input type="hidden" name="test_type_id" class="typeIdInput" required>
 
-                                <div class="row2">
-                                    <div class="typeSearchWrap">
-                                        <label>Search Test Type</label>
-                                        <input type="text" class="typeSearchInput" placeholder="Search test type (e.g. CBC, PCR...)" autocomplete="off">
-                                        <div class="typeDropdown"></div>
-                                        <div class="small">Click a type from the list.</div>
-                                    </div>
-
-                                    <div>
-                                        <label>Selected Test Type</label>
-                                        <input type="hidden" name="test_type_id" class="typeIdInput" required>
-                                        <input type="text" class="typeSelectedName" placeholder="No type selected" readonly>
-                                        <div class="small typePriceHint">Price is charged at type level.</div>
-                                    </div>
-                                </div>
-
-                                <div style="margin-top:10px;">
-                                    <button class="btn btn-primary" type="submit">Add to Order</button>
-                                </div>
+                                <div class="types-grid typeCardsGrid" style="margin-top:10px;"></div>
                             </form>
 
                             <div class="divider"></div>
@@ -482,80 +488,62 @@
 
     const typesData = @json($typesForJs);
 
-    function money(n){
-        const x = Number(n || 0);
-        return x.toFixed(2);
-    }
+    function money(n){ return Number(n || 0).toFixed(2); }
 
     function escapeHtml(s){
         return String(s ?? '')
-            .replaceAll('&', '&amp;')
-            .replaceAll('<', '&lt;')
-            .replaceAll('>', '&gt;')
-            .replaceAll('"', '&quot;')
-            .replaceAll("'", '&#039;');
+            .replaceAll('&','&amp;').replaceAll('<','&lt;')
+            .replaceAll('>','&gt;').replaceAll('"','&quot;')
+            .replaceAll("'",'&#039;');
+    }
+
+    function renderTypeCards(grid, filterInput, typeIdInput, form){
+        const q = (filterInput.value || '').trim().toLowerCase();
+        const list = typesData.filter(t => !q || t.name.toLowerCase().includes(q));
+
+        grid.innerHTML = '';
+
+        if(list.length === 0){
+            grid.innerHTML = '<div class="small" style="color:#64748b;">No matching test types.</div>';
+            return;
+        }
+
+        list.forEach(t => {
+            const testsText = (t.tests && t.tests.length)
+                ? t.tests.join(', ')
+                : 'No tests listed';
+
+            const card = document.createElement('div');
+            card.className = 'type-card';
+            card.innerHTML = `
+                <div class="type-card-name">${escapeHtml(t.name)}</div>
+                <div class="type-card-price">PKR ${money(t.price)}</div>
+                <div class="type-card-tests">${escapeHtml(testsText)}</div>
+                <button class="type-card-btn" type="button">+ Add to Order</button>
+            `;
+
+            card.querySelector('.type-card-btn').addEventListener('click', () => {
+                typeIdInput.value = t.id;
+                form.submit();
+            });
+
+            grid.appendChild(card);
+        });
     }
 
     document.querySelectorAll('.order-details').forEach(details => {
-        const searchInput = details.querySelector('.typeSearchInput');
-        const dropdown = details.querySelector('.typeDropdown');
+        const filterInput = details.querySelector('.typeFilterInput');
+        const grid        = details.querySelector('.typeCardsGrid');
         const typeIdInput = details.querySelector('.typeIdInput');
-        const typeNameInput = details.querySelector('.typeSelectedName');
-        const priceHint = details.querySelector('.typePriceHint');
+        const form        = details.querySelector('.typeForm');
 
-        if(!searchInput || !dropdown || !typeIdInput || !typeNameInput) return;
+        if(!filterInput || !grid || !typeIdInput || !form) return;
 
-        function renderDropdown(filterText){
-            const q = (filterText || '').trim().toLowerCase();
-            const list = typesData.filter(t => !q || String(t.name || '').toLowerCase().includes(q));
+        renderTypeCards(grid, filterInput, typeIdInput, form);
 
-            dropdown.innerHTML = '';
-
-            if(list.length === 0){
-                const div = document.createElement('div');
-                div.className = 'typeOpt';
-                div.innerHTML = '<span class="typeName">No match</span><span class="typePrice"></span>';
-                dropdown.appendChild(div);
-                return;
-            }
-
-            list.forEach(t => {
-                const div = document.createElement('div');
-                div.className = 'typeOpt';
-                div.dataset.id = t.id;
-                div.innerHTML = `
-                    <span class="typeName">${escapeHtml(t.name)}</span>
-                    <span class="typePrice">PKR ${money(t.price)}</span>
-                `;
-                div.addEventListener('click', () => selectType(t));
-                dropdown.appendChild(div);
-            });
-        }
-
-        function selectType(type){
-            typeIdInput.value = type.id;
-            typeNameInput.value = type.name;
-            if(priceHint) priceHint.textContent = `Selected Type Price: PKR ${money(type.price)} (charge at type level)`;
-            dropdown.classList.remove('open');
-        }
-
-        searchInput.addEventListener('focus', () => {
-            dropdown.classList.add('open');
-            renderDropdown(searchInput.value);
+        filterInput.addEventListener('input', () => {
+            renderTypeCards(grid, filterInput, typeIdInput, form);
         });
-
-        searchInput.addEventListener('input', () => {
-            dropdown.classList.add('open');
-            renderDropdown(searchInput.value);
-        });
-
-        document.addEventListener('click', (e) => {
-            if(!details.contains(e.target)) return;
-            if(e.target === searchInput || dropdown.contains(e.target)) return;
-            dropdown.classList.remove('open');
-        });
-
-        renderDropdown('');
     });
 
     document.querySelectorAll('.discountType').forEach(sel => {
