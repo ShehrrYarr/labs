@@ -5,95 +5,78 @@
     <title>Invoice Slip #{{ $order->id }}</title>
 
     <style>
-        @page { margin: 18px; }
+        @page { margin: 12px; }
         body {
             margin: 0;
             font-family: DejaVu Sans, Arial, sans-serif;
-            font-size: 12px;
+            font-size: 11px;
             color: #111;
             background: #fff;
         }
 
-        .logo-wrap { text-align:center; margin-bottom: 10px; }
-        .logo { width: 260px; max-width: 100%; height: auto; }
-
-        .copy {
-            border: 1px solid #111;
-            padding: 10px 12px;
-            border-radius: 6px;
-            margin-bottom: 14px;
+        .header {
+            text-align: center;
+            margin-bottom: 8px;
+            padding-bottom: 7px;
+            border-bottom: 1px solid #999;
         }
+        .header-logo { max-width: 180px; max-height: 55px; height: auto; display: block; margin: 0 auto 3px; }
+        .header-name  { font-size: 14px; font-weight: 900; }
+        .header-detail { font-size: 9px; color: #555; }
+
+        .copies-table { width: 100%; border-collapse: collapse; }
+        .copy-cell { width: 50%; vertical-align: top; padding: 0 8px; }
 
         .copy-title {
             font-weight: 900;
             text-transform: uppercase;
-            font-size: 12px;
-            letter-spacing: .6px;
-            margin-bottom: 8px;
+            font-size: 10.5px;
+            letter-spacing: .5px;
+            margin-bottom: 5px;
+            border-bottom: 1px solid #111;
+            padding-bottom: 3px;
         }
-
-        .row { display: table; width: 100%; }
-        .col { display: table-cell; vertical-align: top; width: 50%; }
 
         .meta { width: 100%; border-collapse: collapse; }
-        .meta td { padding: 2px 0; vertical-align: top; }
-        .label { font-weight: 800; width: 110px; }
+        .meta td { padding: 1px 0; vertical-align: top; font-size: 10px; }
+        .label { font-weight: 800; width: 78px; }
 
-        .tbl {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
-        .tbl th {
-            text-align: left;
-            border-bottom: 1px solid #111;
-            padding: 6px 4px;
-            font-size: 12px;
-        }
-        .tbl td {
-            padding: 6px 4px;
-            border-bottom: 1px solid #ddd;
-            vertical-align: top;
-        }
+        .tbl { width: 100%; border-collapse: collapse; margin-top: 5px; }
+        .tbl th { text-align: left; border-bottom: 1px solid #111; padding: 3px 2px; font-size: 10px; }
+        .tbl td { padding: 3px 2px; border-bottom: 1px solid #ddd; font-size: 10px; }
 
-        .right { text-align:right; }
-        .muted { color:#444; font-size:11px; }
+        .right { text-align: right; }
+        .muted { color: #444; }
 
-        .summary { width: 100%; border-collapse: collapse; margin-top: 8px; }
-        .summary td { padding: 2px 0; }
+        .summary { width: 100%; border-collapse: collapse; margin-top: 4px; }
+        .summary td { padding: 1px 0; font-size: 10px; }
 
-        .status {
-            margin-top: 8px;
-            text-align: center;
-            font-weight: 900;
-            font-size: 14px;
-            letter-spacing: 1px;
-        }
+        .status { margin-top: 5px; text-align: center; font-weight: 900; font-size: 12px; letter-spacing: 1px; }
 
-        .divider-cut { border-top: 2px dashed #111; margin: 18px 0; }
+        .login-box { margin-top: 5px; border-top: 1px dashed #bbb; padding-top: 4px; }
+        .login-title { font-weight: 900; font-size: 10px; margin-bottom: 2px; }
     </style>
 </head>
 <body>
 
 @php
     $customer = $order->customer;
-    $cu = $customer?->user;
-    $status = strtoupper($invoice->status ?? 'unpaid');
+    $cu       = $customer?->user;
+    $status   = strtoupper($invoice->status ?? 'unpaid');
+    $slipLogoB64 = $setting->logoBase64();
 @endphp
 
-<div class="logo-wrap">
-    @php $slipLogoB64 = $setting->logoBase64(); @endphp
+{{-- Header --}}
+<div class="header">
     @if($slipLogoB64)
-        <img class="logo" src="{{ $slipLogoB64 }}" alt="Logo">
-    @else
-        <div style="font-weight:900;font-size:18px;">{{ $setting->lab_name }}</div>
+        <img class="header-logo" src="{{ $slipLogoB64 }}" alt="Logo">
     @endif
-    <div style="font-size:11px;color:#374151;margin-top:3px;">{{ $setting->lab_name }}</div>
+    <div class="header-name">{{ $setting->lab_name }}</div>
     @if($setting->lab_address)
-        <div style="font-size:10px;color:#555;">{{ $setting->lab_address }}</div>
+        <div class="header-detail">{{ $setting->lab_address }}</div>
     @endif
     @if($setting->lab_phone || $setting->lab_email)
-        <div style="font-size:10px;color:#555;">
+        <div class="header-detail">
             @if($setting->lab_phone){{ $setting->lab_phone }}@endif
             @if($setting->lab_phone && $setting->lab_email) &nbsp;|&nbsp; @endif
             @if($setting->lab_email){{ $setting->lab_email }}@endif
@@ -101,125 +84,113 @@
     @endif
 </div>
 
-{{-- CUSTOMER COPY --}}
-<div class="copy">
-    <div class="copy-title">Customer Copy</div>
+{{-- Two copies side by side --}}
+<table class="copies-table">
+    <tr>
 
-    <div class="row">
-        <div class="col">
+        {{-- ── CUSTOMER COPY ── --}}
+        <td class="copy-cell">
+            <div class="copy-title">Customer Copy</div>
+
             <table class="meta">
-                <tr><td class="label">Panel:</td><td>{{ $labName ?? 'Al Ghani Labs' }}</td></tr>
-                <tr><td class="label">Lab #:</td><td>{{ str_pad((string)$order->id, 4, '0', STR_PAD_LEFT) }}</td></tr>
-                <tr><td class="label">Created:</td><td>{{ optional($order->created_at)->format('d-m-Y h:i A') }}</td></tr>
-            </table>
-        </div>
-        <div class="col">
-            <table class="meta">
+                <tr><td class="label">Panel:</td>   <td>{{ $labName ?? $setting->lab_name }}</td></tr>
+                <tr><td class="label">Lab #:</td>   <td>{{ str_pad((string)$order->id, 4, '0', STR_PAD_LEFT) }}</td></tr>
+                <tr><td class="label">Date:</td>    <td>{{ optional($order->created_at)->format('d-m-Y h:i A') }}</td></tr>
                 <tr><td class="label">Customer:</td><td>{{ $cu?->name ?? '-' }}</td></tr>
-                <tr><td class="label">Age:</td><td>{{ $customer?->display_age ?? '-' }}</td></tr>
-                <tr><td class="label">Phone:</td><td>{{ $customer?->phone ?? '-' }}</td></tr>
+                <tr><td class="label">Age:</td>     <td>{{ $customer?->display_age ?? '-' }}</td></tr>
+                <tr><td class="label">Phone:</td>   <td>{{ $customer?->phone ?? '-' }}</td></tr>
             </table>
-        </div>
-    </div>
 
-    {{-- ✅ ONLY billing lines (Test Type + Price) --}}
-    <table class="tbl">
-        <thead>
-        <tr>
-            <th>Test Type</th>
-            {{-- <th class="right" style="width:90px;">Code</th> --}}
-            <th class="right" style="width:110px;">Price</th>
-        </tr>
-        </thead>
-        <tbody>
-        @forelse($types as $tp)
-            <tr>
-                <td>{{ $tp['name'] }}</td>
-                {{-- <td class="right">{{ $tp['code'] }}</td> --}}
-                <td class="right">{{ number_format((float)$tp['price'], 2) }}</td>
-            </tr>
-        @empty
-            <tr><td colspan="3" class="muted">No test types found for this order.</td></tr>
-        @endforelse
-        </tbody>
-    </table>
-
-    <table class="summary">
-        <tr><td class="right muted">Subtotal:</td><td class="right" style="width:130px;">{{ number_format($subtotal, 2) }}</td></tr>
-        <tr><td class="right muted">Discount:</td><td class="right">{{ number_format($discount, 2) }}</td></tr>
-        <tr><td class="right" style="font-weight:900;">Total:</td><td class="right" style="font-weight:900;">{{ number_format($total, 2) }}</td></tr>
-        <tr><td class="right muted">Paid:</td><td class="right">{{ number_format($paid, 2) }}</td></tr>
-        <tr><td class="right" style="font-weight:900;">Balance:</td><td class="right" style="font-weight:900;">{{ number_format($remaining, 2) }}</td></tr>
-    </table>
-
-    <div class="status">{{ $status }}</div>
-
-    @if(!empty($loginId) && !empty($password))
-        <div style="margin-top:10px;border-top:1px dashed #bbb;padding-top:8px;">
-            <div style="font-weight:900;font-size:12px;margin-bottom:4px;">Customer Login Details</div>
-            <table class="meta">
-                <tr><td class="label">Login ID:</td><td style="font-weight:900;">{{ $loginId }}</td></tr>
-                <tr><td class="label">Password:</td><td style="font-weight:900;">{{ $password }}</td></tr>
+            <table class="tbl">
+                <thead>
+                    <tr>
+                        <th>Test Type</th>
+                        <th class="right" style="width:80px;">Price</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @forelse($types as $tp)
+                    <tr>
+                        <td>{{ $tp['name'] }}</td>
+                        <td class="right">{{ number_format((float)$tp['price'], 2) }}</td>
+                    </tr>
+                @empty
+                    <tr><td colspan="2" class="muted">No tests found.</td></tr>
+                @endforelse
+                </tbody>
             </table>
-        </div>
-    @endif
-</div>
 
-<div class="divider-cut"></div>
-
-{{-- LAB COPY --}}
-<div class="copy">
-    <div class="copy-title">Lab Copy</div>
-
-    <div class="row">
-        <div class="col">
-            <table class="meta">
-                               <tr><td class="label">Lab #:</td><td>{{ str_pad((string)$order->id, 4, '0', STR_PAD_LEFT) }}</td></tr>
-                <tr><td class="label">Created:</td><td>{{ optional($order->created_at)->format('d-m-Y h:i A') }}</td></tr>
-                <tr><td class="label">Ref By:</td><td>{{ $customer?->ref_by ?? '-' }}</td></tr>
+            <table class="summary">
+                <tr><td class="right muted">Subtotal:</td><td class="right" style="width:85px;">{{ number_format($subtotal, 2) }}</td></tr>
+                <tr><td class="right muted">Discount:</td><td class="right">{{ number_format($discount, 2) }}</td></tr>
+                <tr><td class="right" style="font-weight:900;">Total:</td><td class="right" style="font-weight:900;">{{ number_format($total, 2) }}</td></tr>
+                <tr><td class="right muted">Paid:</td><td class="right">{{ number_format($paid, 2) }}</td></tr>
+                <tr><td class="right" style="font-weight:900;">Balance:</td><td class="right" style="font-weight:900;">{{ number_format($remaining, 2) }}</td></tr>
             </table>
-        </div>
-        <div class="col">
+
+            <div class="status">{{ $status }}</div>
+
+            @if(!empty($loginId) && !empty($password))
+                <div class="login-box">
+                    <div class="login-title">Customer Login Details</div>
+                    <table class="meta">
+                        <tr><td class="label">Login ID:</td><td style="font-weight:900;">{{ $loginId }}</td></tr>
+                        <tr><td class="label">Password:</td><td style="font-weight:900;">{{ $password }}</td></tr>
+                    </table>
+                </div>
+            @endif
+        </td>
+
+        {{-- Dashed divider --}}
+        <td style="width:1px;border-left:2px dashed #999;padding:0;"></td>
+
+        {{-- ── LAB COPY ── --}}
+        <td class="copy-cell">
+            <div class="copy-title">Lab Copy</div>
+
             <table class="meta">
+                <tr><td class="label">Panel:</td>   <td>{{ $labName ?? $setting->lab_name }}</td></tr>
+                <tr><td class="label">Lab #:</td>   <td>{{ str_pad((string)$order->id, 4, '0', STR_PAD_LEFT) }}</td></tr>
+                <tr><td class="label">Date:</td>    <td>{{ optional($order->created_at)->format('d-m-Y h:i A') }}</td></tr>
                 <tr><td class="label">Customer:</td><td>{{ $cu?->name ?? '-' }}</td></tr>
-                <tr><td class="label">Age:</td><td>{{ $customer?->display_age ?? '-' }}</td></tr>
-                <tr><td class="label">Phone:</td><td>{{ $customer?->phone ?? '-' }}</td></tr>
-                <tr><td class="label">Branch:</td><td>{{ $order->branch?->branch_name ?? 'Main' }}</td></tr>
+                <tr><td class="label">Age:</td>     <td>{{ $customer?->display_age ?? '-' }}</td></tr>
+                <tr><td class="label">Phone:</td>   <td>{{ $customer?->phone ?? '-' }}</td></tr>
+                <tr><td class="label">Ref By:</td>  <td>{{ $customer?->ref_by ?? '-' }}</td></tr>
+                <tr><td class="label">Branch:</td>  <td>{{ $order->branch?->branch_name ?? 'Main' }}</td></tr>
             </table>
-        </div>
-    </div>
 
-    <table class="tbl">
-        <thead>
-        <tr>
-            <th>Test Type</th>
-            {{-- <th class="right" style="width:90px;">Code</th> --}}
-            <th class="right" style="width:110px;">Price</th>
-        </tr>
-        </thead>
-        <tbody>
-        @forelse($types as $tp)
-            <tr>
-                <td>{{ $tp['name'] }}</td>
-                {{-- <td class="right">{{ $tp['code'] }}</td> --}}
-                <td class="right">{{ number_format((float)$tp['price'], 2) }}</td>
-            </tr>
-        @empty
-            <tr><td colspan="3" class="muted">No test types found for this order.</td></tr>
-        @endforelse
-        </tbody>
-    </table>
+            <table class="tbl">
+                <thead>
+                    <tr>
+                        <th>Test Type</th>
+                        <th class="right" style="width:80px;">Price</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @forelse($types as $tp)
+                    <tr>
+                        <td>{{ $tp['name'] }}</td>
+                        <td class="right">{{ number_format((float)$tp['price'], 2) }}</td>
+                    </tr>
+                @empty
+                    <tr><td colspan="2" class="muted">No tests found.</td></tr>
+                @endforelse
+                </tbody>
+            </table>
 
-    <table class="summary">
-        <tr><td class="right muted">Subtotal:</td><td class="right" style="width:130px;">{{ number_format($subtotal, 2) }}</td></tr>
-        <tr><td class="right muted">Discount:</td><td class="right">{{ number_format($discount, 2) }}</td></tr>
-        <tr><td class="right" style="font-weight:900;">Total:</td><td class="right" style="font-weight:900;">{{ number_format($total, 2) }}</td></tr>
-        <tr><td class="right muted">Paid:</td><td class="right">{{ number_format($paid, 2) }}</td></tr>
-        <tr><td class="right" style="font-weight:900;">Balance:</td><td class="right" style="font-weight:900;">{{ number_format($remaining, 2) }}</td></tr>
-    </table>
+            <table class="summary">
+                <tr><td class="right muted">Subtotal:</td><td class="right" style="width:85px;">{{ number_format($subtotal, 2) }}</td></tr>
+                <tr><td class="right muted">Discount:</td><td class="right">{{ number_format($discount, 2) }}</td></tr>
+                <tr><td class="right" style="font-weight:900;">Total:</td><td class="right" style="font-weight:900;">{{ number_format($total, 2) }}</td></tr>
+                <tr><td class="right muted">Paid:</td><td class="right">{{ number_format($paid, 2) }}</td></tr>
+                <tr><td class="right" style="font-weight:900;">Balance:</td><td class="right" style="font-weight:900;">{{ number_format($remaining, 2) }}</td></tr>
+            </table>
 
-    <div class="status">{{ $status }}</div>
-</div>
+            <div class="status">{{ $status }}</div>
+        </td>
+
+    </tr>
+</table>
 
 </body>
 </html>
