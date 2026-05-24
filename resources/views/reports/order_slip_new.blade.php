@@ -104,7 +104,7 @@
         <div class="col">
             <table class="meta">
                 <tr><td class="label">Customer:</td><td>{{ $cu?->name ?? '-' }}</td></tr>
-                <tr><td class="label">Email:</td><td>{{ $cu?->email ?? '-' }}</td></tr>
+                <tr><td class="label">Age:</td><td>{{ $customer?->display_age ?? '-' }}</td></tr>
                 <tr><td class="label">Phone:</td><td>{{ $customer?->phone ?? '-' }}</td></tr>
             </table>
         </div>
@@ -170,6 +170,7 @@
         <div class="col">
             <table class="meta">
                 <tr><td class="label">Customer:</td><td>{{ $cu?->name ?? '-' }}</td></tr>
+                <tr><td class="label">Age:</td><td>{{ $customer?->display_age ?? '-' }}</td></tr>
                 <tr><td class="label">Phone:</td><td>{{ $customer?->phone ?? '-' }}</td></tr>
                 <tr><td class="label">Branch:</td><td>{{ $order->branch?->branch_name ?? 'Main' }}</td></tr>
             </table>

@@ -104,7 +104,7 @@ public function index()
         'name'      => ['required', 'string', 'max:255'],
         'phone'     => ['nullable', 'string', 'max:30'],
         'address'   => ['nullable', 'string', 'max:1000'],
-        'age'       => ['nullable', 'integer', 'min:0', 'max:120'],
+        'age'       => ['nullable', 'string', 'max:20'],
         'gender'    => ['nullable', Rule::in(['male', 'female', 'other'])],
         'is_active' => ['nullable', 'boolean'],
         'ref_by'    => ['nullable', 'string', 'max:255'],
@@ -212,7 +212,7 @@ public function index()
         // profile fields
         'phone'     => ['nullable', 'string', 'max:30'],
         'address'   => ['nullable', 'string', 'max:1000'],
-        'age'       => ['nullable', 'integer', 'min:0', 'max:120'],
+        'age'       => ['nullable', 'string', 'max:20'],
         'gender'    => ['nullable', Rule::in(['male', 'female', 'other'])],
         'is_active' => ['nullable', 'boolean'],
         'ref_by'    => ['nullable', 'string', 'max:255'],

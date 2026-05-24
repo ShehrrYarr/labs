@@ -21,6 +21,27 @@ class Customer extends Model
         'ref_by'
     ];
 
+    public function getDisplayAgeAttribute(): string
+    {
+        $val = trim((string)($this->age ?? ''));
+        if ($val === '') return '-';
+
+        // Plain integer → show as-is
+        if (ctype_digit($val)) return $val . ' Years';
+
+        // D/M/Y format (e.g. 15/03/1990)
+        try {
+            return \Carbon\Carbon::createFromFormat('d/m/Y', $val)->age . ' Years';
+        } catch (\Throwable $e) {}
+
+        // Any other parseable date (Y-m-d, d-m-Y, etc.)
+        try {
+            return \Carbon\Carbon::parse($val)->age . ' Years';
+        } catch (\Throwable $e) {}
+
+        return $val;
+    }
+
     public function user()
     {
         return $this->belongsTo(\App\Models\User::class);

@@ -106,7 +106,7 @@
 
                             <div class="field">
                                 <label>Age (optional)</label>
-                                <input type="number" name="age" min="0" max="120" value="{{ old('age') }}">
+                                <input type="text" name="age" value="{{ old('age') }}" placeholder="e.g. 34 or 15/03/1990">
                             </div>
 
                             <div class="field">

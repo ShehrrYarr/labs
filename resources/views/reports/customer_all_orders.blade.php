@@ -10,7 +10,7 @@
 
     $patientName = $customer->user->name ?? '-';
     $gender = $customer->gender ?? '-';
-    $age = !empty($customer->age) ? $customer->age . ' Years' : '-';
+    $age = $customer->display_age;
 
     // ✅ helper: MAIN first then SUB
     $kindRank = function ($kind) {
