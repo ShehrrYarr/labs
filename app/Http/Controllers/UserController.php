@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Mobile;
-use App\Models\TransferRecord;
 use Illuminate\Http\Request;
 use App\Models\Publication;
 use App\Models\User;
