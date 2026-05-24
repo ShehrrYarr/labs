@@ -15,7 +15,7 @@ class Customer extends Model
         'created_by_user_id',
         'phone',
         'address',
-        'dob',
+        'age',
         'gender',
         'is_active',
         'ref_by'

@@ -123,8 +123,8 @@
                     </div>
 
                     <div class="field">
-                        <label>Date of Birth (optional)</label>
-                        <input type="date" name="dob" value="{{ old('dob', $customer->dob) }}">
+                        <label>Age (optional)</label>
+                        <input type="number" name="age" min="0" max="120" value="{{ old('age', $customer->age) }}">
                     </div>
 
                     <div class="field">

@@ -10,10 +10,7 @@
 
     $patientName = $customer->user->name ?? '-';
     $gender = $customer->gender ?? '-';
-    $age = '-';
-    if (!empty($customer->dob)) {
-        try { $age = Carbon::parse($customer->dob)->age . ' Years'; } catch (\Throwable $e) {}
-    }
+    $age = !empty($customer->age) ? $customer->age . ' Years' : '-';
 
     // ✅ helper: MAIN first then SUB
     $kindRank = function ($kind) {

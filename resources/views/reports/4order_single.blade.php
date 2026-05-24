@@ -12,10 +12,7 @@
 
     $patientName = $customerUser->name ?? '-';
     $gender = $order->customer->gender ?? '-';
-    $age = '-';
-    if (!empty($order->customer->dob)) {
-        try { $age = Carbon::parse($order->customer->dob)->age . ' Years'; } catch (\Throwable $e) {}
-    }
+    $age = !empty($order->customer->age) ? $order->customer->age . ' Years' : '-';
 
     $regDate = $order->created_at
         ? Carbon::parse($order->created_at)->format('d-m-Y h:i A')

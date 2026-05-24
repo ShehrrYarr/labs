@@ -104,7 +104,7 @@ public function index()
         'name'      => ['required', 'string', 'max:255'],
         'phone'     => ['nullable', 'string', 'max:30'],
         'address'   => ['nullable', 'string', 'max:1000'],
-        'dob'       => ['nullable', 'date'],
+        'age'       => ['nullable', 'integer', 'min:0', 'max:120'],
         'gender'    => ['nullable', Rule::in(['male', 'female', 'other'])],
         'is_active' => ['nullable', 'boolean'],
         'ref_by'    => ['nullable', 'string', 'max:255'],
@@ -166,7 +166,7 @@ public function index()
 
             'phone'     => $data['phone'] ?? null,
             'address'   => $data['address'] ?? null,
-            'dob'       => $data['dob'] ?? null,
+            'age'       => $data['age'] ?? null,
             'gender'    => $data['gender'] ?? null,
             'is_active' => (bool)($data['is_active'] ?? true),
             'ref_by'    => $data['ref_by'] ?? null,
@@ -212,7 +212,7 @@ public function index()
         // profile fields
         'phone'     => ['nullable', 'string', 'max:30'],
         'address'   => ['nullable', 'string', 'max:1000'],
-        'dob'       => ['nullable', 'date'],
+        'age'       => ['nullable', 'integer', 'min:0', 'max:120'],
         'gender'    => ['nullable', Rule::in(['male', 'female', 'other'])],
         'is_active' => ['nullable', 'boolean'],
         'ref_by'    => ['nullable', 'string', 'max:255'],
@@ -238,7 +238,7 @@ public function index()
         $customer->update([
             'phone'     => $data['phone'] ?? null,
             'address'   => $data['address'] ?? null,
-            'dob'       => $data['dob'] ?? null,
+            'age'       => $data['age'] ?? null,
             'gender'    => $data['gender'] ?? null,
             'is_active' => (bool)($data['is_active'] ?? false),
             'ref_by'    => $data['ref_by'] ?? null,
