@@ -314,6 +314,9 @@ public function invoiceSlip(TestOrder $order)
 
     $logoPath = public_path('letterheads/thermal_logo.png');
 
+    $loginId  = $order->customer?->user?->login_id ?? null;
+    $password = $order->customer?->user?->password_text ?? null;
+
     $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('reports.order_slip_new', [
         'order'     => $order,
         'invoice'   => $invoice,
@@ -325,6 +328,8 @@ public function invoiceSlip(TestOrder $order)
         'logoPath'  => $logoPath,
         'labName'   => $order->branch?->branch_name ?? 'Al Ghani Lab',
         'types'     => $types,
+        'loginId'   => $loginId,
+        'password'  => $password,
     ])->setPaper('a4');
 
     return $pdf->stream('order-'.$order->id.'-slip.pdf');

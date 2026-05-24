@@ -141,6 +141,16 @@
     </table>
 
     <div class="status">{{ $status }}</div>
+
+    @if(!empty($loginId) && !empty($password))
+        <div style="margin-top:10px;border-top:1px dashed #bbb;padding-top:8px;">
+            <div style="font-weight:900;font-size:12px;margin-bottom:4px;">Customer Login Details</div>
+            <table class="meta">
+                <tr><td class="label">Login ID:</td><td style="font-weight:900;">{{ $loginId }}</td></tr>
+                <tr><td class="label">Password:</td><td style="font-weight:900;">{{ $password }}</td></tr>
+            </table>
+        </div>
+    @endif
 </div>
 
 <div class="divider-cut"></div>
