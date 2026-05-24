@@ -295,6 +295,9 @@
                                             @else
                                                 <span class="small">No result yet.</span>
                                             @endif
+                                            @if(!empty($it->result_notes))
+                                                <div class="small" style="margin-top:4px;white-space:pre-wrap;color:#374151;"><b>Notes:</b> {{ \Illuminate\Support\Str::limit($it->result_notes, 180) }}</div>
+                                            @endif
                                         </td>
 
                                         <td>
@@ -304,7 +307,10 @@
                                                     @csrf
 
                                                     <div style="display:grid;grid-template-columns:1fr 120px;gap:8px;">
-                                                        <textarea name="result_text" placeholder="Enter result..." style="min-height:70px;">{{ $it->result_text }}</textarea>
+                                                        <div style="display:flex;flex-direction:column;gap:6px;">
+                                                            <textarea name="result_text" placeholder="Result value..." style="min-height:55px;">{{ $it->result_text }}</textarea>
+                                                            <textarea name="result_notes" placeholder="Notes (optional additional info)..." style="min-height:45px;">{{ $it->result_notes }}</textarea>
+                                                        </div>
                                                         <div>
                                                             <select name="result_status" required>
                                                                 <option value="pending" {{ ($it->result_status ?? '') === 'pending' ? 'selected' : '' }}>Pending</option>

@@ -299,11 +299,13 @@ public function index(Customer $customer)
 
     $data = $request->validate([
         'result_text'   => ['nullable', 'string', 'max:10000'],
+        'result_notes'  => ['nullable', 'string', 'max:5000'],
         'result_status' => ['required', 'in:pending,processing,ready'],
     ]);
 
     $item->update([
         'result_text'              => $data['result_text'] ?? null,
+        'result_notes'             => $data['result_notes'] ?? null,
         'result_status'            => $data['result_status'],
         'result_posted_at'         => now(),
         'result_posted_by_user_id' => auth()->id(),

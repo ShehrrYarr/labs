@@ -233,6 +233,9 @@ table.report td {
     <td>
         @if($it->result_status === 'ready')
             {{ $it->result_text ?: '—' }}
+            @if(!empty($it->result_notes))
+                <div style="font-size:10px;color:#555;margin-top:3px;white-space:pre-wrap;"><em>{{ $it->result_notes }}</em></div>
+            @endif
         @else
             <span class="processing">Processing</span>
         @endif

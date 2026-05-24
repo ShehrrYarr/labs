@@ -29,6 +29,7 @@ class TestOrderItem extends Model
 
         'result_status',
         'result_text',
+        'result_notes',
         'result_file',
         'result_posted_at',
         'result_posted_by_user_id',
