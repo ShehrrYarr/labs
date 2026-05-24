@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\LabSetting;
 use App\Models\TestOrder;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -110,10 +111,13 @@ public function single(\App\Models\TestOrder $order)
         }
     }
 
+    $setting = LabSetting::instance();
+
     $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('reports.order_single', [
-        'order' => $order,
-        'labName' => $order->branch?->branch_name ?? null,
+        'order'          => $order,
+        'labName'        => $order->branch?->branch_name ?? $setting->lab_name,
         'letterheadPath' => public_path('letterheads/report_letterhead.png'),
+        'setting'        => $setting,
     ])->setPaper('a4');
 
     return $pdf->stream('order-'.$order->id.'-report.pdf');
@@ -194,11 +198,14 @@ public function customerAll(\App\Models\Customer $customer)
         ->orderBy('id', 'asc')
         ->get();
 
+    $setting = LabSetting::instance();
+
     $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('reports.customer_all_orders', [
-        'customer' => $customer->load('user'),
-        'orders' => $orders,
+        'customer'       => $customer->load('user'),
+        'orders'         => $orders,
         'letterheadPath' => public_path('letterheads/report_letterhead.png'),
-        'mainLabName' => config('app.name'),
+        'mainLabName'    => $setting->lab_name,
+        'setting'        => $setting,
     ])->setPaper('a4');
 
     return $pdf->stream('customer-'.$customer->id.'-all-orders.pdf');
@@ -316,6 +323,7 @@ public function invoiceSlip(TestOrder $order)
 
     $loginId  = $order->customer?->user?->login_id ?? null;
     $password = $order->customer?->user?->password_text ?? null;
+    $setting  = LabSetting::instance();
 
     $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('reports.order_slip_new', [
         'order'     => $order,
@@ -325,11 +333,12 @@ public function invoiceSlip(TestOrder $order)
         'total'     => $total,
         'paid'      => $paid,
         'remaining' => $remaining,
-        'logoPath'  => $logoPath,
-        'labName'   => $order->branch?->branch_name ?? 'Al Ghani Lab',
+        'logoPath'  => $setting->logoPath() ?? $logoPath,
+        'labName'   => $order->branch?->branch_name ?? $setting->lab_name,
         'types'     => $types,
         'loginId'   => $loginId,
         'password'  => $password,
+        'setting'   => $setting,
     ])->setPaper('a4');
 
     return $pdf->stream('order-'.$order->id.'-slip.pdf');
@@ -396,7 +405,8 @@ public function thermalReceipt(TestOrder $order)
     $loginId  = $order->customer?->user?->login_id ?? null;
     $password = $order->customer?->user?->password_text ?? null;
 
-    $logoPath = public_path('letterheads/thermal_logo.png');
+    $setting  = LabSetting::instance();
+    $logoPath = $setting->logoPath() ?? public_path('letterheads/thermal_logo.png');
 
     // 80mm thermal width
     $paperWidthPt  = 226.77; // 80mm
@@ -410,8 +420,9 @@ public function thermalReceipt(TestOrder $order)
         'total'     => $total,
         'paid'      => $paid,
         'remaining' => $remaining,
-        'labName'   => $order->branch?->branch_name ?? 'Al Ghani Lab',
+        'labName'   => $order->branch?->branch_name ?? $setting->lab_name,
         'logoPath'  => $logoPath,
+        'setting'   => $setting,
 
         // billing lines
         'types'     => $types,

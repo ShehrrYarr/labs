@@ -3,13 +3,7 @@
 @php
     use Illuminate\Support\Carbon;
 
-    // Embed letterhead as base64 so dompdf always renders it
-    $imgData = '';
-    if (!empty($letterheadPath) && file_exists($letterheadPath)) {
-        $type = pathinfo($letterheadPath, PATHINFO_EXTENSION);
-        $data = file_get_contents($letterheadPath);
-        $imgData = 'data:image/' . $type . ';base64,' . base64_encode($data);
-    }
+    $logoB64 = $setting->logoBase64();
 
     $customerUser = $order->customer->user;
 
@@ -70,11 +64,16 @@
             page-break-after: always;
             position: relative;
             min-height: 100%;
-            background-image: url('{{ $imgData }}');
-            background-repeat: no-repeat;
-            background-position: center top;
-            background-size: 100% 100%;
         }
+
+        .page-header{
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            padding: 14px 45px 10px;
+            border-bottom: 1px solid rgba(17,24,39,.3);
+        }
+        .header-lab-name{ font-size:16px; font-weight:900; color:#111827; }
+        .header-detail{ font-size:9.5px; color:#374151; margin-top:2px; }
         .range-cell{
       white-space: pre-line;   /* keeps \n line breaks */
       line-height: 1.1;        /* tight spacing */
@@ -84,7 +83,7 @@
         .page:last-child{ page-break-after: auto; }
 
         .content{
-            padding: 150px 45px 210px 45px; /* extra bottom space for footer */
+            padding: 130px 45px 210px 45px;
         }
 
         /* ===== FOOTER (PER PAGE, NO OVERLAP) ===== */
@@ -201,6 +200,30 @@
 @endphp
 
     <div class="page">
+        <div class="page-header">
+            <table style="width:100%;border-collapse:collapse;">
+                <tr>
+                    @if($logoB64)
+                    <td style="width:75px;vertical-align:middle;padding-right:10px;">
+                        <img src="{{ $logoB64 }}" style="max-width:75px;max-height:65px;width:auto;height:auto;" alt="Logo">
+                    </td>
+                    @endif
+                    <td style="vertical-align:middle;text-align:center;">
+                        <div class="header-lab-name">{{ $setting->lab_name }}</div>
+                        @if($setting->lab_address)
+                            <div class="header-detail">{{ $setting->lab_address }}</div>
+                        @endif
+                        @if($setting->lab_phone || $setting->lab_email)
+                            <div class="header-detail">
+                                @if($setting->lab_phone){{ $setting->lab_phone }}@endif
+                                @if($setting->lab_phone && $setting->lab_email) &nbsp;|&nbsp; @endif
+                                @if($setting->lab_email){{ $setting->lab_email }}@endif
+                            </div>
+                        @endif
+                    </td>
+                </tr>
+            </table>
+        </div>
         <div class="content">
 
             {{-- Patient Meta --}}
@@ -287,35 +310,22 @@
 
         {{-- FOOTER (PER PAGE) --}}
         <div class="footer-wrap">
-            <div class="footer-note">Electronically generated report — No need of signature</div>
+            <div class="footer-note">{{ $setting->footer_note }}</div>
             <div class="footer-divider"></div>
-
-            <div class="footer-doctors">
-                <table class="footer-grid">
-                    <tr>
-                        <td>
-                            <div class="doctor-name">Dr Amna Shujaat Ali Naqvi</div>
-                            <div class="doctor-desc">MBBS, MPhil Pathology  (Consultant Pathologist)</div>
-                        </td>
-                        <td>
-                            <div class="doctor-name">Dr Shafqat Iqbal</div>
-                            <div class="doctor-desc">MBBS, FCPS (Gastro) • BSc, CHPE<br>Consultant Gastroenterologist &amp; Hepatologist</div>
-                        </td>
-                        <td>
-                            <div class="doctor-name">Dr Sobia Ikhlaq</div>
-                            <div class="doctor-desc">MBBS, RMP • SMO Federal GH<br>Islamabad</div>
-                        </td>
-                        <td>
-                            <div class="doctor-name">Atif Iqbal</div>
-                            <div class="doctor-desc">BS &amp; MPhil Microbiology</div>
-                        </td>
-                        <td>
-                            <div class="doctor-name">Gulfam Ali Shahzad</div>
-                            <div class="doctor-desc">Lab Technologist • MSc MLS</div>
-                        </td>
-                    </tr>
-                </table>
-            </div>
+            @if(!empty($setting->doctors))
+                <div class="footer-doctors">
+                    <table class="footer-grid">
+                        <tr>
+                            @foreach($setting->doctors as $doc)
+                                <td>
+                                    <div class="doctor-name">{{ $doc['name'] }}</div>
+                                    <div class="doctor-desc">{!! nl2br(e($doc['description'] ?? '')) !!}</div>
+                                </td>
+                            @endforeach
+                        </tr>
+                    </table>
+                </div>
+            @endif
         </div>
 
     </div>

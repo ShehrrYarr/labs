@@ -145,7 +145,9 @@
                         <li class="@if (\Request::is('lab-tests')) active @endif"><a class="menu-item"
                                 href="/lab-tests" data-i18n="1 columns">Lab Tests</a>
                         </li>
-                        
+                        <li class="@if (\Request::is('lab-settings')) active @endif"><a class="menu-item"
+                                href="{{ route('lab-settings.edit') }}" data-i18n="1 columns">Lab Settings</a>
+                        </li>
 
 
 

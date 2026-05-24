@@ -82,10 +82,22 @@
 @endphp
 
 <div class="logo-wrap">
-    @if(!empty($logoPath) && file_exists($logoPath))
-        <img class="logo" src="file://{{ $logoPath }}" alt="Logo">
+    @php $slipLogoB64 = $setting->logoBase64(); @endphp
+    @if($slipLogoB64)
+        <img class="logo" src="{{ $slipLogoB64 }}" alt="Logo">
     @else
-        <div style="font-weight:900;font-size:18px;">{{ $labName }}</div>
+        <div style="font-weight:900;font-size:18px;">{{ $setting->lab_name }}</div>
+    @endif
+    <div style="font-size:11px;color:#374151;margin-top:3px;">{{ $setting->lab_name }}</div>
+    @if($setting->lab_address)
+        <div style="font-size:10px;color:#555;">{{ $setting->lab_address }}</div>
+    @endif
+    @if($setting->lab_phone || $setting->lab_email)
+        <div style="font-size:10px;color:#555;">
+            @if($setting->lab_phone){{ $setting->lab_phone }}@endif
+            @if($setting->lab_phone && $setting->lab_email) &nbsp;|&nbsp; @endif
+            @if($setting->lab_email){{ $setting->lab_email }}@endif
+        </div>
     @endif
 </div>
 

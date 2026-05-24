@@ -108,6 +108,10 @@ Route::get('/editcategory/{id}', [App\Http\Controllers\MediaCategoryController::
 Route::post('/update', [App\Http\Controllers\MediaCategoryController::class, 'update'])->name('updatecategory');
 Route::get('/deletecategory/{id}', [App\Http\Controllers\MediaCategoryController::class, 'destroy'])->name('deletecategory');
 
+// Lab settings (admin only)
+Route::get('/lab-settings', [\App\Http\Controllers\LabSettingController::class, 'edit'])->name('lab-settings.edit');
+Route::put('/lab-settings', [\App\Http\Controllers\LabSettingController::class, 'update'])->name('lab-settings.update');
+
 // User management routes
 Route::get('/showusers', [UserController::class, 'showUsers'])->name('showusers');
 Route::post('/store-user', [UserController::class, 'store'])->name('storeUser');

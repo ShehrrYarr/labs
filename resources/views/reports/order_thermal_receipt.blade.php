@@ -61,10 +61,21 @@
 @endphp
 
 <div class="logo-wrap">
-    @if(!empty($logoPath) && file_exists($logoPath))
-        <img class="logo-img" src="file://{{ $logoPath }}" alt="{{ $labName }}">
+    @php $thermalLogoB64 = $setting->logoBase64(); @endphp
+    @if($thermalLogoB64)
+        <img class="logo-img" src="{{ $thermalLogoB64 }}" alt="{{ $labName }}">
     @else
         <div class="bold" style="font-size:13px;">{{ $labName }}</div>
+    @endif
+    <div class="bold" style="font-size:11px;margin-top:2px;">{{ $labName }}</div>
+    @if($setting->lab_address)
+        <div class="small muted">{{ $setting->lab_address }}</div>
+    @endif
+    @if($setting->lab_phone)
+        <div class="small muted">{{ $setting->lab_phone }}</div>
+    @endif
+    @if($setting->lab_email)
+        <div class="small muted">{{ $setting->lab_email }}</div>
     @endif
     <div class="small muted">Thermal Receipt</div>
 </div>
