@@ -157,7 +157,7 @@
                 <td>
                     <div><span class="label">Age / Sex:</span> {{ $age }} / {{ ucfirst($gender) }}</div>
                     <div><span class="label">Reg Date:</span> {{ $regDate }}</div>
-                    <div><span class="label">Email:</span> {{ $customer->user->email ?? '-' }}</div>
+                    <div><span class="label">Report Time:</span> {{ \Carbon\Carbon::now()->format('d-m-Y h:i A') }}</div>
                     <div><span class="label">Phone:</span> {{ $customer->phone ?? '-' }}</div>
                 </td>
             </tr>

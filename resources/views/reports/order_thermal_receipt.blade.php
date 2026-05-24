@@ -88,8 +88,12 @@
         <td class="right bold">{{ $order->id }}</td>
     </tr>
     <tr>
-        <td class="muted">Date</td>
-        <td class="right">{{ optional($order->created_at)->format('Y-m-d h:i A') }}</td>
+        <td class="muted">Reg Date</td>
+        <td class="right">{{ optional($order->created_at)->format('d-m-Y h:i A') }}</td>
+    </tr>
+    <tr>
+        <td class="muted">Report Time</td>
+        <td class="right">{{ \Carbon\Carbon::now()->format('d-m-Y h:i A') }}</td>
     </tr>
     <tr>
         <td class="muted">Customer</td>
