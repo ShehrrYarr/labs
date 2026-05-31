@@ -61,21 +61,28 @@
 @endphp
 
 <div class="logo-wrap">
-    @php $thermalLogoB64 = $setting->logoBase64(); @endphp
-    @if($thermalLogoB64)
+    @php
+        $thermalLogoB64      = $setting->logoBase64();
+        $thermalCompositeB64 = $setting->headerCompositeBase64();
+    @endphp
+    @if($thermalCompositeB64)
+        <img class="logo-img" src="{{ $thermalCompositeB64 }}" alt="{{ $labName }}">
+    @elseif($thermalLogoB64)
         <img class="logo-img" src="{{ $thermalLogoB64 }}" alt="{{ $labName }}">
     @else
         <div class="bold" style="font-size:13px;">{{ $labName }}</div>
     @endif
     <div class="bold" style="font-size:11px;margin-top:2px;">{{ $labName }}</div>
-    @if($setting->lab_address)
-        <div class="small muted">{{ $setting->lab_address }}</div>
-    @endif
-    @if($setting->lab_phone)
-        <div class="small muted">{{ $setting->lab_phone }}</div>
-    @endif
-    @if($setting->lab_email)
-        <div class="small muted">{{ $setting->lab_email }}</div>
+    @if(!$thermalCompositeB64)
+        @if($setting->lab_address)
+            <div class="small muted">{{ $setting->lab_address }}</div>
+        @endif
+        @if($setting->lab_phone)
+            <div class="small muted">{{ $setting->lab_phone }}</div>
+        @endif
+        @if($setting->lab_email)
+            <div class="small muted">{{ $setting->lab_email }}</div>
+        @endif
     @endif
     <div class="small muted">Thermal Receipt</div>
 </div>

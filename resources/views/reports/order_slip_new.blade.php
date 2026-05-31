@@ -63,24 +63,29 @@
     $customer = $order->customer;
     $cu       = $customer?->user;
     $status   = strtoupper($invoice->status ?? 'unpaid');
-    $slipLogoB64 = $setting->logoBase64();
+    $slipLogoB64      = $setting->logoBase64();
+    $slipCompositeB64 = $setting->headerCompositeBase64();
 @endphp
 
 {{-- Header --}}
 <div class="header">
-    @if($slipLogoB64)
-        <img class="header-logo" src="{{ $slipLogoB64 }}" alt="Logo">
-    @endif
-    <div class="header-name">{{ $setting->lab_name }}</div>
-    @if($setting->lab_address)
-        <div class="header-detail">{{ $setting->lab_address }}</div>
-    @endif
-    @if($setting->lab_phone || $setting->lab_email)
-        <div class="header-detail">
-            @if($setting->lab_phone){{ $setting->lab_phone }}@endif
-            @if($setting->lab_phone && $setting->lab_email) &nbsp;|&nbsp; @endif
-            @if($setting->lab_email){{ $setting->lab_email }}@endif
-        </div>
+    @if($slipCompositeB64)
+        <img src="{{ $slipCompositeB64 }}" style="width:100%;display:block;max-height:120px;object-fit:contain;" alt="Header">
+    @else
+        @if($slipLogoB64)
+            <img class="header-logo" src="{{ $slipLogoB64 }}" alt="Logo">
+        @endif
+        <div class="header-name">{{ $setting->lab_name }}</div>
+        @if($setting->lab_address)
+            <div class="header-detail">{{ $setting->lab_address }}</div>
+        @endif
+        @if($setting->lab_phone || $setting->lab_email)
+            <div class="header-detail">
+                @if($setting->lab_phone){{ $setting->lab_phone }}@endif
+                @if($setting->lab_phone && $setting->lab_email) &nbsp;|&nbsp; @endif
+                @if($setting->lab_email){{ $setting->lab_email }}@endif
+            </div>
+        @endif
     @endif
 </div>
 

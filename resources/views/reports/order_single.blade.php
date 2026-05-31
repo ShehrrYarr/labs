@@ -3,7 +3,8 @@
 @php
     use Illuminate\Support\Carbon;
 
-    $logoB64 = $setting->logoBase64();
+    $logoB64      = $setting->logoBase64();
+    $compositeB64 = $setting->headerCompositeBase64();
 
     $customerUser = $order->customer->user;
 
@@ -201,28 +202,32 @@
 
     <div class="page">
         <div class="page-header">
-            <table style="width:100%;border-collapse:collapse;">
-                <tr>
-                    @if($logoB64)
-                    <td style="width:75px;vertical-align:middle;padding-right:10px;">
-                        <img src="{{ $logoB64 }}" style="max-width:75px;max-height:65px;width:auto;height:auto;" alt="Logo">
-                    </td>
-                    @endif
-                    <td style="vertical-align:middle;text-align:center;">
-                        <div class="header-lab-name">{{ $setting->lab_name }}</div>
-                        @if($setting->lab_address)
-                            <div class="header-detail">{{ $setting->lab_address }}</div>
+            @if($compositeB64)
+                <img src="{{ $compositeB64 }}" style="width:100%;display:block;" alt="Header">
+            @else
+                <table style="width:100%;border-collapse:collapse;">
+                    <tr>
+                        @if($logoB64)
+                        <td style="width:75px;vertical-align:middle;padding-right:10px;">
+                            <img src="{{ $logoB64 }}" style="max-width:75px;max-height:65px;width:auto;height:auto;" alt="Logo">
+                        </td>
                         @endif
-                        @if($setting->lab_phone || $setting->lab_email)
-                            <div class="header-detail">
-                                @if($setting->lab_phone){{ $setting->lab_phone }}@endif
-                                @if($setting->lab_phone && $setting->lab_email) &nbsp;|&nbsp; @endif
-                                @if($setting->lab_email){{ $setting->lab_email }}@endif
-                            </div>
-                        @endif
-                    </td>
-                </tr>
-            </table>
+                        <td style="vertical-align:middle;text-align:center;">
+                            <div class="header-lab-name">{{ $setting->lab_name }}</div>
+                            @if($setting->lab_address)
+                                <div class="header-detail">{{ $setting->lab_address }}</div>
+                            @endif
+                            @if($setting->lab_phone || $setting->lab_email)
+                                <div class="header-detail">
+                                    @if($setting->lab_phone){{ $setting->lab_phone }}@endif
+                                    @if($setting->lab_phone && $setting->lab_email) &nbsp;|&nbsp; @endif
+                                    @if($setting->lab_email){{ $setting->lab_email }}@endif
+                                </div>
+                            @endif
+                        </td>
+                    </tr>
+                </table>
+            @endif
         </div>
         <div class="content">
 

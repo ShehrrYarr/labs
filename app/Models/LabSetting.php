@@ -9,10 +9,12 @@ class LabSetting extends Model
     protected $fillable = [
         'lab_name', 'lab_address', 'lab_email', 'lab_phone',
         'logo', 'footer_note', 'doctors',
+        'header_images', 'header_canvas_json',
     ];
 
     protected $casts = [
-        'doctors' => 'array',
+        'doctors'       => 'array',
+        'header_images' => 'array',
     ];
 
     public static function instance(): self
@@ -35,5 +37,13 @@ class LabSetting extends Model
         $ext  = pathinfo($path, PATHINFO_EXTENSION);
         $data = file_get_contents($path);
         return 'data:image/' . $ext . ';base64,' . base64_encode($data);
+    }
+
+    /** Returns base64 data-URI of the canvas-designed composite header, or null. */
+    public function headerCompositeBase64(): ?string
+    {
+        $path = public_path('letterheads/header_composite.png');
+        if (!file_exists($path)) return null;
+        return 'data:image/png;base64,' . base64_encode(file_get_contents($path));
     }
 }

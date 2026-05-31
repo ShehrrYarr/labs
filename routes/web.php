@@ -113,6 +113,9 @@ Route::get('/deletecategory/{id}', [App\Http\Controllers\MediaCategoryController
 // Lab settings (admin only)
 Route::get('/lab-settings', [\App\Http\Controllers\LabSettingController::class, 'edit'])->name('lab-settings.edit');
 Route::put('/lab-settings', [\App\Http\Controllers\LabSettingController::class, 'update'])->name('lab-settings.update');
+Route::post('/lab-settings/upload-image', [\App\Http\Controllers\LabSettingController::class, 'uploadImage'])->name('lab-settings.upload-image');
+Route::post('/lab-settings/delete-image', [\App\Http\Controllers\LabSettingController::class, 'deleteImage'])->name('lab-settings.delete-image');
+Route::post('/lab-settings/save-canvas', [\App\Http\Controllers\LabSettingController::class, 'saveCanvas'])->name('lab-settings.save-canvas');
 
 // User management routes
 Route::get('/showusers', [UserController::class, 'showUsers'])->name('showusers');

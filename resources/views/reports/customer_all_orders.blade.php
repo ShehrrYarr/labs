@@ -1,7 +1,8 @@
 @php
     use Illuminate\Support\Carbon;
 
-    $logoB64 = $setting->logoBase64();
+    $logoB64      = $setting->logoBase64();
+    $compositeB64 = $setting->headerCompositeBase64();
 
     $patientName = $customer->user->name ?? '-';
     $gender = $customer->gender ?? '-';
@@ -120,6 +121,9 @@
 <div class="page">
 
     <div class="page-header">
+        @if($compositeB64)
+            <img src="{{ $compositeB64 }}" style="width:100%;display:block;" alt="Header">
+        @else
         <table style="width:100%;border-collapse:collapse;">
             <tr>
                 @if($logoB64)
@@ -142,6 +146,7 @@
                 </td>
             </tr>
         </table>
+        @endif
     </div>
 
     <div class="content">

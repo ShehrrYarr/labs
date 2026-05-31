@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\LabSetting;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class LabSettingController extends Controller
 {
@@ -69,5 +70,75 @@ class LabSettingController extends Controller
         ]);
 
         return redirect()->route('lab-settings.edit')->with('success', 'Lab settings saved.');
+    }
+
+    /** AJAX: upload one image to the gallery */
+    public function uploadImage(Request $request)
+    {
+        $request->validate(['image' => ['required', 'image', 'max:4096']]);
+
+        $file     = $request->file('image');
+        $filename = 'header_img_' . time() . '_' . Str::random(6) . '.' . $file->getClientOriginalExtension();
+        $file->move(public_path('letterheads'), $filename);
+
+        $setting           = LabSetting::instance();
+        $images            = $setting->header_images ?? [];
+        $images[]          = $filename;
+        $setting->update(['header_images' => $images]);
+
+        return response()->json([
+            'ok'       => true,
+            'filename' => $filename,
+            'url'      => asset('letterheads/' . $filename),
+        ]);
+    }
+
+    /** AJAX: delete one image from the gallery */
+    public function deleteImage(Request $request)
+    {
+        $request->validate(['filename' => ['required', 'string', 'max:255']]);
+
+        $filename = basename($request->input('filename'));
+        $setting  = LabSetting::instance();
+        $images   = collect($setting->header_images ?? [])
+                        ->reject(fn($f) => $f === $filename)
+                        ->values()
+                        ->toArray();
+
+        $setting->update(['header_images' => $images ?: null]);
+
+        // Only delete files we created (prevents path traversal)
+        if (str_starts_with($filename, 'header_img_')) {
+            $path = public_path('letterheads/' . $filename);
+            if (file_exists($path)) @unlink($path);
+        }
+
+        return response()->json(['ok' => true]);
+    }
+
+    /** AJAX: save canvas JSON + composite PNG */
+    public function saveCanvas(Request $request)
+    {
+        $request->validate([
+            'canvas_json'    => ['required', 'string'],
+            'composite_data' => ['required', 'string'],
+        ]);
+
+        $setting = LabSetting::instance();
+        $setting->update(['header_canvas_json' => $request->input('canvas_json')]);
+
+        // Decode base64 PNG and write to disk
+        $dataUrl = $request->input('composite_data');
+        if (preg_match('/^data:image\/(png|jpeg|jpg);base64,(.+)$/s', $dataUrl, $m)) {
+            $imgData = base64_decode($m[2]);
+            if ($imgData !== false) {
+                if (!is_dir(public_path('letterheads'))) {
+                    mkdir(public_path('letterheads'), 0755, true);
+                }
+                file_put_contents(public_path('letterheads/header_composite.png'), $imgData);
+            }
+        }
+
+        return response()->json(['ok' => true]);
     }
 }
