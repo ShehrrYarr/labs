@@ -50,7 +50,7 @@
     .header-detail { font-size:9.5px; color:#374151; margin-top:2px; }
 
     .content {
-        padding: 130px 50px 190px 50px;
+        padding: 130px 50px 190px 50px; /* overridden inline per page */
     }
 
     .footer-note {
@@ -120,6 +120,7 @@
 
 <div class="page">
 
+    @if($showHeader ?? true)
     <div class="page-header">
         @if($compositeB64)
             <img src="{{ $compositeB64 }}" style="width:100%;display:block;" alt="Header">
@@ -148,8 +149,13 @@
         </table>
         @endif
     </div>
+    @endif {{-- /showHeader --}}
 
-    <div class="content">
+    @php
+        $ptop    = ($showHeader ?? true) ? '130px' : '20px';
+        $pbottom = ($showFooter ?? true) ? '190px' : '20px';
+    @endphp
+    <div class="content" style="padding: {{ $ptop }} 50px {{ $pbottom }} 50px;">
 
         <table class="meta-table">
             <tr>
@@ -239,6 +245,7 @@
     </div>
 
     {{-- FOOTERS PER PAGE --}}
+    @if($showFooter ?? true)
     @if(!empty($setting->doctors))
     <div class="footer-doctors">
         <table class="footer-grid">
@@ -257,6 +264,7 @@
     <div class="footer-divider"></div>
 
     <div class="footer-note">{{ $setting->footer_note }}</div>
+    @endif {{-- /showFooter --}}
 
 </div>
 @endforeach

@@ -84,7 +84,7 @@
         .page:last-child{ page-break-after: auto; }
 
         .content{
-            padding: 130px 45px 210px 45px;
+            padding: 130px 45px 210px 45px; /* overridden inline per page */
         }
 
         /* ===== FOOTER (PER PAGE, NO OVERLAP) ===== */
@@ -201,6 +201,7 @@
 @endphp
 
     <div class="page">
+        @if($showHeader ?? true)
         <div class="page-header">
             @if($compositeB64)
                 <img src="{{ $compositeB64 }}" style="width:100%;display:block;" alt="Header">
@@ -229,7 +230,12 @@
                 </table>
             @endif
         </div>
-        <div class="content">
+        @endif {{-- /showHeader --}}
+        @php
+            $ptop    = ($showHeader ?? true) ? '130px' : '20px';
+            $pbottom = ($showFooter ?? true) ? '210px' : '20px';
+        @endphp
+        <div class="content" style="padding: {{ $ptop }} 45px {{ $pbottom }} 45px;">
 
             {{-- Patient Meta --}}
             <table class="meta-table">
@@ -314,6 +320,7 @@
         </div>
 
         {{-- FOOTER (PER PAGE) --}}
+        @if($showFooter ?? true)
         <div class="footer-wrap">
             <div class="footer-note">{{ $setting->footer_note }}</div>
             <div class="footer-divider"></div>
@@ -332,6 +339,7 @@
                 </div>
             @endif
         </div>
+        @endif {{-- /showFooter --}}
 
     </div>
 @endforeach

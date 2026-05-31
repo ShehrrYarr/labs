@@ -130,7 +130,7 @@
                 <div style="display:flex;gap:10px;flex-wrap:wrap;">
                     <a class="btn btn-ghost" href="{{ route('customers.index') }}">Back</a>
 
-                    <a class="btn btn-ghost"
+                    <a class="btn btn-ghost report-layout-trigger"
                        href="{{ route('customers.report.all', ['customer' => $customer->id]) }}"
                        target="_blank">
                         Download All Orders PDF
@@ -219,7 +219,7 @@
                                 </div>
 
                                 <div onclick="event.stopPropagation();" style="display:flex;gap:8px;flex-wrap:wrap;">
-                                    <a class="btn btn-ghost mini-btn"
+                                    <a class="btn btn-ghost mini-btn report-layout-trigger"
                                        href="{{ route('orders.report.single', ['order' => $order->id]) }}"
                                        target="_blank">PDF</a>
 
@@ -608,5 +608,107 @@
         sync();
     });
 })();
+</script>
+
+{{-- ══════════════════════════════════════════
+     PRINT OPTIONS MODAL
+══════════════════════════════════════════ --}}
+<div id="reportLayoutModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;align-items:center;justify-content:center;">
+    <div style="background:#fff;border-radius:18px;padding:28px 32px;max-width:480px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.25);">
+
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+            <h3 style="margin:0;font-size:17px;color:#0f172a;">🖨️ Print Options</h3>
+            <button onclick="closeLayoutModal()" style="border:0;background:none;font-size:22px;cursor:pointer;color:#94a3b8;line-height:1;">✕</button>
+        </div>
+        <p style="margin:0 0 20px;font-size:13px;color:#64748b;">Choose what to include in the PDF report:</p>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+
+            {{-- Full --}}
+            <button class="layout-opt-btn" onclick="openReport('full')" style="border:2px solid #e2e8f0;border-radius:12px;padding:14px 10px;cursor:pointer;background:#fff;text-align:center;transition:all .15s;">
+                <div style="display:flex;flex-direction:column;height:70px;border:1px solid #cbd5e1;border-radius:6px;overflow:hidden;margin-bottom:8px;background:#f8fafc;">
+                    <div style="height:22%;background:#94a3b8;"></div>
+                    <div style="flex:1;background:repeating-linear-gradient(180deg,#e2e8f0 0,#e2e8f0 2px,transparent 2px,transparent 7px);margin:4px 6px;"></div>
+                    <div style="height:18%;background:#94a3b8;"></div>
+                </div>
+                <div style="font-weight:900;font-size:13px;color:#0f172a;">Header + Footer</div>
+                <div style="font-size:11px;color:#64748b;margin-top:2px;">Full report</div>
+            </button>
+
+            {{-- Header only --}}
+            <button class="layout-opt-btn" onclick="openReport('header')" style="border:2px solid #e2e8f0;border-radius:12px;padding:14px 10px;cursor:pointer;background:#fff;text-align:center;transition:all .15s;">
+                <div style="display:flex;flex-direction:column;height:70px;border:1px solid #cbd5e1;border-radius:6px;overflow:hidden;margin-bottom:8px;background:#f8fafc;">
+                    <div style="height:22%;background:#94a3b8;"></div>
+                    <div style="flex:1;background:repeating-linear-gradient(180deg,#e2e8f0 0,#e2e8f0 2px,transparent 2px,transparent 7px);margin:4px 6px;"></div>
+                    <div style="height:18%;background:transparent;"></div>
+                </div>
+                <div style="font-weight:900;font-size:13px;color:#0f172a;">Header Only</div>
+                <div style="font-size:11px;color:#64748b;margin-top:2px;">No footer</div>
+            </button>
+
+            {{-- Footer only --}}
+            <button class="layout-opt-btn" onclick="openReport('footer')" style="border:2px solid #e2e8f0;border-radius:12px;padding:14px 10px;cursor:pointer;background:#fff;text-align:center;transition:all .15s;">
+                <div style="display:flex;flex-direction:column;height:70px;border:1px solid #cbd5e1;border-radius:6px;overflow:hidden;margin-bottom:8px;background:#f8fafc;">
+                    <div style="height:22%;background:transparent;"></div>
+                    <div style="flex:1;background:repeating-linear-gradient(180deg,#e2e8f0 0,#e2e8f0 2px,transparent 2px,transparent 7px);margin:4px 6px;"></div>
+                    <div style="height:18%;background:#94a3b8;"></div>
+                </div>
+                <div style="font-weight:900;font-size:13px;color:#0f172a;">Footer Only</div>
+                <div style="font-size:11px;color:#64748b;margin-top:2px;">No header</div>
+            </button>
+
+            {{-- None --}}
+            <button class="layout-opt-btn" onclick="openReport('none')" style="border:2px solid #e2e8f0;border-radius:12px;padding:14px 10px;cursor:pointer;background:#fff;text-align:center;transition:all .15s;">
+                <div style="display:flex;flex-direction:column;height:70px;border:1px solid #cbd5e1;border-radius:6px;overflow:hidden;margin-bottom:8px;background:#f8fafc;">
+                    <div style="height:22%;background:transparent;"></div>
+                    <div style="flex:1;background:repeating-linear-gradient(180deg,#e2e8f0 0,#e2e8f0 2px,transparent 2px,transparent 7px);margin:4px 6px;"></div>
+                    <div style="height:18%;background:transparent;"></div>
+                </div>
+                <div style="font-weight:900;font-size:13px;color:#0f172a;">No Header / Footer</div>
+                <div style="font-size:11px;color:#64748b;margin-top:2px;">Results only</div>
+            </button>
+
+        </div>
+
+        <div style="margin-top:18px;text-align:center;">
+            <button onclick="closeLayoutModal()" style="padding:8px 24px;border-radius:8px;border:1px solid #e2e8f0;background:#f1f5f9;cursor:pointer;font-size:13px;font-weight:700;color:#475569;">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<style>
+.layout-opt-btn:hover { border-color:#2563eb !important; background:#eff6ff !important; }
+.layout-opt-btn:hover div:first-child { border-color:#93c5fd !important; }
+</style>
+
+<script>
+var _reportBaseUrl = '';
+
+document.querySelectorAll('a.report-layout-trigger').forEach(function(link) {
+    link.addEventListener('click', function(e) {
+        e.preventDefault();
+        _reportBaseUrl = this.href;
+        var modal = document.getElementById('reportLayoutModal');
+        modal.style.display = 'flex';
+    });
+});
+
+function openReport(layout) {
+    var url = _reportBaseUrl + (_reportBaseUrl.indexOf('?') === -1 ? '?' : '&') + 'layout=' + layout;
+    window.open(url, '_blank');
+    closeLayoutModal();
+}
+
+function closeLayoutModal() {
+    document.getElementById('reportLayoutModal').style.display = 'none';
+}
+
+document.getElementById('reportLayoutModal').addEventListener('click', function(e) {
+    if (e.target === this) closeLayoutModal();
+});
+
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeLayoutModal();
+});
 </script>
 @endsection

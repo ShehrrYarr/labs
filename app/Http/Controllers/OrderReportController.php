@@ -65,9 +65,12 @@ class OrderReportController extends Controller
 //     return $pdf->stream('order-'.$order->id.'-report.pdf');
 // }
 
-public function single(\App\Models\TestOrder $order)
+public function single(\App\Models\TestOrder $order, Request $request)
 {
-    $user = auth()->user();
+    $user   = auth()->user();
+    $layout = $request->input('layout', 'full');
+    $showHeader = in_array($layout, ['full', 'header']);
+    $showFooter = in_array($layout, ['full', 'footer']);
 
     // if (!in_array($user->category, ['admin', 'branch', 'customer'], true)) {
     //     abort(403);
@@ -118,6 +121,8 @@ public function single(\App\Models\TestOrder $order)
         'labName'        => $order->branch?->branch_name ?? $setting->lab_name,
         'letterheadPath' => public_path('letterheads/report_letterhead.png'),
         'setting'        => $setting,
+        'showHeader'     => $showHeader,
+        'showFooter'     => $showFooter,
     ])->setPaper('a4');
 
     return $pdf->stream('order-'.$order->id.'-report.pdf');
@@ -163,9 +168,12 @@ public function single(\App\Models\TestOrder $order)
 //     return $pdf->stream('customer-'.$customer->id.'-all-orders.pdf');
 // }
 
-public function customerAll(\App\Models\Customer $customer)
+public function customerAll(\App\Models\Customer $customer, Request $request)
 {
-    $user = auth()->user();
+    $user   = auth()->user();
+    $layout = $request->input('layout', 'full');
+    $showHeader = in_array($layout, ['full', 'header']);
+    $showFooter = in_array($layout, ['full', 'footer']);
 
     // Allow admin, branch, and customer
     if (!in_array($user->category, ['admin', 'branch', 'customer'], true)) {
@@ -206,6 +214,8 @@ public function customerAll(\App\Models\Customer $customer)
         'letterheadPath' => public_path('letterheads/report_letterhead.png'),
         'mainLabName'    => $setting->lab_name,
         'setting'        => $setting,
+        'showHeader'     => $showHeader,
+        'showFooter'     => $showFooter,
     ])->setPaper('a4');
 
     return $pdf->stream('customer-'.$customer->id.'-all-orders.pdf');
