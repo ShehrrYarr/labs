@@ -186,6 +186,13 @@
                         $invTotal    = (float)($inv?->total_amount ?? 0);
                         $invPaid     = (float)($inv?->paid_amount ?? 0);
                         $invRemain   = max(0, $invTotal - $invPaid);
+
+                        // Build ordered list of test types in this order for the print modal
+                        $_tmap = collect($typesForJs)->keyBy('id');
+                        $orderTypesForModal = $displayTests
+                            ->pluck('test_type_id')->filter()->unique()
+                            ->map(fn($tid) => ['id' => (int)$tid, 'name' => $_tmap[$tid]['name'] ?? ('Type #'.$tid)])
+                            ->values()->toArray();
                     @endphp
 
                     <div class="box" style="background:#fafafa;">
@@ -221,6 +228,7 @@
                                 <div onclick="event.stopPropagation();" style="display:flex;gap:8px;flex-wrap:wrap;">
                                     <a class="btn btn-ghost mini-btn report-layout-trigger"
                                        href="{{ route('orders.report.single', ['order' => $order->id]) }}"
+                                       data-types="{{ json_encode($orderTypesForModal) }}"
                                        target="_blank">PDF</a>
 
                                     <a class="btn btn-ghost mini-btn"
@@ -629,13 +637,34 @@
      PRINT OPTIONS MODAL
 ══════════════════════════════════════════ --}}
 <div id="reportLayoutModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;align-items:center;justify-content:center;">
-    <div style="background:#fff;border-radius:18px;padding:28px 32px;max-width:480px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.25);">
+    <div style="background:#fff;border-radius:18px;padding:28px 32px;max-width:500px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.25);max-height:90vh;overflow-y:auto;">
 
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
             <h3 style="margin:0;font-size:17px;color:#0f172a;">🖨️ Print Options</h3>
             <button onclick="closeLayoutModal()" style="border:0;background:none;font-size:22px;cursor:pointer;color:#94a3b8;line-height:1;">✕</button>
         </div>
-        <p style="margin:0 0 20px;font-size:13px;color:#64748b;">Choose what to include in the PDF report:</p>
+
+        {{-- ── Test selection (hidden when order has only 1 type) ── --}}
+        <div id="testSelectionSection" style="display:none;margin-bottom:18px;">
+            <div style="font-size:13px;font-weight:900;color:#0f172a;margin-bottom:8px;">Select Tests to Include:</div>
+            <div id="testCheckboxList"
+                 style="display:flex;flex-direction:column;gap:7px;max-height:200px;overflow-y:auto;
+                        border:1px solid #e2e8f0;border-radius:10px;padding:10px 14px;background:#f8fafc;">
+                {{-- populated by JS --}}
+            </div>
+            <div style="margin-top:8px;display:flex;gap:8px;">
+                <button type="button" onclick="selectAllTests(true)"
+                        style="padding:5px 14px;border-radius:7px;border:1px solid #e2e8f0;background:#fff;font-size:12px;font-weight:700;cursor:pointer;color:#2563eb;">
+                    Select All
+                </button>
+                <button type="button" onclick="selectAllTests(false)"
+                        style="padding:5px 14px;border-radius:7px;border:1px solid #e2e8f0;background:#fff;font-size:12px;font-weight:700;cursor:pointer;color:#64748b;">
+                    Deselect All
+                </button>
+            </div>
+        </div>
+
+        <p style="margin:0 0 14px;font-size:13px;color:#64748b;">Choose layout:</p>
 
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
 
@@ -699,17 +728,55 @@
 <script>
 var _reportBaseUrl = '';
 
+function _escHtml(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
 document.querySelectorAll('a.report-layout-trigger').forEach(function(link) {
     link.addEventListener('click', function(e) {
         e.preventDefault();
         _reportBaseUrl = this.href;
-        var modal = document.getElementById('reportLayoutModal');
-        modal.style.display = 'flex';
+
+        /* Populate test checkboxes from data-types attribute */
+        var types = [];
+        try { types = JSON.parse(this.getAttribute('data-types') || '[]'); } catch(ex){}
+
+        var section  = document.getElementById('testSelectionSection');
+        var listWrap = document.getElementById('testCheckboxList');
+
+        if (types.length > 1) {
+            listWrap.innerHTML = '';
+            types.forEach(function(t) {
+                var lbl = document.createElement('label');
+                lbl.style.cssText = 'display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:#0f172a;';
+                lbl.innerHTML = '<input type="checkbox" value="' + t.id + '" checked '
+                    + 'style="width:16px;height:16px;cursor:pointer;accent-color:#2563eb;flex-shrink:0;"> '
+                    + _escHtml(t.name);
+                listWrap.appendChild(lbl);
+            });
+            section.style.display = 'block';
+        } else {
+            section.style.display = 'none';
+        }
+
+        document.getElementById('reportLayoutModal').style.display = 'flex';
     });
 });
 
+function selectAllTests(checked) {
+    document.querySelectorAll('#testCheckboxList input[type=checkbox]').forEach(function(cb){ cb.checked = checked; });
+}
+
 function openReport(layout) {
-    var url = _reportBaseUrl + (_reportBaseUrl.indexOf('?') === -1 ? '?' : '&') + 'layout=' + layout;
+    /* Collect checked test type IDs (if selection is visible) */
+    var section = document.getElementById('testSelectionSection');
+    var typeParams = '';
+    if (section.style.display !== 'none') {
+        document.querySelectorAll('#testCheckboxList input[type=checkbox]:checked').forEach(function(cb) {
+            typeParams += '&types[]=' + encodeURIComponent(cb.value);
+        });
+    }
+
+    var sep = _reportBaseUrl.indexOf('?') === -1 ? '?' : '&';
+    var url = _reportBaseUrl + sep + 'layout=' + layout + typeParams;
     window.open(url, '_blank');
     closeLayoutModal();
 }

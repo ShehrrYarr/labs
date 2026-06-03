@@ -115,6 +115,14 @@ public function single(\App\Models\TestOrder $order, Request $request)
         }
     }
 
+    /* Filter to only selected test types if provided */
+    $selectedTypeIds = array_filter(array_map('intval', (array) $request->input('types', [])));
+    if (!empty($selectedTypeIds)) {
+        $order->setRelation('items', $order->items->filter(
+            fn($item) => in_array((int) $item->test_type_id, $selectedTypeIds, true)
+        )->values());
+    }
+
     $setting = LabSetting::instance();
 
     $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('reports.order_single', [
