@@ -188,8 +188,10 @@
                         $invRemain   = max(0, $invTotal - $invPaid);
 
                         // Build ordered list of test types in this order for the print modal
+                        // item_kind values in DB are 'main' and 'sub'
                         $_tmap = collect($typesForJs)->keyBy('id');
-                        $orderTypesForModal = $displayTests
+                        $orderTypesForModal = $displayItems
+                            ->whereIn('item_kind', ['main', 'sub'])
                             ->pluck('test_type_id')->filter()->unique()
                             ->map(fn($tid) => ['id' => (int)$tid, 'name' => $_tmap[$tid]['name'] ?? ('Type #'.$tid)])
                             ->values()->toArray();
