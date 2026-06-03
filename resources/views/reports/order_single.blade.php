@@ -354,11 +354,12 @@
                 foreach ($typeItems as $_ni) {
                     if (!empty($_ni->result_notes)) { $typeNote = $_ni->result_notes; break; }
                 }
-                // TestType description — preserve newlines, strip HTML tags
+                // TestType description — preserve newlines, strip HTML, convert tabs to spaces
                 $typeDesc = trim(strip_tags(
                     str_replace(['<br>','<br/>','<br />','</p>','</li>'], ["\n","\n","\n","\n","\n"],
                         (string)($typeItems->first()?->testType?->description ?? ''))
                 ));
+                $typeDesc = str_replace("\t", '    ', $typeDesc); // tabs → 4 spaces (DejaVu can't render \t)
             @endphp
             @if($typeNote || $typeDesc)
             <div style="margin-top:8px;padding-top:6px;border-top:1px solid rgba(17,24,39,.12);">
@@ -366,7 +367,7 @@
                 <div style="font-size:9.5px;color:#374151;white-space:pre-wrap;margin-bottom:{{ $typeDesc ? '4px' : '0' }};"><strong>Notes:</strong> {{ $typeNote }}</div>
                 @endif
                 @if($typeDesc)
-                <div style="font-size:9.5px;color:#6b7280;font-style:italic;line-height:1.4;white-space:pre-wrap;">{{ $typeDesc }}</div>
+                <div style="font-size:9px;color:#6b7280;line-height:1.4;white-space:pre-wrap;font-family:'DejaVu Sans Mono',monospace;">{{ $typeDesc }}</div>
                 @endif
             </div>
             @endif
