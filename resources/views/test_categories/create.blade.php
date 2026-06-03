@@ -49,6 +49,11 @@
                 <input type="text" name="name" value="{{ old('name') }}" required>
             </div>
 
+            <div style="margin-top:12px;">
+                <label>Subtitle <span style="font-weight:400;color:#94a3b8;">(optional — shown in PDF below category name, e.g. "Physical And Chemical Analysis")</span></label>
+                <input type="text" name="subtitle" value="{{ old('subtitle') }}" placeholder="e.g. Physical And Chemical Analysis">
+            </div>
+
             <div class="toggle">
                 <input type="checkbox" name="is_active" value="1" {{ old('is_active', 1) ? 'checked' : '' }}>
                 <span>Active</span>

@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class TestCategory extends Model
 {
     use HasFactory;
-    protected $fillable = ['name', 'is_active'];
+    protected $fillable = ['name', 'subtitle', 'is_active'];
 
     public function labTests()
 {

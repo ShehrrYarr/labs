@@ -33,11 +33,13 @@ class TestCategoryController extends Controller
     {
         $data = $request->validate([
             'name'      => ['required', 'string', 'max:255', 'unique:test_categories,name'],
+            'subtitle'  => ['nullable', 'string', 'max:255'],
             'is_active' => ['nullable', 'boolean'],
         ]);
 
         TestCategory::create([
-            'name' => $data['name'],
+            'name'      => $data['name'],
+            'subtitle'  => $data['subtitle'] ?? null,
             'is_active' => (bool)($data['is_active'] ?? true),
         ]);
 
@@ -53,11 +55,13 @@ class TestCategoryController extends Controller
     {
         $data = $request->validate([
             'name'      => ['required', 'string', 'max:255', 'unique:test_categories,name,' . $testCategory->id],
+            'subtitle'  => ['nullable', 'string', 'max:255'],
             'is_active' => ['nullable', 'boolean'],
         ]);
 
         $testCategory->update([
-            'name' => $data['name'],
+            'name'      => $data['name'],
+            'subtitle'  => $data['subtitle'] ?? null,
             'is_active' => (bool)($data['is_active'] ?? false),
         ]);
 

@@ -196,26 +196,24 @@
     $normalizedType = strtoupper(trim((string) $typeName));
 
     // 2) Build category groups in insertion order (first-seen)
-    $grouped = [];
+    $grouped           = [];
+    $categorySubtitles = []; // subtitle per category (from test_categories.subtitle)
 
     foreach ($typeItems as $it) {
         $category = $it->labTest?->testCategory?->name;
+        $subtitle  = $it->labTest?->testCategory?->subtitle ?? null;
 
         // ✅ CBC special case
         if (!$category && $normalizedType === 'CBC') {
             $category = 'Diff. Leuc Count (DLC)';
         }
 
-        // ✅ Urine R/E special case
-        if (!$category && in_array($normalizedType, ['URINE R/E', 'URINE RE'], true)) {
-            $category = 'Microscopic Analysis';
-        }
-
         // Fallback
         $category = $category ?: 'Other';
 
         if (!isset($grouped[$category])) {
-            $grouped[$category] = collect();
+            $grouped[$category]           = collect();
+            $categorySubtitles[$category] = $subtitle;
         }
 
         // keeps PURE inserted order
@@ -289,11 +287,11 @@
             @foreach($grouped as $categoryName => $items)
                 <div class="section-title">{{ $categoryName }}</div>
 
-                @if(in_array(strtoupper(trim($typeName)), ['URINE R/E', 'URINE RE'], true))
-    <div class="small" style="margin:2px 0 6px;font-weight:700;color:#374151;">
-        Physical And Chemical Analysis
-    </div>
-@endif
+                @if(!empty($categorySubtitles[$categoryName]))
+                    <div style="margin:2px 0 6px;font-weight:700;color:#374151;font-size:0.9em;">
+                        {{ $categorySubtitles[$categoryName] }}
+                    </div>
+                @endif
 
                 <table class="report">
                     <thead>
