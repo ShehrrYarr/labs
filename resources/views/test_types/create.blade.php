@@ -83,9 +83,8 @@
                             <div class="hint">This is the billed price (PKR).</div>
                         </div>
 
-                        <div>
-                            <label>Description (optional)</label>
-                            <textarea name="description" placeholder="Notes for staff / internal description...">{{ old('description') }}</textarea>
+                        <div style="grid-column:1/-1;">
+                            @include('test_types._desc_editor', ['descValue' => old('description', '')])
                         </div>
                     </div>
 

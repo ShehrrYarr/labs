@@ -70,10 +70,8 @@
                 <input type="text" name="code" value="{{ old('code', $testType->code) }}" placeholder="e.g., CBC-01">
             </div>
 
-            <div style="margin-top:14px;">
-                <label>Description (optional)</label>
-                <textarea name="description" placeholder="Brief description shown on PDF reports...">{{ old('description', $testType->description) }}</textarea>
-            </div>
+            @include('test_types._desc_editor', ['descValue' => old('description', $testType->description ?? '')])
+
 
             <div class="toggle">
                 <input type="checkbox" name="is_active" value="1" {{ old('is_active', $testType->is_active) ? 'checked' : '' }}>

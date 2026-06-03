@@ -34,7 +34,7 @@ public function testType(){
         'name'        => ['required', 'string', 'max:255', 'unique:test_types,name'],
         'code'        => ['nullable', 'string', 'max:50', 'unique:test_types,code'],
         'price'       => ['required', 'numeric', 'min:0'],
-        'description' => ['nullable', 'string', 'max:2000'],
+        'description' => ['nullable', 'string', 'max:20000'],
         'is_active'   => ['nullable', 'boolean'],
     ]);
 
@@ -62,7 +62,7 @@ public function testType(){
             'name'        => ['required', 'string', 'max:255', 'unique:test_types,name,' . $testType->id],
             'code'        => ['nullable', 'string', 'max:50', 'unique:test_types,code,' . $testType->id],
             'price'       => ['required', 'numeric', 'min:0'],
-            'description' => ['nullable', 'string', 'max:2000'],
+            'description' => ['nullable', 'string', 'max:20000'],
             'is_active'   => ['nullable', 'boolean'],
         ]);
 
