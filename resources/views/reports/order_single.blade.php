@@ -282,17 +282,8 @@
 
             <div class="hr"></div>
 
-            {{-- Test Type Title + description --}}
+            {{-- Test Type Title --}}
             <div class="type-title">{{ $typeName }}</div>
-            @php
-                $typeDesc = trim(strip_tags(
-                    str_replace(['<br>','<br/>','<br />','</p>','<p>'], [' ',' ',' ',' ',' '],
-                        (string)($typeItems->first()?->testType?->description ?? ''))
-                ));
-            @endphp
-            @if($typeDesc)
-            <div style="font-size:9.5px;color:#6b7280;margin:-2px 0 6px;font-style:italic;line-height:1.35;">{{ $typeDesc }}</div>
-            @endif
 
             {{-- Categories (in first-seen order), and rows (pure inserted order) --}}
             @foreach($grouped as $categoryName => $items)
@@ -357,6 +348,15 @@
                 </table>
             @endforeach
 
+            @php
+                $typeDesc = trim(strip_tags(
+                    str_replace(['<br>','<br/>','<br />','</p>','<p>'], [' ',' ',' ',' ',' '],
+                        (string)($typeItems->first()?->testType?->description ?? ''))
+                ));
+            @endphp
+            @if($typeDesc)
+            <div style="margin-top:8px;padding-top:6px;border-top:1px solid rgba(17,24,39,.12);font-size:9.5px;color:#6b7280;font-style:italic;line-height:1.35;">{{ $typeDesc }}</div>
+            @endif
 
         </div>
 
