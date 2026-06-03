@@ -238,6 +238,17 @@
                         <option value="Trebuchet MS"    style="font-family:'Trebuchet MS';">Trebuchet MS</option>
                         <option value="Impact"          style="font-family:Impact;">Impact</option>
                     </optgroup>
+                    <optgroup label="── Windows Fonts ──">
+                        <option value="Algerian"        style="font-family:Algerian;">Algerian</option>
+                        <option value="Arial Black"     style="font-family:'Arial Black';">Arial Black</option>
+                        <option value="Calibri"         style="font-family:Calibri;">Calibri</option>
+                        <option value="Cambria"         style="font-family:Cambria;">Cambria</option>
+                        <option value="Century Gothic"  style="font-family:'Century Gothic';">Century Gothic</option>
+                        <option value="Comic Sans MS"   style="font-family:'Comic Sans MS';">Comic Sans MS</option>
+                        <option value="Garamond"        style="font-family:Garamond;">Garamond</option>
+                        <option value="Palatino Linotype" style="font-family:'Palatino Linotype';">Palatino Linotype</option>
+                        <option value="Segoe UI"        style="font-family:'Segoe UI';">Segoe UI</option>
+                    </optgroup>
                     <optgroup label="── Google Fonts ──">
                         <option value="Roboto"           style="font-family:'Roboto';">Roboto</option>
                         <option value="Open Sans"        style="font-family:'Open Sans';">Open Sans</option>
