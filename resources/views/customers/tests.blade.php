@@ -304,9 +304,12 @@
 
                                     @if(auth()->user()->category === 'admin')
                                     @php
-                                        $existingResultFile = '';
+                                        $existingResultFiles = [];
                                         foreach($resultItems as $_rf) {
-                                            if(!empty($_rf->result_file)) { $existingResultFile = $_rf->result_file; break; }
+                                            if(!empty($_rf->result_files)) {
+                                                $existingResultFiles = is_array($_rf->result_files) ? $_rf->result_files : json_decode($_rf->result_files, true) ?? [];
+                                                break;
+                                            }
                                         }
                                     @endphp
                                     <form method="POST" enctype="multipart/form-data"
@@ -366,17 +369,21 @@
                                                       placeholder="Add any clinical notes for this test...">{{ $existingTypeNote }}</textarea>
                                         </div>
 
-                                        {{-- Result image upload --}}
+                                        {{-- Result images upload (multiple) --}}
                                         <div style="padding:8px 10px;border-top:1px solid #e5e7eb;background:#f8fafc;">
-                                            <label style="font-size:11px;font-weight:700;color:#475569;margin-bottom:6px;display:block;">Result Image (optional — shown in PDF report)</label>
-                                            @if($existingResultFile && file_exists(public_path('result_files/' . $existingResultFile)))
-                                                <div style="margin-bottom:8px;">
-                                                    <img src="{{ asset('result_files/' . $existingResultFile) }}"
-                                                         style="max-height:120px;max-width:100%;border:1px solid #e5e7eb;border-radius:8px;display:block;">
-                                                    <div style="font-size:11px;color:#64748b;margin-top:4px;">Current image — upload a new one to replace it.</div>
+                                            <label style="font-size:11px;font-weight:700;color:#475569;margin-bottom:6px;display:block;">Result Images (optional — shown in PDF report, 2 per row)</label>
+                                            @if(!empty($existingResultFiles))
+                                                <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px;">
+                                                    @foreach($existingResultFiles as $_ef)
+                                                        @if(file_exists(public_path('result_files/' . $_ef)))
+                                                            <img src="{{ asset('result_files/' . $_ef) }}"
+                                                                 style="height:80px;width:auto;border:1px solid #e5e7eb;border-radius:6px;object-fit:contain;">
+                                                        @endif
+                                                    @endforeach
                                                 </div>
+                                                <div style="font-size:11px;color:#64748b;margin-bottom:6px;">Existing images shown above — upload new ones to replace all.</div>
                                             @endif
-                                            <input type="file" name="result_image" accept="image/*"
+                                            <input type="file" name="result_images[]" accept="image/*" multiple
                                                    style="font-size:12px;border:1px solid #e5e7eb;border-radius:6px;padding:5px 8px;background:#fff;width:100%;box-sizing:border-box;">
                                         </div>
 

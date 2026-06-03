@@ -349,25 +349,40 @@
             @endforeach
 
             @php
-                // Result image (first item in this type that has one)
-                $typeImageB64 = '';
+                // Result images — collect base64 from result_files (JSON array) on first item that has them
+                $typeImagesB64 = [];
                 foreach ($typeItems as $_img) {
-                    if (!empty($_img->result_file)) {
-                        $imgPath = public_path('result_files/' . $_img->result_file);
-                        if (file_exists($imgPath)) {
-                            $ext = strtolower(pathinfo($imgPath, PATHINFO_EXTENSION));
-                            $mime = in_array($ext, ['jpg','jpeg']) ? 'image/jpeg'
-                                  : ($ext === 'png' ? 'image/png'
-                                  : ($ext === 'gif' ? 'image/gif' : 'image/jpeg'));
-                            $typeImageB64 = 'data:' . $mime . ';base64,' . base64_encode(file_get_contents($imgPath));
+                    $files = $_img->result_files ?? null;
+                    if ($files) {
+                        if (is_string($files)) $files = json_decode($files, true) ?? [];
+                        foreach ($files as $_f) {
+                            $imgPath = public_path('result_files/' . $_f);
+                            if (file_exists($imgPath)) {
+                                $ext  = strtolower(pathinfo($imgPath, PATHINFO_EXTENSION));
+                                $mime = in_array($ext, ['jpg','jpeg']) ? 'image/jpeg'
+                                      : ($ext === 'png' ? 'image/png'
+                                      : ($ext === 'gif' ? 'image/gif' : 'image/jpeg'));
+                                $typeImagesB64[] = 'data:' . $mime . ';base64,' . base64_encode(file_get_contents($imgPath));
+                            }
                         }
-                        break;
+                        if ($typeImagesB64) break;
                     }
                 }
             @endphp
-            @if($typeImageB64)
-            <div style="margin-top:10px;text-align:center;">
-                <img src="{{ $typeImageB64 }}" style="max-width:100%;height:auto;display:block;margin:0 auto;">
+            @if($typeImagesB64)
+            <div style="margin-top:10px;">
+                @foreach(array_chunk($typeImagesB64, 2) as $pair)
+                <table style="width:100%;border-collapse:collapse;margin-bottom:6px;">
+                    <tr>
+                        @foreach($pair as $b64)
+                        <td style="width:50%;padding:3px;text-align:center;vertical-align:top;">
+                            <img src="{{ $b64 }}" style="max-width:100%;max-height:200px;height:auto;display:block;margin:0 auto;">
+                        </td>
+                        @endforeach
+                        @if(count($pair) === 1)<td style="width:50%;"></td>@endif
+                    </tr>
+                </table>
+                @endforeach
             </div>
             @endif
 

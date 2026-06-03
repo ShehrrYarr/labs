@@ -345,7 +345,8 @@ public function postTypeResult(Request $request, Customer $customer, TestOrder $
         'test_type_id'        => ['required', 'integer'],
         'mark_ready'          => ['required', 'boolean'],
         'type_notes'          => ['nullable', 'string', 'max:5000'],
-        'result_image'        => ['nullable', 'image', 'max:6144'],
+        'result_images'       => ['nullable', 'array'],
+        'result_images.*'     => ['image', 'max:6144'],
         'items'               => ['required', 'array'],
         'items.*.id'          => ['required', 'integer'],
         'items.*.result_text' => ['nullable', 'string', 'max:10000'],
@@ -356,18 +357,21 @@ public function postTypeResult(Request $request, Customer $customer, TestOrder $
     $now       = now();
     $typeNotes = $data['type_notes'] ?? null;
 
-    // Handle result image upload
-    $resultFilename = null;
-    if ($request->hasFile('result_image')) {
-        $file   = $request->file('result_image');
-        $dir    = public_path('result_files');
+    // Handle multiple result image uploads
+    $newFilenames = null;
+    if ($request->hasFile('result_images')) {
+        $dir = public_path('result_files');
         if (!is_dir($dir)) mkdir($dir, 0755, true);
-        $resultFilename = 'result_' . $order->id . '_' . $data['test_type_id'] . '_' . time()
-                        . '.' . $file->getClientOriginalExtension();
-        $file->move($dir, $resultFilename);
+        $newFilenames = [];
+        foreach ($request->file('result_images') as $i => $file) {
+            $filename = 'result_' . $order->id . '_' . $data['test_type_id'] . '_' . time() . '_' . $i
+                      . '.' . $file->getClientOriginalExtension();
+            $file->move($dir, $filename);
+            $newFilenames[] = $filename;
+        }
     }
 
-    DB::transaction(function () use ($data, $order, $status, $authId, $now, $typeNotes, $resultFilename) {
+    DB::transaction(function () use ($data, $order, $status, $authId, $now, $typeNotes, $newFilenames) {
         foreach ($data['items'] as $itemData) {
             $item = $order->items()
                 ->where('id', $itemData['id'])
@@ -381,8 +385,8 @@ public function postTypeResult(Request $request, Customer $customer, TestOrder $
                 'result_posted_at'         => $now,
                 'result_posted_by_user_id' => $authId,
             ];
-            if ($resultFilename !== null) {
-                $update['result_file'] = $resultFilename;
+            if ($newFilenames !== null) {
+                $update['result_files'] = json_encode($newFilenames);
             }
             $item->update($update);
         }

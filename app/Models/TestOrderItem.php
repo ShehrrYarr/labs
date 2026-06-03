@@ -31,13 +31,15 @@ class TestOrderItem extends Model
         'result_text',
         'result_notes',
         'result_file',
+        'result_files',
         'result_posted_at',
         'result_posted_by_user_id',
     ];
 
     protected $casts = [
         'type_price_snapshot' => 'float',
-        'result_posted_at' => 'datetime',
+        'result_posted_at'    => 'datetime',
+        'result_files'        => 'array',
     ];
 
     public function order()
