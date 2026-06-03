@@ -255,7 +255,9 @@
         </div>
         @endif {{-- /showHeader --}}
         @php
-            $ptop    = ($showHeader ?? true) ? '130px' : '20px';
+            // Always reserve the header area — when printing footer-only on
+            // pre-printed letterhead the top space must still be left blank.
+            $ptop    = '130px';
             $pbottom = ($showFooter ?? true) ? '210px' : '20px';
         @endphp
         <div class="content" style="padding: {{ $ptop }} 45px {{ $pbottom }} 45px;">
