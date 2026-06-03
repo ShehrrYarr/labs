@@ -141,7 +141,7 @@
                 <input id="customerSearch"
                        class="search-input"
                        type="text"
-                       placeholder="Search across all customers by name, login id, phone, ref by..."
+                       placeholder="Search by name, phone, login id, test type (e.g. CBC), or test name (e.g. Haemoglobin)..."
                        autocomplete="off">
                 <span id="matchChip" class="chip hidden">0 matches</span>
                 <button id="clearSearch" class="clear-btn hidden" type="button">Clear</button>
@@ -300,6 +300,14 @@
         const phone = c.phone ?? c.customer_phone ?? '-';
         const refBy = c.ref_by ?? '-';
 
+        const testChips = (c.test_types && c.test_types.length)
+            ? `<div style="margin-top:5px;display:flex;flex-wrap:wrap;gap:4px;">
+                 ${c.test_types.map(t =>
+                   `<span style="display:inline-block;padding:1px 7px;border-radius:999px;background:#eff6ff;color:#2563eb;font-size:10px;font-weight:800;border:1px solid #bfdbfe;">${escHtml(t)}</span>`
+                 ).join('')}
+               </div>`
+            : '';
+
         return `
             <tr>
                 <td>
@@ -315,6 +323,7 @@
                 <td>
                     <div style="font-weight:900;color:#0f172a;">${escHtml(userName)}</div>
                     <div class="small">ID: ${escHtml(c.id)}</div>
+                    ${testChips}
                 </td>
 
                 <td>${escHtml(loginId)}</td>

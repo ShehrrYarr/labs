@@ -310,22 +310,31 @@ public function index(Request $request)
 
     $query = Customer::query()
         ->with([
-            'user:id,name,email,login_id,password_text', // keep it light
+            'user:id,name,email,login_id,password_text',
             'createdByBranch:id,branch_name',
         ])
         ->where(function ($qq) use ($q) {
 
-            // Search inside user table fields
+            // Customer profile + user fields
             $qq->whereHas('user', function ($u) use ($q) {
                 $u->where('name', 'like', "%{$q}%")
                   ->orWhere('email', 'like', "%{$q}%")
                   ->orWhere('login_id', 'like', "%{$q}%")
                   ->orWhere('password_text', 'like', "%{$q}%");
             })
-
-            // Search inside customer profile fields
             ->orWhere('phone', 'like', "%{$q}%")
-            ->orWhere('ref_by', 'like', "%{$q}%");
+            ->orWhere('ref_by', 'like', "%{$q}%")
+
+            // ── Test type name (e.g. "CBC", "Semen Analysis") ──
+            ->orWhereHas('testOrders.items.testType', function ($tq) use ($q) {
+                $tq->where('name', 'like', "%{$q}%");
+            })
+
+            // ── Individual test / sub-test name snapshot (e.g. "Haemoglobin") ──
+            ->orWhereHas('testOrders.items', function ($iq) use ($q) {
+                $iq->where('test_name_snapshot', 'like', "%{$q}%")
+                   ->whereNotIn('item_kind', ['group_header', 'charge']);
+            });
         });
 
     // Branch scope: only their created customers
@@ -339,25 +348,43 @@ public function index(Request $request)
         ->limit(50)
         ->get();
 
-    $data = $customers->map(function ($c) use ($user) {
-        return [
-            'id' => $c->id,
-            'is_active' => (bool) $c->is_active,
-            'phone' => $c->phone ?? '-',
-            'ref_by' => $c->ref_by ?? '-',
+    // ── Load distinct test types for all matched customers (single query) ──
+    $customerIds = $customers->pluck('id');
 
-            // Keep same key used in your table for admin
+    $testTypesByCustomer = \App\Models\TestOrderItem::query()
+        ->join('test_orders', 'test_orders.id', '=', 'test_order_items.test_order_id')
+        ->join('test_types', 'test_types.id', '=', 'test_order_items.test_type_id')
+        ->whereIn('test_orders.customer_id', $customerIds)
+        ->whereNotNull('test_order_items.test_type_id')
+        ->select(
+            'test_orders.customer_id',
+            'test_types.name as type_name'
+        )
+        ->distinct()
+        ->get()
+        ->groupBy('customer_id')
+        ->map(fn($rows) => $rows->pluck('type_name')->unique()->values()->all());
+
+    $data = $customers->map(function ($c) use ($user, $testTypesByCustomer) {
+        return [
+            'id'         => $c->id,
+            'is_active'  => (bool) $c->is_active,
+            'phone'      => $c->phone ?? '-',
+            'ref_by'     => $c->ref_by ?? '-',
+
             'branch_name' => in_array($user->category, ['admin', 'staff'], true)
                 ? ($c->createdByBranch?->branch_name ?? 'Admin / Unknown')
                 : null,
 
-            // ✅ Return nested user object so JS can do c.user.login_id etc
             'user' => [
-                'name' => $c->user?->name ?? 'Deleted',
-                'login_id' => $c->user?->login_id ?? '-',
+                'name'          => $c->user?->name ?? 'Deleted',
+                'login_id'      => $c->user?->login_id ?? '-',
                 'password_text' => $c->user?->password_text ?? '-',
-                'email' => $c->user?->email ?? '-',
+                'email'         => $c->user?->email ?? '-',
             ],
+
+            // Test types this customer has ever ordered
+            'test_types' => $testTypesByCustomer[$c->id] ?? [],
         ];
     });
 
