@@ -367,7 +367,7 @@
                 <div style="font-size:9.5px;color:#374151;white-space:pre-wrap;margin-bottom:{{ $typeDesc ? '4px' : '0' }};"><strong>Notes:</strong> {{ $typeNote }}</div>
                 @endif
                 @if($typeDesc)
-                <div style="font-size:9px;color:#6b7280;line-height:1.4;white-space:pre-wrap;font-family:'DejaVu Sans Mono',monospace;">{{ $typeDesc }}</div>
+                <div style="font-size:9px;color:#1e293b;line-height:1.4;white-space:pre-wrap;font-family:'DejaVu Sans Mono',monospace;">{{ $typeDesc }}</div>
                 @endif
             </div>
             @endif
