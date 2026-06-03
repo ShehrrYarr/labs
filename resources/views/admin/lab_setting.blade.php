@@ -203,17 +203,44 @@
             <button type="button" class="tb-btn tb-danger" onclick="removeSelected()">🗑 Remove Selected</button>
             <button type="button" class="tb-btn tb-warning" onclick="clearCanvas()">⊗ Clear All</button>
             <div class="tb-separator"></div>
-            <select id="canvasHeightSelect" onchange="resizeCanvas(this.value)"
-                    style="width:auto;padding:8px 12px;border-radius:8px;font-size:13px;font-weight:700;">
-                <option value="120">Height: 120px</option>
-                <option value="150">Height: 150px</option>
-                <option value="160" selected>Height: 160px</option>
-                <option value="180">Height: 180px</option>
-                <option value="200">Height: 200px</option>
-                <option value="220">Height: 220px</option>
-            </select>
+            <div style="display:flex;align-items:center;gap:6px;">
+                <span style="font-size:13px;font-weight:700;color:#475569;white-space:nowrap;">Height:</span>
+                <input type="number" id="canvasHeightInput" value="160" min="60" max="600"
+                       style="width:72px;padding:7px 10px;border-radius:8px;border:1px solid #e5e7eb;font-size:13px;font-weight:700;text-align:center;"
+                       oninput="resizeCanvas(this.value)">
+                <span style="font-size:13px;font-weight:700;color:#94a3b8;">px</span>
+            </div>
             <div class="tb-separator"></div>
             <button type="button" class="tb-btn tb-primary" id="saveCanvasBtn" onclick="saveCanvas()">💾 Save Header Design</button>
+        </div>
+
+        {{-- Text properties panel — shown when a text object is selected --}}
+        <div id="textPropsPanel" style="display:none;align-items:center;gap:12px;flex-wrap:wrap;
+             background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:10px 16px;margin:8px 0;">
+            <span style="font-size:12px;font-weight:900;color:#475569;">✏️ Text Properties:</span>
+            <div style="display:flex;align-items:center;gap:6px;">
+                <label style="margin:0;font-size:12px;font-weight:700;color:#475569;white-space:nowrap;">Size:</label>
+                <input type="number" id="txtFontSize" min="6" max="200" value="20"
+                       style="width:64px;padding:5px 8px;border-radius:7px;border:1px solid #e5e7eb;font-size:13px;font-weight:700;text-align:center;"
+                       oninput="applyFontSize(this.value)">
+                <span style="font-size:12px;color:#94a3b8;">px</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px;">
+                <label style="margin:0;font-size:12px;font-weight:700;color:#475569;white-space:nowrap;">Color:</label>
+                <input type="color" id="txtFontColor" value="#111111"
+                       style="width:40px;height:34px;padding:2px;border-radius:7px;border:1px solid #e5e7eb;cursor:pointer;"
+                       oninput="applyFontColor(this.value)">
+            </div>
+            <div style="display:flex;align-items:center;gap:6px;">
+                <label style="margin:0;font-size:12px;font-weight:700;color:#475569;white-space:nowrap;">Bold:</label>
+                <button type="button" id="txtBoldBtn" onclick="toggleBold()"
+                        style="padding:5px 12px;border-radius:7px;border:1px solid #e5e7eb;font-size:13px;font-weight:900;background:#fff;cursor:pointer;">B</button>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px;">
+                <label style="margin:0;font-size:12px;font-weight:700;color:#475569;white-space:nowrap;">Italic:</label>
+                <button type="button" id="txtItalicBtn" onclick="toggleItalic()"
+                        style="padding:5px 12px;border-radius:7px;border:1px solid #e5e7eb;font-size:13px;font-style:italic;font-weight:700;background:#fff;cursor:pointer;font-family:serif;">I</button>
+            </div>
         </div>
 
         {{-- Canvas --}}
@@ -355,8 +382,8 @@ const canvas = new fabric.Canvas('headerCanvas', {
     if (json._canvasHeight) {
         CANVAS_H = json._canvasHeight;
         canvas.setHeight(CANVAS_H);
-        const sel = document.getElementById('canvasHeightSelect');
-        if (sel) sel.value = String(CANVAS_H);
+        const inp = document.getElementById('canvasHeightInput');
+        if (inp) inp.value = CANVAS_H;
     }
 
     canvas.loadFromJSON(json, function() { canvas.renderAll(); });
@@ -436,9 +463,70 @@ function sendBackward() {
 }
 
 function resizeCanvas(h) {
-    CANVAS_H = parseInt(h, 10);
+    const val = parseInt(h, 10);
+    if (!val || val < 60) return;
+    CANVAS_H = val;
     canvas.setHeight(CANVAS_H);
     canvas.renderAll();
+}
+
+/* ─── TEXT PROPERTIES ────────────────────────── */
+function syncTextPanel(obj) {
+    const panel = document.getElementById('textPropsPanel');
+    if (!obj || (obj.type !== 'i-text' && obj.type !== 'text')) {
+        panel.style.display = 'none';
+        return;
+    }
+    panel.style.display = 'flex';
+    document.getElementById('txtFontSize').value  = Math.round(obj.fontSize || 20);
+    document.getElementById('txtFontColor').value = obj.fill || '#111111';
+    document.getElementById('txtBoldBtn').style.background   = obj.fontWeight === 'bold'   ? '#dbeafe' : '#fff';
+    document.getElementById('txtItalicBtn').style.background = obj.fontStyle  === 'italic' ? '#dbeafe' : '#fff';
+}
+
+canvas.on('selection:created', function(e) { syncTextPanel(e.selected && e.selected[0]); });
+canvas.on('selection:updated', function(e) { syncTextPanel(e.selected && e.selected[0]); });
+canvas.on('selection:cleared', function()  { document.getElementById('textPropsPanel').style.display = 'none'; });
+
+/* Live-update font size on the selected text */
+function applyFontSize(val) {
+    const obj = canvas.getActiveObject();
+    const size = parseInt(val, 10);
+    if (!obj || !size || size < 1) return;
+    if (obj.type === 'i-text' || obj.type === 'text') {
+        obj.set('fontSize', size);
+        canvas.renderAll();
+    }
+}
+
+/* Live-update font color on the selected text */
+function applyFontColor(val) {
+    const obj = canvas.getActiveObject();
+    if (!obj) return;
+    if (obj.type === 'i-text' || obj.type === 'text') {
+        obj.set('fill', val);
+        canvas.renderAll();
+    }
+}
+
+/* Toggle bold */
+function toggleBold() {
+    const obj = canvas.getActiveObject();
+    if (!obj || (obj.type !== 'i-text' && obj.type !== 'text')) return;
+    const next = obj.fontWeight === 'bold' ? 'normal' : 'bold';
+    obj.set('fontWeight', next);
+    canvas.renderAll();
+    document.getElementById('txtBoldBtn').style.background = next === 'bold' ? '#dbeafe' : '#fff';
+}
+
+/* Toggle italic */
+function toggleItalic() {
+    const obj = canvas.getActiveObject();
+    if (!obj || (obj.type !== 'i-text' && obj.type !== 'text')) return;
+    const next = obj.fontStyle === 'italic' ? 'normal' : 'italic';
+    obj.set('fontStyle', next);
+    canvas.renderAll();
+    document.getElementById('txtItalicBtn').style.background = next === 'italic' ? '#dbeafe' : '#fff';
 }
 
 /* ─── SAVE CANVAS ───────────────────────────── */
