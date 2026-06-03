@@ -733,7 +733,6 @@
                     <span style="font-size:13px;color:#64748b;">px &nbsp;(7 – 18)</span>
                 </div>
 
-                @if(file_exists(public_path('letterheads/watermark_composite.png')))
                 <div style="font-size:12px;font-weight:900;color:#475569;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">Watermark</div>
                 <label style="display:flex;align-items:center;gap:10px;margin-bottom:16px;cursor:pointer;padding:8px 12px;border:1.5px solid #e2e8f0;border-radius:8px;background:#f8fafc;">
                     <input type="checkbox" id="reportWatermark" checked
@@ -743,7 +742,6 @@
                         <div style="font-size:11px;color:#64748b;">Uncheck to print without the background watermark</div>
                     </div>
                 </label>
-                @endif
 
                 <div style="font-size:12px;font-weight:900;color:#475569;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">Layout</div>
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
