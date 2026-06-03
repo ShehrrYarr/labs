@@ -7,7 +7,18 @@ use Illuminate\Http\Request;
 
 class TestCategoryController extends Controller
 {
-     public function index()
+    public function __construct()
+    {
+        $this->middleware('auth');
+        $this->middleware(function ($request, $next) {
+            $u = auth()->user();
+            if ($u->category === 'admin') return $next($request);
+            if ($u->category === 'staff' && $u->hasStaffPermission('manage_test_categories')) return $next($request);
+            abort(403, 'Unauthorized.');
+        });
+    }
+
+    public function index()
     {
         $categories = TestCategory::latest()->paginate(10);
         return view('test_categories.index', compact('categories'));

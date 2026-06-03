@@ -80,8 +80,12 @@
                     'manage_payments'  => ['Manage Payments','feather icon-credit-card'],
                     'print_reports'    => ['Print Reports','feather icon-printer'],
                     'price_calculator' => ['Price Calculator','feather icon-dollar-sign'],
-                    'delete_tests'     => ['Remove Tests','feather icon-x-circle'],
-                    'delete_orders'    => ['Delete Orders','feather icon-trash-2'],
+                    'delete_tests'           => ['Remove Tests','feather icon-x-circle'],
+                    'delete_orders'          => ['Delete Orders','feather icon-trash-2'],
+                    'manage_test_types'      => ['Test Types','feather icon-tag'],
+                    'manage_test_categories' => ['Test Categories','feather icon-folder'],
+                    'manage_lab_tests'       => ['Lab Tests','feather icon-activity'],
+                    'manage_equipment'       => ['Equipment','feather icon-tool'],
                 ];
             @endphp
             @foreach($perms as $key => [$label, $icon])

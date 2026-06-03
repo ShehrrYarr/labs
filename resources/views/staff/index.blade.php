@@ -84,6 +84,10 @@
                                 'price_calculator'=>'Calculator',
                                 'delete_tests'=>'Remove Tests',
                                 'delete_orders'=>'Delete Orders',
+                                'manage_test_types'=>'Test Types',
+                                'manage_test_categories'=>'Test Categories',
+                                'manage_lab_tests'=>'Lab Tests',
+                                'manage_equipment'=>'Equipment',
                             ];
                         @endphp
                         @forelse($s->staff_permissions ?? [] as $p)

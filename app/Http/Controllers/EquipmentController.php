@@ -6,6 +6,17 @@ use Illuminate\Http\Request;
 
 class EquipmentController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth');
+        $this->middleware(function ($request, $next) {
+            $u = auth()->user();
+            if ($u->category === 'admin') return $next($request);
+            if ($u->category === 'staff' && $u->hasStaffPermission('manage_equipment')) return $next($request);
+            abort(403, 'Unauthorized.');
+        });
+    }
+
     public function index()
     {
         $equipment = Equipment::latest()->paginate(10);

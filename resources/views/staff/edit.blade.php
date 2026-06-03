@@ -112,8 +112,12 @@
                     'manage_payments'  => 'Can record payments and apply discounts to invoices.',
                     'print_reports'    => 'Can print/download PDF reports, invoice slips, and thermal receipts.',
                     'price_calculator' => 'Can access the price calculator tool.',
-                    'delete_tests'     => 'Can remove an assigned test type from an order.',
-                    'delete_orders'    => 'Can permanently delete an entire order including its invoice and payments.',
+                    'delete_tests'           => 'Can remove an assigned test type from an order.',
+                    'delete_orders'          => 'Can permanently delete an entire order including its invoice and payments.',
+                    'manage_test_types'      => 'Can create, edit, and delete test types (CBC, Urine R/E, etc.).',
+                    'manage_test_categories' => 'Can create, edit, and delete test categories.',
+                    'manage_lab_tests'       => 'Can create, edit, and delete individual lab tests and their sub-tests.',
+                    'manage_equipment'       => 'Can create, edit, and delete lab equipment records.',
                 ];
             @endphp
             <div class="perm-row">

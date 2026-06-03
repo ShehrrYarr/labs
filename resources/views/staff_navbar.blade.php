@@ -147,6 +147,44 @@
                 </li>
                 @endif
 
+                @php
+                    $hasSettings = Auth::user()->hasStaffPermission('manage_test_types')
+                        || Auth::user()->hasStaffPermission('manage_test_categories')
+                        || Auth::user()->hasStaffPermission('manage_lab_tests')
+                        || Auth::user()->hasStaffPermission('manage_equipment');
+                @endphp
+
+                @if($hasSettings)
+                <li class="nav-item">
+                    <a href="#">
+                        <i class="feather icon-settings"></i>
+                        <span class="menu-title">Lab Settings</span>
+                    </a>
+                    <ul class="menu-content">
+                        @if(Auth::user()->hasStaffPermission('manage_test_types'))
+                        <li class="@if(Request::is('test-types*')) active @endif">
+                            <a class="menu-item" href="{{ route('test-types.index') }}">Test Types</a>
+                        </li>
+                        @endif
+                        @if(Auth::user()->hasStaffPermission('manage_test_categories'))
+                        <li class="@if(Request::is('test-categories*')) active @endif">
+                            <a class="menu-item" href="{{ route('test-categories.index') }}">Test Categories</a>
+                        </li>
+                        @endif
+                        @if(Auth::user()->hasStaffPermission('manage_lab_tests'))
+                        <li class="@if(Request::is('lab-tests*')) active @endif">
+                            <a class="menu-item" href="{{ route('lab-tests.index') }}">Lab Tests</a>
+                        </li>
+                        @endif
+                        @if(Auth::user()->hasStaffPermission('manage_equipment'))
+                        <li class="@if(Request::is('equipment*')) active @endif">
+                            <a class="menu-item" href="{{ route('equipment.index') }}">Equipment</a>
+                        </li>
+                        @endif
+                    </ul>
+                </li>
+                @endif
+
             </ul>
         </div>
     </div>

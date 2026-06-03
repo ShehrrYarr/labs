@@ -24,9 +24,11 @@ class LabSubTestController extends Controller
         $u = auth()->user();
         if (!$u) abort(401);
 
-        if (!in_array($u->category, ['admin', 'branch'], true)) {
-            abort(403);
-        }
+        if ($u->category === 'admin') return;
+        if ($u->category === 'staff' && $u->hasStaffPermission('manage_lab_tests')) return;
+        if ($u->category === 'branch') return;
+
+        abort(403);
     }
 
     private function ensureBelongs(LabTest $labTest, LabSubTest $subTest): void

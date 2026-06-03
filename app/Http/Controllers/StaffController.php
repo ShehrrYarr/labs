@@ -126,8 +126,12 @@ class StaffController extends Controller
             'manage_payments'  => 'Manage Payments & Discounts',
             'print_reports'    => 'Print Reports / Slips / Receipts',
             'price_calculator' => 'Price Calculator',
-            'delete_tests'     => 'Remove Assigned Tests from Orders',
-            'delete_orders'    => 'Delete Entire Orders',
+            'delete_tests'          => 'Remove Assigned Tests from Orders',
+            'delete_orders'         => 'Delete Entire Orders',
+            'manage_test_types'     => 'Manage Test Types',
+            'manage_test_categories'=> 'Manage Test Categories',
+            'manage_lab_tests'      => 'Manage Lab Tests & Sub-Tests',
+            'manage_equipment'      => 'Manage Equipment',
         ];
     }
 }

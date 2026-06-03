@@ -8,9 +8,15 @@ class TestTypeController extends Controller
 { 
     
 public function __construct()
-     {
-         $this->middleware('auth');
-     }
+{
+    $this->middleware('auth');
+    $this->middleware(function ($request, $next) {
+        $u = auth()->user();
+        if ($u->category === 'admin') return $next($request);
+        if ($u->category === 'staff' && $u->hasStaffPermission('manage_test_types')) return $next($request);
+        abort(403, 'Unauthorized.');
+    });
+}
 
 public function testType(){
     $testTypes = TestType::all();
