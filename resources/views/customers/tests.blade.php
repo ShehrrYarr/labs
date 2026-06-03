@@ -732,6 +732,19 @@
                            style="width:70px;padding:7px 10px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:14px;font-weight:700;text-align:center;outline:none;">
                     <span style="font-size:13px;color:#64748b;">px &nbsp;(7 – 18)</span>
                 </div>
+
+                @if(file_exists(public_path('letterheads/watermark_composite.png')))
+                <div style="font-size:12px;font-weight:900;color:#475569;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">Watermark</div>
+                <label style="display:flex;align-items:center;gap:10px;margin-bottom:16px;cursor:pointer;padding:8px 12px;border:1.5px solid #e2e8f0;border-radius:8px;background:#f8fafc;">
+                    <input type="checkbox" id="reportWatermark" checked
+                           style="width:16px;height:16px;cursor:pointer;accent-color:#2563eb;flex-shrink:0;">
+                    <div>
+                        <div style="font-size:13px;font-weight:700;color:#0f172a;">Show watermark</div>
+                        <div style="font-size:11px;color:#64748b;">Uncheck to print without the background watermark</div>
+                    </div>
+                </label>
+                @endif
+
                 <div style="font-size:12px;font-weight:900;color:#475569;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">Layout</div>
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
 
@@ -847,8 +860,11 @@ function openReport(layout) {
     var fontSize = parseInt(document.getElementById('reportFontSize').value, 10) || 11;
     fontSize = Math.max(7, Math.min(18, fontSize));
 
+    var wmEl = document.getElementById('reportWatermark');
+    var watermark = wmEl ? (wmEl.checked ? '1' : '0') : '1';
+
     var sep = _reportBaseUrl.indexOf('?') === -1 ? '?' : '&';
-    var url = _reportBaseUrl + sep + 'layout=' + layout + typeParams + '&font_size=' + fontSize;
+    var url = _reportBaseUrl + sep + 'layout=' + layout + typeParams + '&font_size=' + fontSize + '&watermark=' + watermark;
     window.open(url, '_blank');
     closeLayoutModal();
 }

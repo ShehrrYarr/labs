@@ -123,7 +123,8 @@ public function single(\App\Models\TestOrder $order, Request $request)
         )->values());
     }
 
-    $fontSize = max(7, min(18, (int) $request->input('font_size', 11)));
+    $fontSize      = max(7, min(18, (int) $request->input('font_size', 11)));
+    $showWatermark = $request->input('watermark', '1') !== '0';
 
     $setting = LabSetting::instance();
 
@@ -135,6 +136,7 @@ public function single(\App\Models\TestOrder $order, Request $request)
         'showHeader'     => $showHeader,
         'showFooter'     => $showFooter,
         'fontSize'       => $fontSize,
+        'showWatermark'  => $showWatermark,
     ])->setPaper('a4');
 
     return $pdf->stream('order-'.$order->id.'-report.pdf');

@@ -181,7 +181,7 @@
 <body>
 
 {{-- Page watermark — position:fixed repeats on every PDF page --}}
-@if($watermarkB64)
+@if(($showWatermark ?? true) && $watermarkB64)
 <div style="position:fixed; top:0; left:0; width:100%; height:100%; z-index:0; overflow:hidden;">
     <img src="{{ $watermarkB64 }}" style="width:100%; height:100%;" alt="">
 </div>
