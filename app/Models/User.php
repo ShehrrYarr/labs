@@ -23,7 +23,9 @@ class User extends Authenticatable
         'password',
         'password_text',
         'category',
-        'login_id'
+        'login_id',
+        'staff_permissions',
+        'is_active',
     ];
 
     /**
@@ -42,8 +44,21 @@ class User extends Authenticatable
      * @var array<string, string>
      */
     protected $casts = [
-        'email_verified_at' => 'datetime',
+        'email_verified_at'  => 'datetime',
+        'staff_permissions'  => 'array',
+        'is_active'          => 'boolean',
     ];
+
+    public function hasStaffPermission(string $permission): bool
+    {
+        if ($this->category === 'admin') {
+            return true;
+        }
+        if ($this->category !== 'staff') {
+            return false;
+        }
+        return in_array($permission, $this->staff_permissions ?? [], true);
+    }
 
    public function branch()
 {

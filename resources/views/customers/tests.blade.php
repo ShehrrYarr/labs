@@ -287,7 +287,7 @@
                                             @if($allReady)
                                                 <span class="badge b-paid">ALL READY</span>
                                             @endif
-                                            @if(auth()->user()->category === 'admin')
+                                            @if(auth()->user()->hasStaffPermission('delete_tests'))
                                                 <form method="POST"
                                                       action="{{ route('customers.orders.type.destroy', ['customer' => $customer->id, 'order' => $order->id, 'typeId' => $gTypeId]) }}"
                                                       onsubmit="return confirm('Remove {{ addslashes($typeName) }} from this order?')">
@@ -302,7 +302,7 @@
                                         </div>
                                     </div>
 
-                                    @if(auth()->user()->category === 'admin')
+                                    @if(auth()->user()->hasStaffPermission('enter_results'))
                                     @php
                                         $existingResultFiles = [];
                                         foreach($resultItems as $_rf) {
@@ -540,7 +540,7 @@
                                 </tbody>
                             </table>
 
-                            @if(auth()->user()->category === 'admin')
+                            @if(auth()->user()->hasStaffPermission('delete_orders'))
                             <div class="divider"></div>
                             <form method="POST"
                                   action="{{ route('customers.orders.destroy', ['customer' => $customer->id, 'order' => $order->id]) }}"

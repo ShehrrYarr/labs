@@ -189,9 +189,11 @@ public function customerAll(\App\Models\Customer $customer, Request $request)
     $showHeader = in_array($layout, ['full', 'header']);
     $showFooter = in_array($layout, ['full', 'footer']);
 
-    // Allow admin, branch, and customer
-    if (!in_array($user->category, ['admin', 'branch', 'customer'], true)) {
+    if (!in_array($user->category, ['admin', 'branch', 'customer', 'staff'], true)) {
         abort(403);
+    }
+    if ($user->category === 'staff' && !$user->hasStaffPermission('print_reports')) {
+        abort(403, 'You do not have permission to print reports.');
     }
 
     // Branch can only view its own customers

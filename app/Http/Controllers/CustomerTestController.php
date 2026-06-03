@@ -19,8 +19,8 @@ class CustomerTestController extends Controller
 
         $this->middleware(function ($request, $next) {
             $cat = auth()->user()->category ?? null;
-            if (!in_array($cat, ['admin', 'branch'], true)) {
-                abort(403, 'Only admin or branch can access customer orders.');
+            if (!in_array($cat, ['admin', 'branch', 'staff'], true)) {
+                abort(403, 'Unauthorized.');
             }
             return $next($request);
         });
@@ -144,7 +144,10 @@ public function index(Customer $customer)
      */
     public function storeItems(Request $request, Customer $customer, TestOrder $order)
 {
-    // $this->authorizeOrderAccess($customer, $order);
+    $u = auth()->user();
+    if ($u->category === 'staff' && !$u->hasStaffPermission('assign_tests')) {
+        abort(403, 'You do not have permission to assign tests.');
+    }
 
     $data = $request->validate([
         'test_type_id' => ['required', 'integer', 'exists:test_types,id'],
@@ -291,8 +294,12 @@ public function index(Customer $customer)
 
     public function postResult(Request $request, Customer $customer, TestOrder $order, TestOrderItem $item)
 {
-    if (auth()->user()->category !== 'admin') {
-        abort(403, 'Only admin can post results.');
+    $u = auth()->user();
+    if ($u->category === 'staff' && !$u->hasStaffPermission('enter_results')) {
+        abort(403, 'You do not have permission to enter results.');
+    }
+    if (!in_array($u->category, ['admin', 'staff'], true)) {
+        abort(403);
     }
 
     // ✅ Force correct item under this order (prevents wrong binding)
@@ -337,8 +344,12 @@ public function index(Customer $customer)
 
 public function postTypeResult(Request $request, Customer $customer, TestOrder $order)
 {
-    if (auth()->user()->category !== 'admin') {
-        abort(403, 'Only admin can post results.');
+    $u = auth()->user();
+    if ($u->category === 'staff' && !$u->hasStaffPermission('enter_results')) {
+        abort(403, 'You do not have permission to enter results.');
+    }
+    if (!in_array($u->category, ['admin', 'staff'], true)) {
+        abort(403);
     }
 
     $data = $request->validate([
@@ -402,10 +413,12 @@ public function postTypeResult(Request $request, Customer $customer, TestOrder $
         ->with('success', 'Results saved.');
 }
 
-/** Admin: delete an entire order (items, invoice, payments) */
+/** Delete an entire order (items, invoice, payments) */
 public function destroyOrder(Customer $customer, TestOrder $order)
 {
-    if (auth()->user()->category !== 'admin') abort(403);
+    $u = auth()->user();
+    if ($u->category === 'staff' && !$u->hasStaffPermission('delete_orders')) abort(403);
+    if (!in_array($u->category, ['admin', 'staff'], true)) abort(403);
     if ((int)$order->customer_id !== $customer->id) abort(404);
 
     DB::transaction(function () use ($order) {
@@ -423,10 +436,12 @@ public function destroyOrder(Customer $customer, TestOrder $order)
         ->with('success', 'Order deleted.');
 }
 
-/** Admin: remove all items of one test type from an order and recalculate invoice */
+/** Remove all items of one test type from an order and recalculate invoice */
 public function destroyTestType(Customer $customer, TestOrder $order, int $typeId)
 {
-    if (auth()->user()->category !== 'admin') abort(403);
+    $u = auth()->user();
+    if ($u->category === 'staff' && !$u->hasStaffPermission('delete_tests')) abort(403);
+    if (!in_array($u->category, ['admin', 'staff'], true)) abort(403);
     if ((int)$order->customer_id !== $customer->id) abort(404);
 
     DB::transaction(function () use ($order, $typeId) {
@@ -509,7 +524,10 @@ private function recalculateInvoice(TestOrder $order): void
 
     public function storeOrder(Request $request, Customer $customer)
 {
-    // $this->authorizeCustomerAccess($customer);
+    $u = auth()->user();
+    if ($u->category === 'staff' && !$u->hasStaffPermission('create_orders')) {
+        abort(403, 'You do not have permission to create orders.');
+    }
 
     $data = $request->validate([
         'visited_at' => ['nullable', 'date'],
@@ -541,7 +559,10 @@ private function recalculateInvoice(TestOrder $order): void
 
 public function updateDiscount(Request $request, Customer $customer, TestOrder $order)
 {
-    // $this->authorizeOrderAccess($customer, $order);
+    $u = auth()->user();
+    if ($u->category === 'staff' && !$u->hasStaffPermission('manage_payments')) {
+        abort(403, 'You do not have permission to manage payments.');
+    }
 
     $data = $request->validate([
         'discount_type'  => ['required', 'in:none,percent,flat'],
@@ -570,7 +591,10 @@ public function updateDiscount(Request $request, Customer $customer, TestOrder $
 }
 public function storePayment(Request $request, Customer $customer, TestOrder $order)
 {
-    // $this->authorizeOrderAccess($customer, $order);
+    $u = auth()->user();
+    if ($u->category === 'staff' && !$u->hasStaffPermission('manage_payments')) {
+        abort(403, 'You do not have permission to manage payments.');
+    }
 
     $data = $request->validate([
         'amount' => ['required', 'numeric', 'min:0.01'],

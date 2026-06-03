@@ -126,7 +126,18 @@
                          <li class="@if (\Request::is('branches')) active @endif"><a class="menu-item"
                                 href="/branches" data-i18n="1 columns">Branches</a>
                         </li>
-                      
+
+                    </ul>
+                </li>
+
+                <li class=" nav-item"><a href="#"><i class="feather icon-users"></i><span class="menu-title">Manage Staff</span></a>
+                    <ul class="menu-content">
+                        <li class="@if(\Request::is('staff')) active @endif">
+                            <a class="menu-item" href="{{ route('staff.index') }}">All Staff</a>
+                        </li>
+                        <li class="@if(\Request::is('staff/create')) active @endif">
+                            <a class="menu-item" href="{{ route('staff.create') }}">Add Staff</a>
+                        </li>
                     </ul>
                 </li>
                

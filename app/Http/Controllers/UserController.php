@@ -125,6 +125,41 @@ class UserController extends Controller
         ));
     }
 
+    // STAFF DASHBOARD
+    if ($user->category === 'staff') {
+        if (!($user->is_active ?? true)) {
+            Auth::logout();
+            return redirect()->route('login')->with('error', 'Your account has been disabled. Please contact admin.');
+        }
+
+        $customerCount = Customer::count();
+        $ordersCount   = TestOrder::count();
+        $totalAmount   = (float) Invoice::sum('total_amount');
+        $paidAmount    = (float) Invoice::sum('paid_amount');
+        $remainingAmount = max(0, $totalAmount - $paidAmount);
+
+        $unfinishedOrders = TestOrder::with([
+            'customer.user',
+            'branch',
+            'items',
+        ])
+        ->whereHas('items', function ($q) {
+            $q->whereIn('result_status', ['pending', 'processing']);
+        })
+        ->latest()
+        ->take(15)
+        ->get();
+
+        return view('staff.dashboard', compact(
+            'customerCount',
+            'ordersCount',
+            'totalAmount',
+            'paidAmount',
+            'remainingAmount',
+            'unfinishedOrders'
+        ));
+    }
+
     // CUSTOMER DASHBOARD
     if ($user->category === 'customer') {
          $user = auth()->user();

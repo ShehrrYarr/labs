@@ -18,11 +18,10 @@ public function __construct()
     {
         $this->middleware('auth');
 
-        // Only admin OR branch users can manage customers
         $this->middleware(function ($request, $next) {
             $cat = auth()->user()->category ?? null;
-            if (!in_array($cat, ['admin', 'branch'], true)) {
-                abort(403, 'Only admin or branch can manage customers.');
+            if (!in_array($cat, ['admin', 'branch', 'staff'], true)) {
+                abort(403, 'Unauthorized.');
             }
             return $next($request);
         });
@@ -95,11 +94,14 @@ public function index(Request $request)
 
     public function create()
     {
+        $user = auth()->user();
+        if ($user->category === 'staff' && !$user->hasStaffPermission('create_customers')) {
+            abort(403, 'You do not have permission to create customers.');
+        }
 
-
-     if (auth()->user()->category === 'branch') {
-           return view('branches.customers.create');
-}else 
+        if ($user->category === 'branch') {
+            return view('branches.customers.create');
+        }
         return view('customers.create');
 
 
@@ -109,6 +111,11 @@ public function index(Request $request)
 
    public function store(Request $request)
 {
+    $authUser = auth()->user();
+    if ($authUser->category === 'staff' && !$authUser->hasStaffPermission('create_customers')) {
+        abort(403, 'You do not have permission to create customers.');
+    }
+
     $data = $request->validate([
         'name'      => ['required', 'string', 'max:255'],
         'phone'     => ['nullable', 'string', 'max:30'],
@@ -118,8 +125,6 @@ public function index(Request $request)
         'is_active' => ['nullable', 'boolean'],
         'ref_by'    => ['nullable', 'string', 'max:255'],
     ]);
-
-    $authUser = auth()->user();
 
     // 8 digits login id (e.g. 10469413)
     $makeLoginDigits = function (): string {
@@ -201,7 +206,7 @@ public function index(Request $request)
 
         if (auth()->user()->category === 'branch') {
             return view('branches.customers.edit', compact('customer'));
-}else 
+        }
         return view('customers.edit', compact('customer'));
 
         
@@ -276,7 +281,7 @@ public function index(Request $request)
     {
         $user = auth()->user();
 
-        if ($user->category === 'admin') {
+        if (in_array($user->category, ['admin', 'staff'], true)) {
             return;
         }
 
@@ -293,8 +298,7 @@ public function index(Request $request)
     $user = auth()->user();
     if (!$user) abort(401);
 
-    // Only admin/branch can use search
-    if (!in_array($user->category, ['admin', 'branch'], true)) {
+    if (!in_array($user->category, ['admin', 'branch', 'staff'], true)) {
         abort(403);
     }
 
@@ -343,7 +347,7 @@ public function index(Request $request)
             'ref_by' => $c->ref_by ?? '-',
 
             // Keep same key used in your table for admin
-            'branch_name' => ($user->category === 'admin')
+            'branch_name' => in_array($user->category, ['admin', 'staff'], true)
                 ? ($c->createdByBranch?->branch_name ?? 'Admin / Unknown')
                 : null,
 

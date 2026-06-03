@@ -10,6 +10,7 @@ use App\Http\Controllers\LabTestController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\CustomerTestController;
 use App\Http\Controllers\OrderReportController;
+use App\Http\Controllers\StaffController;
 
 /*
 |--------------------------------------------------------------------------
@@ -78,6 +79,10 @@ Route::middleware(['auth'])->group(function () {
 
 // Price calculator — returns active test types as JSON
 Route::get('/calculator/types', function () {
+    $user = auth()->user();
+    if ($user->category === 'staff' && !$user->hasStaffPermission('price_calculator')) {
+        abort(403);
+    }
     return response()->json(
         \App\Models\TestType::where('is_active', true)
             ->orderBy('name')
@@ -128,6 +133,17 @@ Route::post('/lab-settings/upload-image', [\App\Http\Controllers\LabSettingContr
 Route::post('/lab-settings/delete-image', [\App\Http\Controllers\LabSettingController::class, 'deleteImage'])->name('lab-settings.delete-image');
 Route::post('/lab-settings/save-canvas', [\App\Http\Controllers\LabSettingController::class, 'saveCanvas'])->name('lab-settings.save-canvas');
 Route::post('/lab-settings/save-watermark-canvas', [\App\Http\Controllers\LabSettingController::class, 'saveWatermarkCanvas'])->name('lab-settings.save-watermark-canvas');
+
+// Staff management (admin only)
+Route::middleware(['auth'])->group(function () {
+    Route::get('/staff', [StaffController::class, 'index'])->name('staff.index');
+    Route::get('/staff/create', [StaffController::class, 'create'])->name('staff.create');
+    Route::post('/staff', [StaffController::class, 'store'])->name('staff.store');
+    Route::get('/staff/{staff}/edit', [StaffController::class, 'edit'])->name('staff.edit');
+    Route::put('/staff/{staff}', [StaffController::class, 'update'])->name('staff.update');
+    Route::delete('/staff/{staff}', [StaffController::class, 'destroy'])->name('staff.destroy');
+    Route::post('/staff/{staff}/permissions', [StaffController::class, 'updatePermissions'])->name('staff.permissions');
+});
 
 // User management routes
 Route::get('/showusers', [UserController::class, 'showUsers'])->name('showusers');
