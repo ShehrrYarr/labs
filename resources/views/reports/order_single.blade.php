@@ -354,9 +354,9 @@
                 foreach ($typeItems as $_ni) {
                     if (!empty($_ni->result_notes)) { $typeNote = $_ni->result_notes; break; }
                 }
-                // TestType description from settings
+                // TestType description — preserve newlines, strip HTML tags
                 $typeDesc = trim(strip_tags(
-                    str_replace(['<br>','<br/>','<br />','</p>','<p>'], [' ',' ',' ',' ',' '],
+                    str_replace(['<br>','<br/>','<br />','</p>','</li>'], ["\n","\n","\n","\n","\n"],
                         (string)($typeItems->first()?->testType?->description ?? ''))
                 ));
             @endphp
@@ -366,7 +366,7 @@
                 <div style="font-size:9.5px;color:#374151;white-space:pre-wrap;margin-bottom:{{ $typeDesc ? '4px' : '0' }};"><strong>Notes:</strong> {{ $typeNote }}</div>
                 @endif
                 @if($typeDesc)
-                <div style="font-size:9.5px;color:#6b7280;font-style:italic;line-height:1.35;">{{ $typeDesc }}</div>
+                <div style="font-size:9.5px;color:#6b7280;font-style:italic;line-height:1.4;white-space:pre-wrap;">{{ $typeDesc }}</div>
                 @endif
             </div>
             @endif
