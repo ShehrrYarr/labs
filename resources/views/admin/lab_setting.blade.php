@@ -57,6 +57,11 @@
 
     /* ── Toast ── */
     #canvasToast{position:fixed;top:24px;right:24px;background:#065f46;color:#fff;padding:12px 20px;border-radius:10px;font-weight:700;font-size:13px;z-index:99999;display:none;box-shadow:0 4px 20px rgba(0,0,0,.2);}
+
+    /* ── Watermark canvas wrap ── */
+    .wm-canvas-wrap{overflow:auto;border:2px solid #e5e7eb;border-radius:10px;background:repeating-conic-gradient(#f0f0f0 0% 25%,#fff 0% 50%) 0 0/20px 20px;padding:0;margin:0;max-height:650px;}
+    .wm-canvas-wrap canvas{display:block;}
+    .wm-preview-thumb{max-width:200px;border:1px solid #e5e7eb;border-radius:8px;display:block;margin-top:8px;}
 </style>
 
 <div class="app-content content">
@@ -226,6 +231,75 @@
             <img id="compositePreviewImg"
                  src="{{ $hasComposite ? asset('letterheads/header_composite.png').'?t='.time() : '' }}"
                  class="composite-preview-img" alt="Saved Header">
+        </div>
+    </div>
+
+    {{-- ════════════════════════════════════════════
+         SECTION 3 — WATERMARK DESIGNER
+    ═══════════════════════════════════════════════ --}}
+    <div class="section">
+        <div class="section-title">💧 Report Watermark Designer</div>
+        <p class="muted" style="margin-bottom:16px;font-size:13px;">
+            Click a gallery image below to place it on the A4 canvas. Drag &amp; resize to position it, use the opacity slider to control transparency,
+            then click <strong>Save Watermark</strong>. The watermark appears behind the text on every page of the main PDF report.
+        </p>
+
+        {{-- Watermark gallery (same uploaded images, different click handler) --}}
+        <div class="gallery-section">
+            <div class="gallery-label">Image Gallery &nbsp;<span style="font-weight:400;color:#94a3b8;">(click a thumbnail to place it on the watermark canvas)</span></div>
+            <div class="gallery-grid" id="wmImageGallery">
+                @foreach($setting->header_images ?? [] as $img)
+                    @php $imgUrl = asset('letterheads/' . $img); @endphp
+                    <div class="gallery-item" data-filename="{{ $img }}" data-url="{{ $imgUrl }}"
+                         onclick="addImageToWmCanvas(this.dataset.url, this.dataset.filename)">
+                        <img src="{{ $imgUrl }}" alt="">
+                    </div>
+                @endforeach
+                @if($setting->logo && file_exists(public_path('letterheads/' . $setting->logo)))
+                    @php $logoUrl = asset('letterheads/' . $setting->logo); @endphp
+                    <div class="gallery-item" data-filename="{{ $setting->logo }}" data-url="{{ $logoUrl }}"
+                         onclick="addImageToWmCanvas(this.dataset.url, this.dataset.filename)">
+                        <img src="{{ $logoUrl }}" alt="Logo">
+                    </div>
+                @endif
+                <div class="muted" style="align-self:center;font-size:11px;">Upload images via the Header Designer gallery above.</div>
+            </div>
+        </div>
+
+        {{-- Opacity control --}}
+        <div class="field" style="max-width:340px;margin-bottom:12px;">
+            <label style="margin-bottom:6px;">Watermark Opacity: <strong id="wmOpacityVal">15%</strong></label>
+            <input type="range" id="wmOpacitySlider" min="1" max="60" value="15"
+                   style="width:100%;padding:0;border:none;background:none;box-shadow:none;"
+                   oninput="setWmOpacity(this.value)">
+        </div>
+
+        {{-- Watermark canvas toolbar --}}
+        <div class="canvas-toolbar">
+            <button type="button" class="tb-btn" onclick="wmBringForward()">⬆ Forward</button>
+            <button type="button" class="tb-btn" onclick="wmSendBackward()">⬇ Backward</button>
+            <div class="tb-separator"></div>
+            <button type="button" class="tb-btn tb-danger" onclick="wmRemoveSelected()">🗑 Remove Selected</button>
+            <button type="button" class="tb-btn tb-warning" onclick="wmClearCanvas()">⊗ Clear All</button>
+            <div class="tb-separator"></div>
+            <button type="button" class="tb-btn tb-primary" id="saveWmBtn" onclick="saveWatermark()">💾 Save Watermark</button>
+        </div>
+
+        {{-- Watermark Canvas (A4 proportioned: 560 × 792) --}}
+        <div class="wm-canvas-wrap">
+            <canvas id="wmCanvas"></canvas>
+        </div>
+        <div class="canvas-hint">
+            🖱 Click gallery image to place · Drag to move · Corner handles to resize · <kbd>Delete</kbd> removes selected
+        </div>
+
+        {{-- Saved watermark preview --}}
+        @php $hasWm = file_exists(public_path('letterheads/watermark_composite.png')); @endphp
+        <div id="wmPreviewWrap" style="{{ $hasWm ? '' : 'display:none;' }} margin-top:14px;">
+            <div class="composite-preview-label">✅ Currently Saved Watermark:</div>
+            <img id="wmPreviewImg"
+                 src="{{ $hasWm ? asset('letterheads/watermark_composite.png').'?t='.time() : '' }}"
+                 class="wm-preview-thumb" alt="Saved Watermark">
         </div>
     </div>
 
@@ -495,5 +569,173 @@ function addDoctor() {
 }
 
 if (document.querySelectorAll('.doctor-row').length === 0) addDoctor();
+</script>
+
+{{-- Watermark canvas JSON --}}
+<script type="application/json" id="savedWmJson">
+    {!! $setting->watermark_canvas_json
+        ? str_replace('</', '<\/', $setting->watermark_canvas_json)
+        : '{}' !!}
+</script>
+
+<script>
+/* ─── WATERMARK CANVAS ───────────────────────── */
+const WM_W = 560;
+const WM_H = 792;   // A4 proportion: 560 × 1.4142 ≈ 792
+
+let wmCurrentOpacity = 0.15;
+
+const wmCanvas = new fabric.Canvas('wmCanvas', {
+    width:                  WM_W,
+    height:                 WM_H,
+    backgroundColor:        null,
+    preserveObjectStacking: true,
+});
+
+/* Load saved watermark JSON */
+(function () {
+    const el   = document.getElementById('savedWmJson');
+    const text = (el ? el.textContent : '').trim();
+    if (!text || text === '{}') return;
+
+    let json;
+    try { json = JSON.parse(text); } catch (e) { return; }
+    if (!json || !json.objects) return;
+
+    const base = '{{ asset("letterheads/") }}';
+    json.objects = json.objects.map(function (obj) {
+        if (obj.type === 'image' && obj._wmFilename) {
+            obj.src = base + obj._wmFilename;
+        }
+        return obj;
+    });
+
+    if (json._wmOpacity !== undefined) {
+        wmCurrentOpacity = json._wmOpacity;
+        const pct = Math.round(wmCurrentOpacity * 100);
+        document.getElementById('wmOpacitySlider').value = pct;
+        document.getElementById('wmOpacityVal').textContent = pct + '%';
+    }
+
+    wmCanvas.loadFromJSON(json, function () { wmCanvas.renderAll(); });
+})();
+
+/* Delete key removes selected on watermark canvas */
+document.addEventListener('keydown', function (e) {
+    if ((e.key === 'Delete' || e.key === 'Backspace') &&
+        wmCanvas.getActiveObject() &&
+        !['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)) {
+        // Only if the main header canvas is NOT active (avoid double-delete)
+        if (!canvas.getActiveObject()) {
+            e.preventDefault();
+            wmRemoveSelected();
+        }
+    }
+});
+
+/* Place gallery image onto watermark canvas */
+function addImageToWmCanvas(url, filename) {
+    fabric.Image.fromURL(url, function (img) {
+        const maxW = Math.floor(WM_W * 0.65);
+        const maxH = Math.floor(WM_H * 0.65);
+        const scale = Math.min(maxW / img.width, maxH / img.height, 1);
+        img.set({
+            left:    Math.floor((WM_W - img.width  * scale) / 2),
+            top:     Math.floor((WM_H - img.height * scale) / 2),
+            scaleX:  scale,
+            scaleY:  scale,
+            opacity: wmCurrentOpacity,
+        });
+        img._wmFilename = filename || null;
+        wmCanvas.add(img);
+        wmCanvas.setActiveObject(img);
+        wmCanvas.renderAll();
+    });
+}
+
+/* Opacity slider */
+function setWmOpacity(val) {
+    wmCurrentOpacity = parseInt(val, 10) / 100;
+    document.getElementById('wmOpacityVal').textContent = val + '%';
+    wmCanvas.getObjects().forEach(function (obj) {
+        obj.set('opacity', wmCurrentOpacity);
+    });
+    wmCanvas.renderAll();
+}
+
+/* Toolbar */
+function wmBringForward()  { const o = wmCanvas.getActiveObject(); if (o) { wmCanvas.bringForward(o);  wmCanvas.renderAll(); } }
+function wmSendBackward()  { const o = wmCanvas.getActiveObject(); if (o) { wmCanvas.sendBackwards(o); wmCanvas.renderAll(); } }
+function wmRemoveSelected(){ const os = wmCanvas.getActiveObjects(); if (!os.length) return; os.forEach(function(o){ wmCanvas.remove(o); }); wmCanvas.discardActiveObject(); wmCanvas.renderAll(); }
+function wmClearCanvas()   { if (!confirm('Clear watermark canvas?')) return; wmCanvas.clear(); wmCanvas.backgroundColor = null; wmCanvas.renderAll(); }
+
+/* Save watermark */
+function saveWatermark() {
+    const btn = document.getElementById('saveWmBtn');
+    btn.disabled    = true;
+    btn.textContent = 'Saving…';
+
+    /* Serialize _wmFilename into each image object */
+    wmCanvas.getObjects('image').forEach(function (img) {
+        img.toObject = (function (orig) {
+            return function (props) {
+                return fabric.util.object.extend(orig.call(this, props), { _wmFilename: img._wmFilename || null });
+            };
+        })(img.toObject);
+    });
+
+    const jsonData = wmCanvas.toJSON(['_wmFilename']);
+    jsonData._wmOpacity = wmCurrentOpacity;
+    const canvasJson    = JSON.stringify(jsonData);
+
+    /* Export with transparent background */
+    const oldBg = wmCanvas.backgroundColor;
+    wmCanvas.backgroundColor = null;
+    wmCanvas.renderAll();
+    const compositeData = wmCanvas.toDataURL({ format: 'png', multiplier: 2 });
+    wmCanvas.backgroundColor = oldBg;
+    wmCanvas.renderAll();
+
+    fetch('{{ route("lab-settings.save-watermark-canvas") }}', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+        body:    JSON.stringify({ canvas_json: canvasJson, composite_data: compositeData }),
+    })
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+        btn.disabled    = false;
+        btn.textContent = '💾 Save Watermark';
+        if (d.ok) {
+            const wrap = document.getElementById('wmPreviewWrap');
+            const img  = document.getElementById('wmPreviewImg');
+            img.src    = compositeData;
+            wrap.style.display = '';
+            showToast('✅ Watermark saved!');
+        }
+    })
+    .catch(function () {
+        btn.disabled    = false;
+        btn.textContent = '💾 Save Watermark';
+        alert('Save failed — please try again.');
+    });
+}
+
+/* When a new image is uploaded, also add it to the watermark gallery */
+(function () {
+    const origAppend = appendGalleryItem;
+    window.appendGalleryItem = function (filename, url) {
+        origAppend(filename, url);
+        /* Mirror into wm gallery */
+        const wmGallery = document.getElementById('wmImageGallery');
+        const hint      = wmGallery.querySelector('.muted');
+        const item      = document.createElement('div');
+        item.className  = 'gallery-item';
+        item.dataset.filename = filename;
+        item.dataset.url      = url;
+        item.innerHTML  = '<img src="' + url + '" alt="">';
+        item.addEventListener('click', function () { addImageToWmCanvas(url, filename); });
+        wmGallery.insertBefore(item, hint);
+    };
+})();
 </script>
 @endsection

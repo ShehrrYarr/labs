@@ -116,6 +116,7 @@ Route::put('/lab-settings', [\App\Http\Controllers\LabSettingController::class, 
 Route::post('/lab-settings/upload-image', [\App\Http\Controllers\LabSettingController::class, 'uploadImage'])->name('lab-settings.upload-image');
 Route::post('/lab-settings/delete-image', [\App\Http\Controllers\LabSettingController::class, 'deleteImage'])->name('lab-settings.delete-image');
 Route::post('/lab-settings/save-canvas', [\App\Http\Controllers\LabSettingController::class, 'saveCanvas'])->name('lab-settings.save-canvas');
+Route::post('/lab-settings/save-watermark-canvas', [\App\Http\Controllers\LabSettingController::class, 'saveWatermarkCanvas'])->name('lab-settings.save-watermark-canvas');
 
 // User management routes
 Route::get('/showusers', [UserController::class, 'showUsers'])->name('showusers');

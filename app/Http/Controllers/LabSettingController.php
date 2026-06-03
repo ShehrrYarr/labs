@@ -127,7 +127,6 @@ class LabSettingController extends Controller
         $setting = LabSetting::instance();
         $setting->update(['header_canvas_json' => $request->input('canvas_json')]);
 
-        // Decode base64 PNG and write to disk
         $dataUrl = $request->input('composite_data');
         if (preg_match('/^data:image\/(png|jpeg|jpg);base64,(.+)$/s', $dataUrl, $m)) {
             $imgData = base64_decode($m[2]);
@@ -136,6 +135,31 @@ class LabSettingController extends Controller
                     mkdir(public_path('letterheads'), 0755, true);
                 }
                 file_put_contents(public_path('letterheads/header_composite.png'), $imgData);
+            }
+        }
+
+        return response()->json(['ok' => true]);
+    }
+
+    /** AJAX: save watermark canvas JSON + composite PNG (transparent background) */
+    public function saveWatermarkCanvas(Request $request)
+    {
+        $request->validate([
+            'canvas_json'    => ['required', 'string'],
+            'composite_data' => ['required', 'string'],
+        ]);
+
+        $setting = LabSetting::instance();
+        $setting->update(['watermark_canvas_json' => $request->input('canvas_json')]);
+
+        $dataUrl = $request->input('composite_data');
+        if (preg_match('/^data:image\/(png|jpeg|jpg);base64,(.+)$/s', $dataUrl, $m)) {
+            $imgData = base64_decode($m[2]);
+            if ($imgData !== false) {
+                if (!is_dir(public_path('letterheads'))) {
+                    mkdir(public_path('letterheads'), 0755, true);
+                }
+                file_put_contents(public_path('letterheads/watermark_composite.png'), $imgData);
             }
         }
 

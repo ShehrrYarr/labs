@@ -9,7 +9,7 @@ class LabSetting extends Model
     protected $fillable = [
         'lab_name', 'lab_address', 'lab_email', 'lab_phone',
         'logo', 'footer_note', 'doctors',
-        'header_images', 'header_canvas_json',
+        'header_images', 'header_canvas_json', 'watermark_canvas_json',
     ];
 
     protected $casts = [
@@ -43,6 +43,14 @@ class LabSetting extends Model
     public function headerCompositeBase64(): ?string
     {
         $path = public_path('letterheads/header_composite.png');
+        if (!file_exists($path)) return null;
+        return 'data:image/png;base64,' . base64_encode(file_get_contents($path));
+    }
+
+    /** Returns base64 data-URI of the saved watermark composite PNG, or null. */
+    public function watermarkCompositeBase64(): ?string
+    {
+        $path = public_path('letterheads/watermark_composite.png');
         if (!file_exists($path)) return null;
         return 'data:image/png;base64,' . base64_encode(file_get_contents($path));
     }

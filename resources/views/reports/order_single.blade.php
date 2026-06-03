@@ -3,8 +3,9 @@
 @php
     use Illuminate\Support\Carbon;
 
-    $logoB64      = $setting->logoBase64();
-    $compositeB64 = $setting->headerCompositeBase64();
+    $logoB64        = $setting->logoBase64();
+    $compositeB64   = $setting->headerCompositeBase64();
+    $watermarkB64   = $setting->watermarkCompositeBase64();
 
     $customerUser = $order->customer->user;
 
@@ -51,13 +52,18 @@
     <title>Order Report #{{ $order->id }}</title>
 
     <style>
-        @page { margin: 0; }
+        @page { margin: 0; background-color: #dce9f7; }
+
+        html {
+            background-color: #dce9f7;
+        }
 
         body{
             margin: 0;
             font-family: DejaVu Sans, Arial, sans-serif;
             font-size: 11px;
             color: #111827;
+            background-color: #dce9f7;
         }
 
         /* One type = one page */
@@ -65,6 +71,7 @@
             page-break-after: always;
             position: relative;
             min-height: 100%;
+            z-index: 1;
         }
 
         .page-header{
@@ -163,6 +170,13 @@
 </head>
 
 <body>
+
+{{-- Page watermark — position:fixed repeats on every PDF page --}}
+@if($watermarkB64)
+<div style="position:fixed; top:0; left:0; width:100%; height:100%; z-index:0; overflow:hidden;">
+    <img src="{{ $watermarkB64 }}" style="width:100%; height:100%;" alt="">
+</div>
+@endif
 
 @foreach($itemsByType as $typeId => $typeItems)
    @php
