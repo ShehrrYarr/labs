@@ -637,85 +637,87 @@
      PRINT OPTIONS MODAL
 ══════════════════════════════════════════ --}}
 <div id="reportLayoutModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;align-items:center;justify-content:center;">
-    <div style="background:#fff;border-radius:18px;padding:28px 32px;max-width:500px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.25);max-height:90vh;overflow-y:auto;">
+    <div id="reportModalInner" style="background:#fff;border-radius:18px;padding:24px 28px;width:90%;max-width:420px;box-shadow:0 20px 60px rgba(0,0,0,.25);">
 
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+        {{-- Title --}}
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
             <h3 style="margin:0;font-size:17px;color:#0f172a;">🖨️ Print Options</h3>
             <button onclick="closeLayoutModal()" style="border:0;background:none;font-size:22px;cursor:pointer;color:#94a3b8;line-height:1;">✕</button>
         </div>
 
-        {{-- ── Test selection (hidden when order has only 1 type) ── --}}
-        <div id="testSelectionSection" style="display:none;margin-bottom:18px;">
-            <div style="font-size:13px;font-weight:900;color:#0f172a;margin-bottom:8px;">Select Tests to Include:</div>
-            <div id="testCheckboxList"
-                 style="display:flex;flex-direction:column;gap:7px;max-height:200px;overflow-y:auto;
-                        border:1px solid #e2e8f0;border-radius:10px;padding:10px 14px;background:#f8fafc;">
-                {{-- populated by JS --}}
+        {{-- Two-column layout: tests left, header/footer right --}}
+        <div style="display:flex;gap:20px;align-items:flex-start;">
+
+            {{-- ── LEFT: Test selection (hidden when only 1 test type) ── --}}
+            <div id="testSelectionSection" style="display:none;flex:1;min-width:0;">
+                <div style="font-size:12px;font-weight:900;color:#475569;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">Tests</div>
+                <div id="testCheckboxList"
+                     style="display:flex;flex-direction:column;gap:6px;max-height:210px;overflow-y:auto;
+                            border:1px solid #e2e8f0;border-radius:10px;padding:10px 12px;background:#f8fafc;">
+                </div>
+                <div style="margin-top:7px;display:flex;gap:6px;">
+                    <button type="button" onclick="selectAllTests(true)"
+                            style="flex:1;padding:5px 0;border-radius:7px;border:1px solid #e2e8f0;background:#fff;font-size:11px;font-weight:700;cursor:pointer;color:#2563eb;">
+                        All
+                    </button>
+                    <button type="button" onclick="selectAllTests(false)"
+                            style="flex:1;padding:5px 0;border-radius:7px;border:1px solid #e2e8f0;background:#fff;font-size:11px;font-weight:700;cursor:pointer;color:#64748b;">
+                        None
+                    </button>
+                </div>
             </div>
-            <div style="margin-top:8px;display:flex;gap:8px;">
-                <button type="button" onclick="selectAllTests(true)"
-                        style="padding:5px 14px;border-radius:7px;border:1px solid #e2e8f0;background:#fff;font-size:12px;font-weight:700;cursor:pointer;color:#2563eb;">
-                    Select All
-                </button>
-                <button type="button" onclick="selectAllTests(false)"
-                        style="padding:5px 14px;border-radius:7px;border:1px solid #e2e8f0;background:#fff;font-size:12px;font-weight:700;cursor:pointer;color:#64748b;">
-                    Deselect All
-                </button>
+
+            {{-- ── RIGHT: Header / Footer layout ── --}}
+            <div style="flex:1;min-width:0;">
+                <div style="font-size:12px;font-weight:900;color:#475569;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">Layout</div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+
+                    <button class="layout-opt-btn" onclick="openReport('full')"
+                            style="border:2px solid #e2e8f0;border-radius:10px;padding:10px 6px;cursor:pointer;background:#fff;text-align:center;transition:all .15s;">
+                        <div style="display:flex;flex-direction:column;height:52px;border:1px solid #cbd5e1;border-radius:5px;overflow:hidden;margin-bottom:6px;background:#f8fafc;">
+                            <div style="height:22%;background:#94a3b8;"></div>
+                            <div style="flex:1;background:repeating-linear-gradient(180deg,#e2e8f0 0,#e2e8f0 2px,transparent 2px,transparent 6px);margin:3px 4px;"></div>
+                            <div style="height:18%;background:#94a3b8;"></div>
+                        </div>
+                        <div style="font-weight:900;font-size:11px;color:#0f172a;">Header + Footer</div>
+                    </button>
+
+                    <button class="layout-opt-btn" onclick="openReport('header')"
+                            style="border:2px solid #e2e8f0;border-radius:10px;padding:10px 6px;cursor:pointer;background:#fff;text-align:center;transition:all .15s;">
+                        <div style="display:flex;flex-direction:column;height:52px;border:1px solid #cbd5e1;border-radius:5px;overflow:hidden;margin-bottom:6px;background:#f8fafc;">
+                            <div style="height:22%;background:#94a3b8;"></div>
+                            <div style="flex:1;background:repeating-linear-gradient(180deg,#e2e8f0 0,#e2e8f0 2px,transparent 2px,transparent 6px);margin:3px 4px;"></div>
+                            <div style="height:18%;background:transparent;"></div>
+                        </div>
+                        <div style="font-weight:900;font-size:11px;color:#0f172a;">Header Only</div>
+                    </button>
+
+                    <button class="layout-opt-btn" onclick="openReport('footer')"
+                            style="border:2px solid #e2e8f0;border-radius:10px;padding:10px 6px;cursor:pointer;background:#fff;text-align:center;transition:all .15s;">
+                        <div style="display:flex;flex-direction:column;height:52px;border:1px solid #cbd5e1;border-radius:5px;overflow:hidden;margin-bottom:6px;background:#f8fafc;">
+                            <div style="height:22%;background:transparent;"></div>
+                            <div style="flex:1;background:repeating-linear-gradient(180deg,#e2e8f0 0,#e2e8f0 2px,transparent 2px,transparent 6px);margin:3px 4px;"></div>
+                            <div style="height:18%;background:#94a3b8;"></div>
+                        </div>
+                        <div style="font-weight:900;font-size:11px;color:#0f172a;">Footer Only</div>
+                    </button>
+
+                    <button class="layout-opt-btn" onclick="openReport('none')"
+                            style="border:2px solid #e2e8f0;border-radius:10px;padding:10px 6px;cursor:pointer;background:#fff;text-align:center;transition:all .15s;">
+                        <div style="display:flex;flex-direction:column;height:52px;border:1px solid #cbd5e1;border-radius:5px;overflow:hidden;margin-bottom:6px;background:#f8fafc;">
+                            <div style="height:22%;background:transparent;"></div>
+                            <div style="flex:1;background:repeating-linear-gradient(180deg,#e2e8f0 0,#e2e8f0 2px,transparent 2px,transparent 6px);margin:3px 4px;"></div>
+                            <div style="height:18%;background:transparent;"></div>
+                        </div>
+                        <div style="font-weight:900;font-size:11px;color:#0f172a;">No Header / Footer</div>
+                    </button>
+
+                </div>
             </div>
         </div>
 
-        <p style="margin:0 0 14px;font-size:13px;color:#64748b;">Choose layout:</p>
-
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-
-            {{-- Full --}}
-            <button class="layout-opt-btn" onclick="openReport('full')" style="border:2px solid #e2e8f0;border-radius:12px;padding:14px 10px;cursor:pointer;background:#fff;text-align:center;transition:all .15s;">
-                <div style="display:flex;flex-direction:column;height:70px;border:1px solid #cbd5e1;border-radius:6px;overflow:hidden;margin-bottom:8px;background:#f8fafc;">
-                    <div style="height:22%;background:#94a3b8;"></div>
-                    <div style="flex:1;background:repeating-linear-gradient(180deg,#e2e8f0 0,#e2e8f0 2px,transparent 2px,transparent 7px);margin:4px 6px;"></div>
-                    <div style="height:18%;background:#94a3b8;"></div>
-                </div>
-                <div style="font-weight:900;font-size:13px;color:#0f172a;">Header + Footer</div>
-                <div style="font-size:11px;color:#64748b;margin-top:2px;">Full report</div>
-            </button>
-
-            {{-- Header only --}}
-            <button class="layout-opt-btn" onclick="openReport('header')" style="border:2px solid #e2e8f0;border-radius:12px;padding:14px 10px;cursor:pointer;background:#fff;text-align:center;transition:all .15s;">
-                <div style="display:flex;flex-direction:column;height:70px;border:1px solid #cbd5e1;border-radius:6px;overflow:hidden;margin-bottom:8px;background:#f8fafc;">
-                    <div style="height:22%;background:#94a3b8;"></div>
-                    <div style="flex:1;background:repeating-linear-gradient(180deg,#e2e8f0 0,#e2e8f0 2px,transparent 2px,transparent 7px);margin:4px 6px;"></div>
-                    <div style="height:18%;background:transparent;"></div>
-                </div>
-                <div style="font-weight:900;font-size:13px;color:#0f172a;">Header Only</div>
-                <div style="font-size:11px;color:#64748b;margin-top:2px;">No footer</div>
-            </button>
-
-            {{-- Footer only --}}
-            <button class="layout-opt-btn" onclick="openReport('footer')" style="border:2px solid #e2e8f0;border-radius:12px;padding:14px 10px;cursor:pointer;background:#fff;text-align:center;transition:all .15s;">
-                <div style="display:flex;flex-direction:column;height:70px;border:1px solid #cbd5e1;border-radius:6px;overflow:hidden;margin-bottom:8px;background:#f8fafc;">
-                    <div style="height:22%;background:transparent;"></div>
-                    <div style="flex:1;background:repeating-linear-gradient(180deg,#e2e8f0 0,#e2e8f0 2px,transparent 2px,transparent 7px);margin:4px 6px;"></div>
-                    <div style="height:18%;background:#94a3b8;"></div>
-                </div>
-                <div style="font-weight:900;font-size:13px;color:#0f172a;">Footer Only</div>
-                <div style="font-size:11px;color:#64748b;margin-top:2px;">No header</div>
-            </button>
-
-            {{-- None --}}
-            <button class="layout-opt-btn" onclick="openReport('none')" style="border:2px solid #e2e8f0;border-radius:12px;padding:14px 10px;cursor:pointer;background:#fff;text-align:center;transition:all .15s;">
-                <div style="display:flex;flex-direction:column;height:70px;border:1px solid #cbd5e1;border-radius:6px;overflow:hidden;margin-bottom:8px;background:#f8fafc;">
-                    <div style="height:22%;background:transparent;"></div>
-                    <div style="flex:1;background:repeating-linear-gradient(180deg,#e2e8f0 0,#e2e8f0 2px,transparent 2px,transparent 7px);margin:4px 6px;"></div>
-                    <div style="height:18%;background:transparent;"></div>
-                </div>
-                <div style="font-weight:900;font-size:13px;color:#0f172a;">No Header / Footer</div>
-                <div style="font-size:11px;color:#64748b;margin-top:2px;">Results only</div>
-            </button>
-
-        </div>
-
-        <div style="margin-top:18px;text-align:center;">
-            <button onclick="closeLayoutModal()" style="padding:8px 24px;border-radius:8px;border:1px solid #e2e8f0;background:#f1f5f9;cursor:pointer;font-size:13px;font-weight:700;color:#475569;">Cancel</button>
+        <div style="margin-top:16px;text-align:right;">
+            <button onclick="closeLayoutModal()" style="padding:7px 22px;border-radius:8px;border:1px solid #e2e8f0;background:#f1f5f9;cursor:pointer;font-size:13px;font-weight:700;color:#475569;">Cancel</button>
         </div>
     </div>
 </div>
@@ -742,6 +744,7 @@ document.querySelectorAll('a.report-layout-trigger').forEach(function(link) {
         var section  = document.getElementById('testSelectionSection');
         var listWrap = document.getElementById('testCheckboxList');
 
+        var inner = document.getElementById('reportModalInner');
         if (types.length > 1) {
             listWrap.innerHTML = '';
             types.forEach(function(t) {
@@ -752,9 +755,12 @@ document.querySelectorAll('a.report-layout-trigger').forEach(function(link) {
                     + _escHtml(t.name);
                 listWrap.appendChild(lbl);
             });
-            section.style.display = 'block';
+            section.style.display = 'flex';
+            section.style.flexDirection = 'column';
+            if (inner) inner.style.maxWidth = '680px';
         } else {
             section.style.display = 'none';
+            if (inner) inner.style.maxWidth = '420px';
         }
 
         document.getElementById('reportLayoutModal').style.display = 'flex';
