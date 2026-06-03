@@ -76,6 +76,15 @@ Route::middleware(['auth'])->group(function () {
         ->name('lab-tests.sub-tests.destroy');
 });
 
+// Price calculator — returns active test types as JSON
+Route::get('/calculator/types', function () {
+    return response()->json(
+        \App\Models\TestType::where('is_active', true)
+            ->orderBy('name')
+            ->get(['id', 'name', 'code', 'price'])
+    );
+})->middleware('auth')->name('calculator.types');
+
 // Dashboard
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 Route::get('/index', [UserController::class, 'index'])->name('user.index')->middleware('auth');

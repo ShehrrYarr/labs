@@ -130,6 +130,13 @@
                     </ul>
                 </li>
                
+                <li class="nav-item">
+                    <a href="#" onclick="openCalculator(); return false;">
+                        <i class="feather icon-dollar-sign"></i>
+                        <span class="menu-title">Price Calculator</span>
+                    </a>
+                </li>
+
                  <li class=" nav-item"><a href="#"><i class="feather icon-tv"></i><span class="menu-title"
                             data-i18n="Templates">Settings</span></a>
                     <ul class="menu-content">
@@ -232,6 +239,204 @@
         <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
     <!-- END: Page JS-->
+
+<!-- ═══════════════════════════════════════════
+     PRICE CALCULATOR DRAWER
+════════════════════════════════════════════ -->
+<style>
+#calcOverlay{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:10000;display:none;}
+#calcDrawer{
+    position:fixed;top:0;right:-420px;width:400px;max-width:96vw;height:100vh;
+    background:#fff;z-index:10001;box-shadow:-6px 0 30px rgba(0,0,0,.18);
+    display:flex;flex-direction:column;transition:right .28s cubic-bezier(.4,0,.2,1);
+}
+#calcDrawer.open{right:0;}
+#calcHead{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:18px 20px 14px;border-bottom:1px solid #e5e7eb;background:#f8fafc;
+}
+#calcHead h3{margin:0;font-size:16px;font-weight:900;color:#0f172a;}
+#calcClose{border:0;background:none;font-size:22px;cursor:pointer;color:#94a3b8;line-height:1;}
+#calcSearch{
+    margin:14px 16px 0;padding:9px 12px;border:1.5px solid #e5e7eb;border-radius:10px;
+    font-size:14px;outline:none;width:calc(100% - 32px);box-sizing:border-box;
+}
+#calcSearch:focus{border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,.12);}
+#calcResults{
+    max-height:220px;overflow-y:auto;margin:8px 16px 0;
+    border:1px solid #e5e7eb;border-radius:10px;background:#f8fafc;
+}
+.calc-result-item{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:9px 12px;border-bottom:1px solid #f1f5f9;cursor:pointer;font-size:13px;
+}
+.calc-result-item:last-child{border-bottom:none;}
+.calc-result-item:hover{background:#eff6ff;}
+.calc-result-name{font-weight:700;color:#0f172a;}
+.calc-result-price{font-weight:900;color:#2563eb;white-space:nowrap;margin-left:8px;}
+#calcList{flex:1;overflow-y:auto;padding:12px 16px;}
+.calc-list-empty{color:#94a3b8;font-size:13px;text-align:center;padding:24px 0;}
+.calc-row{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:8px 10px;border:1px solid #e5e7eb;border-radius:8px;margin-bottom:6px;
+    background:#fff;font-size:13px;
+}
+.calc-row-name{font-weight:700;color:#0f172a;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.calc-row-price{font-weight:900;color:#2563eb;margin:0 10px;white-space:nowrap;}
+.calc-row-del{border:0;background:#fee2e2;color:#991b1b;border-radius:6px;padding:2px 8px;font-size:12px;cursor:pointer;font-weight:900;flex-shrink:0;}
+#calcFooter{
+    border-top:2px solid #e5e7eb;padding:14px 20px;background:#f8fafc;
+}
+#calcTotal{font-size:18px;font-weight:900;color:#0f172a;margin-bottom:10px;}
+#calcTotal span{color:#2563eb;}
+#calcClear{
+    width:100%;padding:9px 0;border-radius:10px;border:1px solid #fca5a5;
+    background:#fee2e2;color:#991b1b;font-size:13px;font-weight:900;cursor:pointer;
+}
+#calcNoResult{display:none;padding:10px 12px;font-size:13px;color:#64748b;}
+</style>
+
+<div id="calcOverlay" onclick="closeCalculator()"></div>
+<div id="calcDrawer">
+    <div id="calcHead">
+        <h3>🧮 Price Calculator</h3>
+        <button id="calcClose" onclick="closeCalculator()">✕</button>
+    </div>
+
+    <input id="calcSearch" type="text" placeholder="Search test type (e.g. CBC, Urine R/E)…" autocomplete="off">
+    <div id="calcResults">
+        <div id="calcNoResult" style="display:none;padding:10px 12px;font-size:13px;color:#64748b;">No matching test types.</div>
+    </div>
+
+    <div style="padding:10px 16px 0;font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px;">
+        Added Tests
+    </div>
+    <div id="calcList">
+        <div class="calc-list-empty" id="calcEmpty">No tests added yet. Search above to add.</div>
+    </div>
+
+    <div id="calcFooter">
+        <div id="calcTotal">Total: <span id="calcTotalAmt">PKR 0.00</span></div>
+        <button id="calcClear" onclick="calcClearAll()">Clear All</button>
+    </div>
+</div>
+
+<script>
+(function(){
+    var _types    = null;   // cached test types
+    var _added    = [];     // [{id, name, price}]
+    var _fetching = false;
+
+    window.openCalculator = function() {
+        document.getElementById('calcOverlay').style.display = 'block';
+        document.getElementById('calcDrawer').classList.add('open');
+        if (!_types && !_fetching) fetchTypes();
+        document.getElementById('calcSearch').focus();
+    };
+
+    window.closeCalculator = function() {
+        document.getElementById('calcOverlay').style.display = 'none';
+        document.getElementById('calcDrawer').classList.remove('open');
+    };
+
+    function fetchTypes() {
+        _fetching = true;
+        fetch('{{ route("calculator.types") }}', {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(function(r){ return r.json(); })
+        .then(function(data){
+            _types    = data;
+            _fetching = false;
+            renderResults(document.getElementById('calcSearch').value);
+        });
+    }
+
+    function money(n){ return 'PKR ' + Number(n||0).toLocaleString('en-PK', {minimumFractionDigits:2, maximumFractionDigits:2}); }
+
+    function renderResults(q) {
+        var container = document.getElementById('calcResults');
+        var noResult  = document.getElementById('calcNoResult');
+        container.innerHTML = '';
+        container.appendChild(noResult);
+
+        if (!q || !_types) { noResult.style.display = 'none'; return; }
+
+        q = q.trim().toLowerCase();
+        var matches = _types.filter(function(t){
+            return t.name.toLowerCase().includes(q) ||
+                   (t.code && t.code.toLowerCase().includes(q));
+        });
+
+        noResult.style.display = matches.length ? 'none' : 'block';
+
+        matches.forEach(function(t){
+            var row = document.createElement('div');
+            row.className = 'calc-result-item';
+            row.innerHTML =
+                '<span class="calc-result-name">' + esc(t.name) + '</span>' +
+                '<span class="calc-result-price">' + money(t.price) + '</span>';
+            row.addEventListener('click', function(){ addTest(t); });
+            container.appendChild(row);
+        });
+    }
+
+    function addTest(t) {
+        // Prevent duplicate
+        if (_added.find(function(a){ return a.id === t.id; })) return;
+        _added.push({id: t.id, name: t.name, price: parseFloat(t.price || 0)});
+        renderList();
+        document.getElementById('calcSearch').value = '';
+        renderResults('');
+    }
+
+    function removeTest(id) {
+        _added = _added.filter(function(a){ return a.id !== id; });
+        renderList();
+    }
+
+    window.calcClearAll = function() {
+        _added = [];
+        renderList();
+    };
+
+    function renderList() {
+        var list  = document.getElementById('calcList');
+        var empty = document.getElementById('calcEmpty');
+
+        // Remove old rows but keep empty message
+        Array.from(list.querySelectorAll('.calc-row')).forEach(function(el){ el.remove(); });
+
+        if (_added.length === 0) {
+            empty.style.display = 'block';
+        } else {
+            empty.style.display = 'none';
+            _added.forEach(function(a){
+                var row = document.createElement('div');
+                row.className = 'calc-row';
+                row.innerHTML =
+                    '<span class="calc-row-name" title="' + esc(a.name) + '">' + esc(a.name) + '</span>' +
+                    '<span class="calc-row-price">' + money(a.price) + '</span>' +
+                    '<button class="calc-row-del" onclick="removeTestById(' + a.id + ')">✕</button>';
+                list.appendChild(row);
+            });
+        }
+
+        var total = _added.reduce(function(s,a){ return s + a.price; }, 0);
+        document.getElementById('calcTotalAmt').textContent = money(total);
+    }
+
+    window.removeTestById = function(id){ removeTest(id); };
+
+    function esc(s){
+        return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    document.getElementById('calcSearch').addEventListener('input', function(){
+        renderResults(this.value);
+    });
+})();
+</script>
 
 </body>
 <!-- END: Body-->
