@@ -7,6 +7,15 @@
     $compositeB64   = $setting->headerCompositeBase64();
     $watermarkB64   = $setting->watermarkCompositeBase64();
 
+    // Bottom notice
+    $bottomNotice = $setting->bottom_notice ?? '';
+    $bnStyle      = $setting->bottom_notice_style ?? [];
+    $bnColor      = $bnStyle['color']  ?? '#1d4ed8';
+    $bnSize       = (int)($bnStyle['size']  ?? 10);
+    $bnAlign      = $bnStyle['align']  ?? 'right';
+    $bnItalic     = $bnStyle['italic'] ?? true;
+    $bnBold       = $bnStyle['bold']   ?? false;
+
     $customerUser = $order->customer->user;
 
     $patientName = $customerUser->name ?? '-';
@@ -354,6 +363,19 @@
             @endif
         </div>
         @endif {{-- /showFooter --}}
+
+        {{-- Bottom notice (e.g. "Not valid for Court") --}}
+        @if($bottomNotice)
+        <div style="
+            position: absolute;
+            left: 45px; right: 45px; bottom: 4px;
+            font-size: {{ $bnSize }}px;
+            color: {{ $bnColor }};
+            text-align: {{ $bnAlign }};
+            font-style: {{ $bnItalic ? 'italic' : 'normal' }};
+            font-weight: {{ $bnBold ? 'bold' : 'normal' }};
+        ">{{ $bottomNotice }}</div>
+        @endif
 
     </div>
 @endforeach

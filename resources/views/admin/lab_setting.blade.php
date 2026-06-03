@@ -127,9 +127,77 @@
         <div class="section">
             <div class="section-title">📝 Footer — Disclaimer Note</div>
             <div class="field">
-                <label>Footer Note</label>
+                <label>Footer Note <span style="font-weight:400;color:#94a3b8;">(center of footer)</span></label>
                 <input type="text" name="footer_note" value="{{ old('footer_note', $setting->footer_note) }}"
                        placeholder="Electronically generated report — No need of signature">
+            </div>
+        </div>
+
+        {{-- ── BOTTOM NOTICE ── --}}
+        @php
+            $bn      = $setting->bottom_notice ?? 'Not valid for Court';
+            $bnStyle = $setting->bottom_notice_style ?? [];
+            $bnColor  = $bnStyle['color']  ?? '#1d4ed8';
+            $bnSize   = $bnStyle['size']   ?? 10;
+            $bnAlign  = $bnStyle['align']  ?? 'right';
+            $bnItalic = $bnStyle['italic'] ?? true;
+            $bnBold   = $bnStyle['bold']   ?? false;
+        @endphp
+        <div class="section">
+            <div class="section-title">⚖️ Bottom Notice <span style="font-size:13px;font-weight:400;color:#64748b;">(e.g. "Not valid for Court")</span></div>
+            <div class="muted" style="margin-bottom:14px;">Appears at the very bottom of each report page. Leave blank to hide it.</div>
+
+            <div class="field">
+                <label>Notice Text</label>
+                <input type="text" name="bottom_notice" value="{{ old('bottom_notice', $bn) }}"
+                       placeholder="Not valid for Court">
+            </div>
+
+            <div style="display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end;margin-top:4px;">
+                <div>
+                    <label>Font Color</label>
+                    <input type="color" name="bottom_notice_color" value="{{ old('bottom_notice_color', $bnColor) }}"
+                           style="width:60px;height:38px;padding:3px;border-radius:8px;cursor:pointer;">
+                </div>
+                <div>
+                    <label>Font Size (px)</label>
+                    <input type="number" name="bottom_notice_size" value="{{ old('bottom_notice_size', $bnSize) }}"
+                           min="6" max="72" style="width:90px;">
+                </div>
+                <div>
+                    <label>Alignment</label>
+                    <select name="bottom_notice_align" style="width:120px;">
+                        <option value="left"   {{ $bnAlign === 'left'   ? 'selected' : '' }}>Left</option>
+                        <option value="center" {{ $bnAlign === 'center' ? 'selected' : '' }}>Center</option>
+                        <option value="right"  {{ $bnAlign === 'right'  ? 'selected' : '' }}>Right</option>
+                    </select>
+                </div>
+                <div style="display:flex;gap:16px;align-items:center;padding-bottom:2px;">
+                    <label style="display:flex;align-items:center;gap:6px;margin:0;cursor:pointer;">
+                        <input type="checkbox" name="bottom_notice_italic" value="1"
+                               {{ $bnItalic ? 'checked' : '' }}
+                               style="width:auto;border-radius:4px;padding:0;">
+                        <span>Italic</span>
+                    </label>
+                    <label style="display:flex;align-items:center;gap:6px;margin:0;cursor:pointer;">
+                        <input type="checkbox" name="bottom_notice_bold" value="1"
+                               {{ $bnBold ? 'checked' : '' }}
+                               style="width:auto;border-radius:4px;padding:0;">
+                        <span>Bold</span>
+                    </label>
+                </div>
+            </div>
+
+            {{-- Live preview --}}
+            <div style="margin-top:12px;padding:10px 16px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;">
+                <div style="font-size:11px;font-weight:700;color:#94a3b8;margin-bottom:6px;">Preview:</div>
+                <div id="bnPreview" style="
+                    color:{{ $bnColor }};
+                    font-size:{{ $bnSize }}px;
+                    text-align:{{ $bnAlign }};
+                    font-style:{{ $bnItalic ? 'italic' : 'normal' }};
+                    font-weight:{{ $bnBold ? 'bold' : 'normal' }};
+                ">{{ $bn ?: 'Not valid for Court' }}</div>
             </div>
         </div>
 
@@ -731,6 +799,26 @@ function addDoctor() {
 }
 
 if (document.querySelectorAll('.doctor-row').length === 0) addDoctor();
+
+/* ── Bottom Notice live preview ── */
+(function () {
+    function q(sel) { return document.querySelector(sel); }
+    function updateBnPreview() {
+        const el = document.getElementById('bnPreview');
+        if (!el) return;
+        el.textContent    = q('[name=bottom_notice]').value || 'Not valid for Court';
+        el.style.color      = q('[name=bottom_notice_color]').value;
+        el.style.fontSize   = q('[name=bottom_notice_size]').value + 'px';
+        el.style.textAlign  = q('[name=bottom_notice_align]').value;
+        el.style.fontStyle  = q('[name=bottom_notice_italic]').checked ? 'italic' : 'normal';
+        el.style.fontWeight = q('[name=bottom_notice_bold]').checked   ? 'bold'   : 'normal';
+    }
+    ['bottom_notice','bottom_notice_color','bottom_notice_size','bottom_notice_align','bottom_notice_italic','bottom_notice_bold']
+        .forEach(function(name) {
+            const el = document.querySelector('[name=' + name + ']');
+            if (el) el.addEventListener('input', updateBnPreview), el.addEventListener('change', updateBnPreview);
+        });
+})();
 </script>
 
 {{-- Watermark canvas JSON --}}

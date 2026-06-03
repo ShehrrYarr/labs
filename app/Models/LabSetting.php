@@ -8,13 +8,14 @@ class LabSetting extends Model
 {
     protected $fillable = [
         'lab_name', 'lab_address', 'lab_email', 'lab_phone',
-        'logo', 'footer_note', 'doctors',
+        'logo', 'footer_note', 'bottom_notice', 'bottom_notice_style', 'doctors',
         'header_images', 'header_canvas_json', 'watermark_canvas_json',
     ];
 
     protected $casts = [
-        'doctors'       => 'array',
-        'header_images' => 'array',
+        'doctors'              => 'array',
+        'header_images'        => 'array',
+        'bottom_notice_style'  => 'array',
     ];
 
     public static function instance(): self

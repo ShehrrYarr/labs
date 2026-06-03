@@ -26,14 +26,20 @@ class LabSettingController extends Controller
     public function update(Request $request)
     {
         $data = $request->validate([
-            'lab_name'    => ['required', 'string', 'max:255'],
-            'lab_address' => ['nullable', 'string', 'max:1000'],
-            'lab_email'   => ['nullable', 'email', 'max:255'],
-            'lab_phone'   => ['nullable', 'string', 'max:50'],
-            'footer_note' => ['nullable', 'string', 'max:500'],
-            'logo'        => ['nullable', 'image', 'max:2048'],
-            'doctor_names.*'   => ['nullable', 'string', 'max:255'],
-            'doctor_descs.*'   => ['nullable', 'string', 'max:500'],
+            'lab_name'              => ['required', 'string', 'max:255'],
+            'lab_address'           => ['nullable', 'string', 'max:1000'],
+            'lab_email'             => ['nullable', 'email', 'max:255'],
+            'lab_phone'             => ['nullable', 'string', 'max:50'],
+            'footer_note'           => ['nullable', 'string', 'max:500'],
+            'bottom_notice'         => ['nullable', 'string', 'max:300'],
+            'bottom_notice_color'   => ['nullable', 'string', 'max:20'],
+            'bottom_notice_size'    => ['nullable', 'integer', 'min:6', 'max:72'],
+            'bottom_notice_align'   => ['nullable', 'in:left,center,right'],
+            'bottom_notice_italic'  => ['nullable'],
+            'bottom_notice_bold'    => ['nullable'],
+            'logo'                  => ['nullable', 'image', 'max:2048'],
+            'doctor_names.*'        => ['nullable', 'string', 'max:255'],
+            'doctor_descs.*'        => ['nullable', 'string', 'max:500'],
         ]);
 
         $setting = LabSetting::instance();
@@ -60,13 +66,23 @@ class LabSettingController extends Controller
             }
         }
 
+        $bottomNoticeStyle = [
+            'color'  => $data['bottom_notice_color']  ?? '#1d4ed8',
+            'size'   => (int)($data['bottom_notice_size']   ?? 10),
+            'align'  => $data['bottom_notice_align']  ?? 'right',
+            'italic' => $request->has('bottom_notice_italic'),
+            'bold'   => $request->has('bottom_notice_bold'),
+        ];
+
         $setting->update([
-            'lab_name'    => $data['lab_name'],
-            'lab_address' => $data['lab_address'] ?? null,
-            'lab_email'   => $data['lab_email'] ?? null,
-            'lab_phone'   => $data['lab_phone'] ?? null,
-            'footer_note' => $data['footer_note'] ?? 'Electronically generated report — No need of signature',
-            'doctors'     => $doctors ?: null,
+            'lab_name'             => $data['lab_name'],
+            'lab_address'          => $data['lab_address'] ?? null,
+            'lab_email'            => $data['lab_email'] ?? null,
+            'lab_phone'            => $data['lab_phone'] ?? null,
+            'footer_note'          => $data['footer_note'] ?? 'Electronically generated report — No need of signature',
+            'bottom_notice'        => $data['bottom_notice'] ?? null,
+            'bottom_notice_style'  => $bottomNoticeStyle,
+            'doctors'              => $doctors ?: null,
         ]);
 
         return redirect()->route('lab-settings.edit')->with('success', 'Lab settings saved.');
