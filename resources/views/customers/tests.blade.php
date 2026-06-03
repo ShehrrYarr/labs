@@ -241,7 +241,7 @@
 
                             <input type="text"
                                    class="type-search-bar typeFilterInput"
-                                   placeholder="Filter test types..."
+                                   placeholder="Search test type to add (e.g. CBC, Urine R/E)..."
                                    autocomplete="off">
 
                             <form method="POST"
@@ -552,12 +552,18 @@
 
     function renderTypeCards(grid, filterInput, typeIdInput, form){
         const q = (filterInput.value || '').trim().toLowerCase();
-        const list = typesData.filter(t => !q || t.name.toLowerCase().includes(q));
+
+        if(!q){
+            grid.innerHTML = '<div class="small" style="color:#94a3b8;padding:6px 2px;">🔍 Type a test name above to search and add it to the order.</div>';
+            return;
+        }
+
+        const list = typesData.filter(t => t.name.toLowerCase().includes(q));
 
         grid.innerHTML = '';
 
         if(list.length === 0){
-            grid.innerHTML = '<div class="small" style="color:#64748b;">No matching test types.</div>';
+            grid.innerHTML = '<div class="small" style="color:#64748b;">No matching test types found.</div>';
             return;
         }
 
