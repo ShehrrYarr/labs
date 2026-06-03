@@ -282,8 +282,17 @@
 
             <div class="hr"></div>
 
-            {{-- Test Type Title --}}
+            {{-- Test Type Title + description --}}
             <div class="type-title">{{ $typeName }}</div>
+            @php
+                $typeDesc = trim(strip_tags(
+                    str_replace(['<br>','<br/>','<br />','</p>','<p>'], [' ',' ',' ',' ',' '],
+                        (string)($typeItems->first()?->testType?->description ?? ''))
+                ));
+            @endphp
+            @if($typeDesc)
+            <div style="font-size:9.5px;color:#6b7280;margin:-2px 0 6px;font-style:italic;line-height:1.35;">{{ $typeDesc }}</div>
+            @endif
 
             {{-- Categories (in first-seen order), and rows (pure inserted order) --}}
             @foreach($grouped as $categoryName => $items)
@@ -348,18 +357,6 @@
                 </table>
             @endforeach
 
-            @php
-                // Pick the first non-empty note from any item in this test type
-                $typeNote = '';
-                foreach ($typeItems as $_ni) {
-                    if (!empty($_ni->result_notes)) { $typeNote = $_ni->result_notes; break; }
-                }
-            @endphp
-            @if($typeNote)
-            <div style="margin-top:8px;padding-top:6px;border-top:1px solid rgba(17,24,39,.12);font-size:10px;color:#374151;white-space:pre-wrap;">
-                <strong>Notes:</strong> {{ $typeNote }}
-            </div>
-            @endif
 
         </div>
 
