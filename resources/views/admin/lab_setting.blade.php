@@ -359,6 +359,8 @@
                         style="padding:5px 12px;border-radius:7px;border:1px solid #e5e7eb;font-size:13px;font-weight:900;background:#fff;cursor:pointer;" title="Bold">B</button>
                 <button type="button" id="txtItalicBtn" onclick="toggleItalic()"
                         style="padding:5px 12px;border-radius:7px;border:1px solid #e5e7eb;font-size:13px;font-style:italic;font-weight:700;background:#fff;cursor:pointer;font-family:serif;" title="Italic">I</button>
+                <button type="button" id="txtUnderlineBtn" onclick="toggleUnderline()"
+                        style="padding:5px 12px;border-radius:7px;border:1px solid #e5e7eb;font-size:13px;font-weight:700;text-decoration:underline;background:#fff;cursor:pointer;" title="Underline">U</button>
             </div>
         </div>
 
@@ -599,8 +601,9 @@ function syncTextPanel(obj) {
     panel.style.display = 'flex';
     document.getElementById('txtFontSize').value  = Math.round(obj.fontSize || 20);
     document.getElementById('txtFontColor').value = obj.fill || '#111111';
-    document.getElementById('txtBoldBtn').style.background   = obj.fontWeight === 'bold'   ? '#dbeafe' : '#fff';
-    document.getElementById('txtItalicBtn').style.background = obj.fontStyle  === 'italic' ? '#dbeafe' : '#fff';
+    document.getElementById('txtBoldBtn').style.background      = obj.fontWeight === 'bold'   ? '#dbeafe' : '#fff';
+    document.getElementById('txtItalicBtn').style.background   = obj.fontStyle  === 'italic' ? '#dbeafe' : '#fff';
+    document.getElementById('txtUnderlineBtn').style.background = obj.underline              ? '#dbeafe' : '#fff';
     /* Sync font family dropdown — match stored value or fall back to Arial */
     const ffSelect = document.getElementById('txtFontFamily');
     const ff = obj.fontFamily || 'Arial';
@@ -663,6 +666,16 @@ function toggleItalic() {
     obj.set('fontStyle', next);
     canvas.renderAll();
     document.getElementById('txtItalicBtn').style.background = next === 'italic' ? '#dbeafe' : '#fff';
+}
+
+/* Toggle underline */
+function toggleUnderline() {
+    const obj = canvas.getActiveObject();
+    if (!obj || (obj.type !== 'i-text' && obj.type !== 'text')) return;
+    const next = !obj.underline;
+    obj.set('underline', next);
+    canvas.renderAll();
+    document.getElementById('txtUnderlineBtn').style.background = next ? '#dbeafe' : '#fff';
 }
 
 /* ─── SAVE CANVAS ───────────────────────────── */
