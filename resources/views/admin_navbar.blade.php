@@ -107,26 +107,115 @@
     <div class="main-menu menu-fixed menu-light menu-accordion menu-shadow" data-scroll-to-active="true">
         <div class="main-menu-content">
             <ul class="navigation navigation-main" id="main-menu-navigation" data-menu="menu-navigation">
+
+            @if(Auth::check() && Auth::user()->category === 'staff')
+                {{-- ═══════════════════════════════════════
+                     STAFF SIDEBAR
+                ════════════════════════════════════════ --}}
+                <li class="navigation-header">
+                    <span>Staff Panel</span>
+                    <i class="feather icon-minus"></i>
+                </li>
+
+                <li class="nav-item @if(\Request::is('index')) active @endif">
+                    <a href="{{ route('user.index') }}">
+                        <i class="feather icon-home"></i>
+                        <span class="menu-title">Dashboard</span>
+                    </a>
+                </li>
+
+                @if(Auth::user()->hasStaffPermission('create_customers'))
+                <li class="nav-item">
+                    <a href="#">
+                        <i class="feather icon-users"></i>
+                        <span class="menu-title">Manage Customers</span>
+                    </a>
+                    <ul class="menu-content">
+                        <li class="@if(\Request::is('customers')) active @endif">
+                            <a class="menu-item" href="{{ route('customers.index') }}">Customers</a>
+                        </li>
+                        <li class="@if(\Request::is('customers/create')) active @endif">
+                            <a class="menu-item" href="{{ route('customers.create') }}">Add Customer</a>
+                        </li>
+                    </ul>
+                </li>
+                @else
+                <li class="nav-item @if(\Request::is('customers*')) active @endif">
+                    <a href="{{ route('customers.index') }}">
+                        <i class="feather icon-users"></i>
+                        <span class="menu-title">Customers</span>
+                    </a>
+                </li>
+                @endif
+
+                @if(Auth::user()->hasStaffPermission('price_calculator'))
+                <li class="nav-item">
+                    <a href="#" onclick="openCalculator(); return false;">
+                        <i class="feather icon-dollar-sign"></i>
+                        <span class="menu-title">Price Calculator</span>
+                    </a>
+                </li>
+                @endif
+
+                @php
+                    $hasSettings = Auth::user()->hasStaffPermission('manage_test_types')
+                        || Auth::user()->hasStaffPermission('manage_test_categories')
+                        || Auth::user()->hasStaffPermission('manage_lab_tests')
+                        || Auth::user()->hasStaffPermission('manage_equipment');
+                @endphp
+                @if($hasSettings)
+                <li class="nav-item">
+                    <a href="#">
+                        <i class="feather icon-settings"></i>
+                        <span class="menu-title">Lab Settings</span>
+                    </a>
+                    <ul class="menu-content">
+                        @if(Auth::user()->hasStaffPermission('manage_test_types'))
+                        <li class="@if(\Request::is('test-types*')) active @endif">
+                            <a class="menu-item" href="{{ route('test-types.index') }}">Test Types</a>
+                        </li>
+                        @endif
+                        @if(Auth::user()->hasStaffPermission('manage_test_categories'))
+                        <li class="@if(\Request::is('test-categories*')) active @endif">
+                            <a class="menu-item" href="{{ route('test-categories.index') }}">Test Categories</a>
+                        </li>
+                        @endif
+                        @if(Auth::user()->hasStaffPermission('manage_lab_tests'))
+                        <li class="@if(\Request::is('lab-tests*')) active @endif">
+                            <a class="menu-item" href="{{ route('lab-tests.index') }}">Lab Tests</a>
+                        </li>
+                        @endif
+                        @if(Auth::user()->hasStaffPermission('manage_equipment'))
+                        <li class="@if(\Request::is('equipment*')) active @endif">
+                            <a class="menu-item" href="{{ route('equipment.index') }}">Equipment</a>
+                        </li>
+                        @endif
+                    </ul>
+                </li>
+                @endif
+
+            @else
+                {{-- ═══════════════════════════════════════
+                     ADMIN SIDEBAR
+                ════════════════════════════════════════ --}}
                 <li class=" navigation-header"><span>General</span><i class=" feather icon-minus" data-toggle="tooltip" data-placement="right" data-original-title="General"></i>
                 </li>
                 <li class=" nav-item @if(\Request::is('user.index')) active @endif"><a href="{{route('user.index')}}"><i class="feather icon-home"></i><span class="menu-title" data-i18n="Dashboard">Dashboard</span></a>
-
                 </li>
-                
+
                 <li class=" nav-item"><a href="#"><i class="feather icon-book-open"></i><span class="menu-title" data-i18n="Templates">Manage Customers</span></a>
                     <ul class="menu-content">
-                         <li class="@if (\Request::is('customers')) active @endif"><a class="menu-item"
+                        <li class="@if (\Request::is('customers')) active @endif"><a class="menu-item"
                                 href="/customers" data-i18n="1 columns">Customers</a>
                         </li>
-                      
                     </ul>
                 </li>
+
                 <li class=" nav-item"><a href="#"><i class="feather icon-book-open"></i><span class="menu-title" data-i18n="Templates">Manage Branches</span></a>
                     <ul class="menu-content">
-                         <li class="@if (\Request::is('branches')) active @endif"><a class="menu-item"
+                        <li class="@if (\Request::is('branches')) active @endif"><a class="menu-item"
                                 href="/branches" data-i18n="1 columns">Branches</a>
                         </li>
-
                     </ul>
                 </li>
 
@@ -140,7 +229,7 @@
                         </li>
                     </ul>
                 </li>
-               
+
                 <li class="nav-item">
                     <a href="#" onclick="openCalculator(); return false;">
                         <i class="feather icon-dollar-sign"></i>
@@ -148,8 +237,7 @@
                     </a>
                 </li>
 
-                 <li class=" nav-item"><a href="#"><i class="feather icon-tv"></i><span class="menu-title"
-                            data-i18n="Templates">Settings</span></a>
+                <li class=" nav-item"><a href="#"><i class="feather icon-tv"></i><span class="menu-title" data-i18n="Templates">Settings</span></a>
                     <ul class="menu-content">
                         <li class="@if (\Request::is('test-types')) active @endif"><a class="menu-item"
                                 href="/test-types" data-i18n="1 columns">Test Types</a>
@@ -166,47 +254,9 @@
                         <li class="@if (\Request::is('lab-settings')) active @endif"><a class="menu-item"
                                 href="{{ route('lab-settings.edit') }}" data-i18n="1 columns">Lab Settings</a>
                         </li>
-
-
-
                     </ul>
                 </li>
-                 {{-- <li class=" nav-item"><a href="#"><i class="feather icon-tv"></i><span class="menu-title"
-                            data-i18n="Templates">All Shop's Mobile</span></a>
-                    <ul class="menu-content">
-                        <li class="@if (\Request::is('allshopmobile')) active @endif"><a class="menu-item"
-                                href="/allshopmobile" data-i18n="1 columns">All Mobiles</a>
-                        </li>
-
-
-
-                    </ul>
-                </li> --}}
-
-
-               
-            {{-- <li class=" nav-item"><a href="#"><i class="feather icon-tv"></i><span
-                                                        class="menu-title" data-i18n="Templates">Add values</span></a>
-                                        <ul class="menu-content">
-                                                <li class="@if (\Request::is('showcompanies')) active @endif"><a
-                                                                class="menu-item" href="/showcompanies"
-                                                                data-i18n="1 columns">Companies</a>
-                                                </li>
-                                                <li class="@if (\Request::is('showgroups')) active @endif"><a
-                                                                class="menu-item" href="/showgroups"
-                                                                data-i18n="1 columns">Groups</a>
-                                                </li>
-                                                <li class="@if (\Request::is('showmobilenames')) active @endif"><a
-                                                                class="menu-item" href="/showmobilenames"
-                                                                data-i18n="1 columns">MobileNames</a>
-                                                </li>
-                                                 <li class="@if (\Request::is('showusers')) active @endif">
-                                                        <a class="menu-item" href="/showusers"
-                                                                data-i18n="1 columns">Manage Users</a>
-                                                </li>
-
-                                        </ul>
-                                </li> --}}
+            @endif
 
             </ul>
         </div>
@@ -251,6 +301,7 @@
 
     <!-- END: Page JS-->
 
+@if(!Auth::check() || Auth::user()->category !== 'staff' || Auth::user()->hasStaffPermission('price_calculator'))
 <!-- ═══════════════════════════════════════════
      PRICE CALCULATOR DRAWER
 ════════════════════════════════════════════ -->
@@ -448,6 +499,7 @@
     });
 })();
 </script>
+@endif
 
 </body>
 <!-- END: Body-->
