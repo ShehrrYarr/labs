@@ -328,7 +328,7 @@ let   CANVAS_H = 160;
 const canvas = new fabric.Canvas('headerCanvas', {
     width:           CANVAS_W,
     height:          CANVAS_H,
-    backgroundColor: '#ffffff',
+    backgroundColor: '#dce9f7',   // match PDF page colour so the preview is accurate
     preserveObjectStacking: true,
 });
 
@@ -421,7 +421,7 @@ function removeSelected() {
 function clearCanvas() {
     if (!confirm('Clear everything from the canvas?')) return;
     canvas.clear();
-    canvas.backgroundColor = '#ffffff';
+    canvas.backgroundColor = '#dce9f7';
     canvas.renderAll();
 }
 
@@ -460,8 +460,14 @@ function saveCanvas() {
 
     const jsonData = canvas.toJSON(['_filename']);
     jsonData._canvasHeight = CANVAS_H;
-    const canvasJson    = JSON.stringify(jsonData);
+    const canvasJson = JSON.stringify(jsonData);
+
+    /* Export with transparent background so the PDF page colour shows through */
+    canvas.backgroundColor = null;
+    canvas.renderAll();
     const compositeData = canvas.toDataURL({ format: 'png', multiplier: 2 });
+    canvas.backgroundColor = '#dce9f7';
+    canvas.renderAll();
 
     fetch('{{ route("lab-settings.save-canvas") }}', {
         method:  'POST',
