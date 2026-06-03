@@ -354,12 +354,40 @@
                 foreach ($typeItems as $_ni) {
                     if (!empty($_ni->result_notes)) { $typeNote = $_ni->result_notes; break; }
                 }
-                // TestType description — preserve newlines, strip HTML, convert tabs to spaces
-                $typeDesc = trim(strip_tags(
-                    str_replace(['<br>','<br/>','<br />','</p>','</li>'], ["\n","\n","\n","\n","\n"],
-                        (string)($typeItems->first()?->testType?->description ?? ''))
-                ));
-                $typeDesc = str_replace("\t", '    ', $typeDesc); // tabs → 4 spaces (DejaVu can't render \t)
+
+                // TestType description — strip HTML, preserve newlines
+                $_rawDesc = str_replace(
+                    ['<br>','<br/>','<br />','</p>','</li>'],
+                    ["\n","\n","\n","\n","\n"],
+                    (string)($typeItems->first()?->testType?->description ?? '')
+                );
+                $typeDesc = trim(strip_tags($_rawDesc));
+
+                // If description contains tabs → render as HTML table (perfect column alignment)
+                $typeDescIsTable = $typeDesc !== '' && strpos($typeDesc, "\t") !== false;
+                $typeDescHtml    = '';
+
+                if ($typeDescIsTable) {
+                    $lines = array_values(array_filter(
+                        explode("\n", $typeDesc),
+                        fn($l) => trim($l) !== ''
+                    ));
+                    $typeDescHtml = '<table style="width:100%;border-collapse:collapse;font-size:0.88em;margin-top:4px;">';
+                    foreach ($lines as $i => $line) {
+                        $cells = explode("\t", $line);
+                        $typeDescHtml .= '<tr>';
+                        foreach ($cells as $cell) {
+                            $cell = trim($cell);
+                            if ($i === 0) {
+                                $typeDescHtml .= '<th style="text-align:left;padding:3px 6px;border-bottom:1.5px solid #374151;font-weight:900;color:#1e293b;white-space:nowrap;">' . e($cell) . '</th>';
+                            } else {
+                                $typeDescHtml .= '<td style="padding:2px 6px;border-bottom:1px solid #d1d5db;color:#1e293b;vertical-align:top;">' . e($cell) . '</td>';
+                            }
+                        }
+                        $typeDescHtml .= '</tr>';
+                    }
+                    $typeDescHtml .= '</table>';
+                }
             @endphp
             @if($typeNote || $typeDesc)
             <div style="margin-top:8px;padding-top:6px;border-top:1px solid rgba(17,24,39,.12);">
@@ -367,7 +395,11 @@
                 <div style="font-size:9.5px;color:#374151;white-space:pre-wrap;margin-bottom:{{ $typeDesc ? '4px' : '0' }};"><strong>Notes:</strong> {{ $typeNote }}</div>
                 @endif
                 @if($typeDesc)
-                <div style="font-size:9px;color:#1e293b;line-height:1.4;white-space:pre-wrap;font-family:'DejaVu Sans Mono',monospace;">{{ $typeDesc }}</div>
+                    @if($typeDescIsTable)
+                        {!! $typeDescHtml !!}
+                    @else
+                        <div style="font-size:9px;color:#1e293b;line-height:1.4;white-space:pre-wrap;">{{ $typeDesc }}</div>
+                    @endif
                 @endif
             </div>
             @endif
