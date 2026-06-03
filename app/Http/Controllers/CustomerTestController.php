@@ -630,6 +630,28 @@ public function storePayment(Request $request, Customer $customer, TestOrder $or
         ->with('success', 'Payment added successfully.');
 }
 
+public function destroyPayment(Customer $customer, TestOrder $order, Payment $payment)
+{
+    $u = auth()->user();
+    if ($u->category !== 'admin') {
+        abort(403, 'Only admin can delete payments.');
+    }
+
+    // Ensure the payment belongs to this order's invoice
+    if ($payment->invoice?->test_order_id !== $order->id) {
+        abort(404);
+    }
+
+    DB::transaction(function () use ($payment, $order) {
+        $payment->delete();
+        $this->recalculateInvoice($order);
+    });
+
+    return redirect()
+        ->route('customers.tests', $customer)
+        ->with('success', 'Payment deleted and invoice recalculated.');
+}
+
 public function testHistory(\App\Models\Customer $customer)
 {
     // $this->authorizeCustomerAccess($customer);

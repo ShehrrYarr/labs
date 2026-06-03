@@ -541,18 +541,35 @@
                                     <th>Method</th>
                                     <th>Date</th>
                                     <th>Received By</th>
+                                    @if(auth()->user()->category === 'admin')
+                                        <th style="width:60px;"></th>
+                                    @endif
                                 </tr>
                                 </thead>
                                 <tbody>
                                 @forelse($inv?->payments ?? [] as $p)
                                     <tr>
-                                        <td>{{ number_format($p->amount, 2) }}</td>
-                                        <td>{{ $p->method }}</td>
-                                        <td>{{ optional($p->paid_at)->format('Y-m-d H:i') }}</td>
+                                        <td>PKR {{ number_format($p->amount, 2) }}</td>
+                                        <td>{{ ucfirst($p->method) }}</td>
+                                        <td>{{ optional($p->paid_at)->format('d-m-Y H:i') }}</td>
                                         <td>{{ $p->receivedByUser?->name ?? '-' }}</td>
+                                        @if(auth()->user()->category === 'admin')
+                                        <td>
+                                            <form method="POST"
+                                                  action="{{ route('customers.orders.payments.destroy', ['customer' => $customer->id, 'order' => $order->id, 'payment' => $p->id]) }}"
+                                                  onsubmit="return confirm('Delete this payment of PKR {{ number_format($p->amount, 2) }}? The invoice will be recalculated.')">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit"
+                                                        style="padding:3px 8px;border-radius:6px;border:1px solid #fca5a5;background:#fee2e2;color:#991b1b;font-size:11px;font-weight:700;cursor:pointer;">
+                                                    ✕
+                                                </button>
+                                            </form>
+                                        </td>
+                                        @endif
                                     </tr>
                                 @empty
-                                    <tr><td colspan="4">No payments yet.</td></tr>
+                                    <tr><td colspan="{{ auth()->user()->category === 'admin' ? 5 : 4 }}">No payments yet.</td></tr>
                                 @endforelse
                                 </tbody>
                             </table>

@@ -46,6 +46,7 @@ Route::post('customers/{customer}/orders/{order}/items', [CustomerTestController
 Route::delete('customers/{customer}/orders/{order}/types/{typeId}', [CustomerTestController::class, 'destroyTestType'])->name('customers.orders.type.destroy');
 Route::post('customers/{customer}/orders/{order}/discount', [CustomerTestController::class, 'updateDiscount'])->name('customers.orders.discount');
 Route::post('customers/{customer}/orders/{order}/payments', [CustomerTestController::class, 'storePayment'])->name('customers.orders.payments.store');
+Route::delete('customers/{customer}/orders/{order}/payments/{payment}', [CustomerTestController::class, 'destroyPayment'])->name('customers.orders.payments.destroy');
 Route::post('customers/{customer}/orders/{order}/items/{item}/result', [CustomerTestController::class, 'postResult'])
     ->name('customers.orders.items.result');
 Route::post('customers/{customer}/orders/{order}/type-result', [CustomerTestController::class, 'postTypeResult'])
