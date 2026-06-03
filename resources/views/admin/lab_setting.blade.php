@@ -1,5 +1,9 @@
 @extends('admin_navbar')
 @section('content')
+{{-- Google Fonts for canvas header designer --}}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Great+Vibes&family=Lato:wght@400;700&family=Merriweather:wght@400;700&family=Montserrat:wght@400;700&family=Open+Sans:wght@400;700&family=Pacifico&family=Playfair+Display:wght@400;700&family=Poppins:wght@400;700&family=Raleway:wght@400;700&family=Roboto:wght@400;700&family=Oswald:wght@400;700&family=Ubuntu:wght@400;700&display=swap" rel="stylesheet">
 <style>
     .card{background:#fff;border-radius:14px;box-shadow:0 10px 25px rgba(0,0,0,.08);padding:24px;max-width:960px;margin:0 auto;}
     .btn{display:inline-flex;align-items:center;padding:10px 20px;border-radius:10px;border:0;cursor:pointer;font-weight:900;font-size:14px;text-decoration:none;}
@@ -218,6 +222,41 @@
         <div id="textPropsPanel" style="display:none;align-items:center;gap:12px;flex-wrap:wrap;
              background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:10px 16px;margin:8px 0;">
             <span style="font-size:12px;font-weight:900;color:#475569;">✏️ Text Properties:</span>
+
+            {{-- Font family --}}
+            <div style="display:flex;align-items:center;gap:6px;">
+                <label style="margin:0;font-size:12px;font-weight:700;color:#475569;white-space:nowrap;">Font:</label>
+                <select id="txtFontFamily" onchange="applyFontFamily(this.value)"
+                        style="width:auto;padding:5px 8px;border-radius:7px;border:1px solid #e5e7eb;font-size:13px;">
+                    <optgroup label="── Web Safe ──">
+                        <option value="Arial"           style="font-family:Arial;">Arial</option>
+                        <option value="Georgia"         style="font-family:Georgia;">Georgia</option>
+                        <option value="Times New Roman" style="font-family:'Times New Roman';">Times New Roman</option>
+                        <option value="Courier New"     style="font-family:'Courier New';">Courier New</option>
+                        <option value="Verdana"         style="font-family:Verdana;">Verdana</option>
+                        <option value="Tahoma"          style="font-family:Tahoma;">Tahoma</option>
+                        <option value="Trebuchet MS"    style="font-family:'Trebuchet MS';">Trebuchet MS</option>
+                        <option value="Impact"          style="font-family:Impact;">Impact</option>
+                    </optgroup>
+                    <optgroup label="── Google Fonts ──">
+                        <option value="Roboto"           style="font-family:'Roboto';">Roboto</option>
+                        <option value="Open Sans"        style="font-family:'Open Sans';">Open Sans</option>
+                        <option value="Lato"             style="font-family:'Lato';">Lato</option>
+                        <option value="Montserrat"       style="font-family:'Montserrat';">Montserrat</option>
+                        <option value="Poppins"          style="font-family:'Poppins';">Poppins</option>
+                        <option value="Raleway"          style="font-family:'Raleway';">Raleway</option>
+                        <option value="Oswald"           style="font-family:'Oswald';">Oswald</option>
+                        <option value="Ubuntu"           style="font-family:'Ubuntu';">Ubuntu</option>
+                        <option value="Merriweather"     style="font-family:'Merriweather';">Merriweather</option>
+                        <option value="Playfair Display" style="font-family:'Playfair Display';">Playfair Display</option>
+                        <option value="Dancing Script"   style="font-family:'Dancing Script';">Dancing Script</option>
+                        <option value="Great Vibes"      style="font-family:'Great Vibes';">Great Vibes</option>
+                        <option value="Pacifico"         style="font-family:'Pacifico';">Pacifico</option>
+                    </optgroup>
+                </select>
+            </div>
+
+            {{-- Font size --}}
             <div style="display:flex;align-items:center;gap:6px;">
                 <label style="margin:0;font-size:12px;font-weight:700;color:#475569;white-space:nowrap;">Size:</label>
                 <input type="number" id="txtFontSize" min="6" max="200" value="20"
@@ -225,21 +264,22 @@
                        oninput="applyFontSize(this.value)">
                 <span style="font-size:12px;color:#94a3b8;">px</span>
             </div>
+
+            {{-- Font color --}}
             <div style="display:flex;align-items:center;gap:6px;">
                 <label style="margin:0;font-size:12px;font-weight:700;color:#475569;white-space:nowrap;">Color:</label>
                 <input type="color" id="txtFontColor" value="#111111"
                        style="width:40px;height:34px;padding:2px;border-radius:7px;border:1px solid #e5e7eb;cursor:pointer;"
                        oninput="applyFontColor(this.value)">
             </div>
+
+            {{-- Bold / Italic --}}
             <div style="display:flex;align-items:center;gap:6px;">
-                <label style="margin:0;font-size:12px;font-weight:700;color:#475569;white-space:nowrap;">Bold:</label>
+                <label style="margin:0;font-size:12px;font-weight:700;color:#475569;white-space:nowrap;">Style:</label>
                 <button type="button" id="txtBoldBtn" onclick="toggleBold()"
-                        style="padding:5px 12px;border-radius:7px;border:1px solid #e5e7eb;font-size:13px;font-weight:900;background:#fff;cursor:pointer;">B</button>
-            </div>
-            <div style="display:flex;align-items:center;gap:6px;">
-                <label style="margin:0;font-size:12px;font-weight:700;color:#475569;white-space:nowrap;">Italic:</label>
+                        style="padding:5px 12px;border-radius:7px;border:1px solid #e5e7eb;font-size:13px;font-weight:900;background:#fff;cursor:pointer;" title="Bold">B</button>
                 <button type="button" id="txtItalicBtn" onclick="toggleItalic()"
-                        style="padding:5px 12px;border-radius:7px;border:1px solid #e5e7eb;font-size:13px;font-style:italic;font-weight:700;background:#fff;cursor:pointer;font-family:serif;">I</button>
+                        style="padding:5px 12px;border-radius:7px;border:1px solid #e5e7eb;font-size:13px;font-style:italic;font-weight:700;background:#fff;cursor:pointer;font-family:serif;" title="Italic">I</button>
             </div>
         </div>
 
@@ -482,11 +522,28 @@ function syncTextPanel(obj) {
     document.getElementById('txtFontColor').value = obj.fill || '#111111';
     document.getElementById('txtBoldBtn').style.background   = obj.fontWeight === 'bold'   ? '#dbeafe' : '#fff';
     document.getElementById('txtItalicBtn').style.background = obj.fontStyle  === 'italic' ? '#dbeafe' : '#fff';
+    /* Sync font family dropdown — match stored value or fall back to Arial */
+    const ffSelect = document.getElementById('txtFontFamily');
+    const ff = obj.fontFamily || 'Arial';
+    const opt = Array.from(ffSelect.options).find(function(o) { return o.value === ff; });
+    if (opt) ffSelect.value = ff;
+    else     ffSelect.value = 'Arial';
+    /* Update the select's own preview font */
+    ffSelect.style.fontFamily = "'" + ff + "'";
 }
 
 canvas.on('selection:created', function(e) { syncTextPanel(e.selected && e.selected[0]); });
 canvas.on('selection:updated', function(e) { syncTextPanel(e.selected && e.selected[0]); });
 canvas.on('selection:cleared', function()  { document.getElementById('textPropsPanel').style.display = 'none'; });
+
+/* Live-update font family on the selected text */
+function applyFontFamily(val) {
+    const obj = canvas.getActiveObject();
+    if (!obj || (obj.type !== 'i-text' && obj.type !== 'text')) return;
+    obj.set('fontFamily', val);
+    canvas.renderAll();
+    document.getElementById('txtFontFamily').style.fontFamily = "'" + val + "'";
+}
 
 /* Live-update font size on the selected text */
 function applyFontSize(val) {
