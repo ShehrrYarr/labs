@@ -59,17 +59,19 @@ public function testType(){
     public function update(Request $request, TestType $testType)
     {
         $data = $request->validate([
-            'name'      => ['required', 'string', 'max:255', 'unique:test_types,name,' . $testType->id],
-            'code'      => ['nullable', 'string', 'max:50', 'unique:test_types,code,' . $testType->id],
-            'price'     => ['required', 'numeric', 'min:0'],
-            'is_active' => ['nullable', 'boolean'],
+            'name'        => ['required', 'string', 'max:255', 'unique:test_types,name,' . $testType->id],
+            'code'        => ['nullable', 'string', 'max:50', 'unique:test_types,code,' . $testType->id],
+            'price'       => ['required', 'numeric', 'min:0'],
+            'description' => ['nullable', 'string', 'max:2000'],
+            'is_active'   => ['nullable', 'boolean'],
         ]);
 
         $testType->update([
-            'name' => $data['name'],
-            'code' => $data['code'] ?? null,
-            'price' => (float) $data['price'],
-            'is_active' => (bool)($data['is_active'] ?? false),
+            'name'        => $data['name'],
+            'code'        => $data['code'] ?? null,
+            'price'       => (float) $data['price'],
+            'description' => $data['description'] ?? null,
+            'is_active'   => (bool)($data['is_active'] ?? false),
         ]);
 
         return redirect()->route('test-types.index')->with('success', 'Test Type updated successfully.');

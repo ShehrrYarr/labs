@@ -12,8 +12,9 @@
     .btn-danger{background:#fee2e2;color:#991b1b}
     .btn-danger:hover{background:#fecaca;transform:translateY(-1px)}
     label{display:block;font-size:12px;color:#475569;margin-bottom:6px;font-weight:700}
-    input{width:100%;border:1px solid #e5e7eb;border-radius:10px;padding:10px 12px;font-size:14px;outline:none;transition:all .2s ease}
-    input:focus{border-color:rgba(37,99,235,.6);box-shadow:0 0 0 4px rgba(37,99,235,.12);transform:translateY(-1px)}
+    input,textarea{width:100%;border:1px solid #e5e7eb;border-radius:10px;padding:10px 12px;font-size:14px;outline:none;transition:all .2s ease;box-sizing:border-box;}
+    textarea{min-height:90px;resize:vertical;}
+    input:focus,textarea:focus{border-color:rgba(37,99,235,.6);box-shadow:0 0 0 4px rgba(37,99,235,.12);transform:translateY(-1px)}
     .toggle{display:flex;align-items:center;gap:10px;margin-top:10px;font-weight:700;color:#0f172a}
     .toggle input{width:18px;height:18px}
     .row{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:16px}
@@ -68,7 +69,11 @@
                 <label>Code</label>
                 <input type="text" name="code" value="{{ old('code', $testType->code) }}" placeholder="e.g., CBC-01">
             </div>
-            
+
+            <div style="margin-top:14px;">
+                <label>Description (optional)</label>
+                <textarea name="description" placeholder="Brief description shown on PDF reports...">{{ old('description', $testType->description) }}</textarea>
+            </div>
 
             <div class="toggle">
                 <input type="checkbox" name="is_active" value="1" {{ old('is_active', $testType->is_active) ? 'checked' : '' }}>
