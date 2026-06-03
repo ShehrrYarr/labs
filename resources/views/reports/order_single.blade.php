@@ -320,7 +320,7 @@
     $rangeText = trim($rangeText);
                             @endphp
                             @php
-                                $testDesc = $it->labSubTest?->description ?? $it->labTest?->description ?? '';
+                                $testDesc = $it->subTest?->description ?? $it->labTest?->description ?? '';
                                 $testDesc = trim(strip_tags($testDesc));
                             @endphp
                             <tr>
