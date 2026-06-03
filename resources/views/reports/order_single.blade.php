@@ -324,9 +324,6 @@
                                 <td>
                                     @if($it->result_status === 'ready')
                                         {{ $it->result_text ?: '—' }}
-                                        @if(!empty($it->result_notes))
-                                            <div style="font-size:10px;color:#555;margin-top:3px;white-space:pre-wrap;"><em>{{ $it->result_notes }}</em></div>
-                                        @endif
                                     @else
                                         <span class="processing">Processing</span>
                                     @endif
@@ -341,6 +338,19 @@
                     </tbody>
                 </table>
             @endforeach
+
+            @php
+                // Pick the first non-empty note from any item in this test type
+                $typeNote = '';
+                foreach ($typeItems as $_ni) {
+                    if (!empty($_ni->result_notes)) { $typeNote = $_ni->result_notes; break; }
+                }
+            @endphp
+            @if($typeNote)
+            <div style="margin-top:8px;padding-top:6px;border-top:1px solid rgba(17,24,39,.12);font-size:10px;color:#374151;white-space:pre-wrap;">
+                <strong>Notes:</strong> {{ $typeNote }}
+            </div>
+            @endif
 
         </div>
 

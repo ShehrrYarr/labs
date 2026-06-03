@@ -342,19 +342,20 @@ public function postTypeResult(Request $request, Customer $customer, TestOrder $
     }
 
     $data = $request->validate([
-        'test_type_id'          => ['required', 'integer'],
-        'mark_ready'            => ['required', 'boolean'],
-        'items'                 => ['required', 'array'],
-        'items.*.id'            => ['required', 'integer'],
-        'items.*.result_text'   => ['nullable', 'string', 'max:10000'],
-        'items.*.result_notes'  => ['nullable', 'string', 'max:5000'],
+        'test_type_id'        => ['required', 'integer'],
+        'mark_ready'          => ['required', 'boolean'],
+        'type_notes'          => ['nullable', 'string', 'max:5000'],
+        'items'               => ['required', 'array'],
+        'items.*.id'          => ['required', 'integer'],
+        'items.*.result_text' => ['nullable', 'string', 'max:10000'],
     ]);
 
-    $status = $data['mark_ready'] ? 'ready' : 'processing';
-    $authId = auth()->id();
-    $now    = now();
+    $status    = $data['mark_ready'] ? 'ready' : 'processing';
+    $authId    = auth()->id();
+    $now       = now();
+    $typeNotes = $data['type_notes'] ?? null;
 
-    DB::transaction(function () use ($data, $order, $status, $authId, $now) {
+    DB::transaction(function () use ($data, $order, $status, $authId, $now, $typeNotes) {
         foreach ($data['items'] as $itemData) {
             $item = $order->items()
                 ->where('id', $itemData['id'])
@@ -363,7 +364,7 @@ public function postTypeResult(Request $request, Customer $customer, TestOrder $
             if (!$item) continue;
             $item->update([
                 'result_text'              => $itemData['result_text'] ?? null,
-                'result_notes'             => $itemData['result_notes'] ?? null,
+                'result_notes'             => $typeNotes,
                 'result_status'            => $status,
                 'result_posted_at'         => $now,
                 'result_posted_by_user_id' => $authId,

@@ -288,9 +288,8 @@
                                         <table class="result-table">
                                             <thead>
                                                 <tr>
-                                                    <th style="width:28%;">Test Parameter</th>
-                                                    <th style="width:32%;">Result</th>
-                                                    <th style="width:25%;">Notes</th>
+                                                    <th style="width:35%;">Test Parameter</th>
+                                                    <th style="width:50%;">Result</th>
                                                     <th style="width:15%;">Status</th>
                                                 </tr>
                                             </thead>
@@ -312,10 +311,6 @@
                                                                   placeholder="Result value...">{{ $it->result_text }}</textarea>
                                                     </td>
                                                     <td>
-                                                        <textarea name="items[{{ $idx }}][result_notes]"
-                                                                  placeholder="Notes (optional)...">{{ $it->result_notes }}</textarea>
-                                                    </td>
-                                                    <td>
                                                         @php $rs = $it->result_status ?? 'pending'; @endphp
                                                         <span class="param-pill {{ $rs === 'ready' ? 'pill-ready' : ($rs === 'processing' ? 'pill-processing' : '') }}">
                                                             {{ strtoupper($rs) }}
@@ -331,6 +326,15 @@
                                             @endforeach
                                             </tbody>
                                         </table>
+
+                                        {{-- Single notes field for the entire test --}}
+                                        @php $existingTypeNote = ''; foreach($resultItems as $_n) { if(!empty($_n->result_notes)){ $existingTypeNote = $_n->result_notes; break; } } @endphp
+                                        <div style="padding:8px 10px;border-top:1px solid #e5e7eb;background:#fafafa;">
+                                            <label style="font-size:11px;font-weight:700;color:#475569;margin-bottom:4px;display:block;">Notes for {{ $typeName }} (optional)</label>
+                                            <textarea name="type_notes" rows="2"
+                                                      style="width:100%;border:1px solid #e5e7eb;border-radius:6px;padding:6px 8px;font-size:12px;resize:vertical;box-sizing:border-box;"
+                                                      placeholder="Add any clinical notes for this test...">{{ $existingTypeNote }}</textarea>
+                                        </div>
 
                                         <div class="result-actions">
                                             <button type="submit" class="btn btn-ghost"
