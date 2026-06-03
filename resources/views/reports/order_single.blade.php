@@ -349,6 +349,29 @@
             @endforeach
 
             @php
+                // Result image (first item in this type that has one)
+                $typeImageB64 = '';
+                foreach ($typeItems as $_img) {
+                    if (!empty($_img->result_file)) {
+                        $imgPath = public_path('result_files/' . $_img->result_file);
+                        if (file_exists($imgPath)) {
+                            $ext = strtolower(pathinfo($imgPath, PATHINFO_EXTENSION));
+                            $mime = in_array($ext, ['jpg','jpeg']) ? 'image/jpeg'
+                                  : ($ext === 'png' ? 'image/png'
+                                  : ($ext === 'gif' ? 'image/gif' : 'image/jpeg'));
+                            $typeImageB64 = 'data:' . $mime . ';base64,' . base64_encode(file_get_contents($imgPath));
+                        }
+                        break;
+                    }
+                }
+            @endphp
+            @if($typeImageB64)
+            <div style="margin-top:10px;text-align:center;">
+                <img src="{{ $typeImageB64 }}" style="max-width:100%;height:auto;display:block;margin:0 auto;">
+            </div>
+            @endif
+
+            @php
                 // Clinical notes entered during result entry
                 $typeNote = '';
                 foreach ($typeItems as $_ni) {
