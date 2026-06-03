@@ -439,17 +439,15 @@
                     }
                 }
             @endphp
-            @if($typeNote || $typeDesc)
+            @if($typeNote || $typeDesc || $typeDescIsTable)
             <div style="margin-top:8px;padding-top:6px;border-top:1px solid rgba(17,24,39,.12);">
                 @if($typeNote)
-                <div style="font-size:9.5px;color:#374151;white-space:pre-wrap;margin-bottom:{{ $typeDesc ? '4px' : '0' }};"><strong>Notes:</strong> {{ $typeNote }}</div>
+                <div style="font-size:9.5px;color:#374151;white-space:pre-wrap;margin-bottom:{{ ($typeDesc || $typeDescIsTable) ? '4px' : '0' }};"><strong>Notes:</strong> {{ $typeNote }}</div>
                 @endif
-                @if($typeDesc)
-                    @if($typeDescIsTable)
-                        {!! $typeDescHtml !!}
-                    @else
-                        <div style="font-size:9px;color:#1e293b;line-height:1.4;white-space:pre-wrap;">{{ $typeDesc }}</div>
-                    @endif
+                @if($typeDescIsTable)
+                    {!! $typeDescHtml !!}
+                @elseif($typeDesc)
+                    <div style="font-size:9px;color:#1e293b;line-height:1.4;white-space:pre-wrap;">{{ $typeDesc }}</div>
                 @endif
             </div>
             @endif
