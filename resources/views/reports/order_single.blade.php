@@ -349,13 +349,26 @@
             @endforeach
 
             @php
+                // Clinical notes entered during result entry
+                $typeNote = '';
+                foreach ($typeItems as $_ni) {
+                    if (!empty($_ni->result_notes)) { $typeNote = $_ni->result_notes; break; }
+                }
+                // TestType description from settings
                 $typeDesc = trim(strip_tags(
                     str_replace(['<br>','<br/>','<br />','</p>','<p>'], [' ',' ',' ',' ',' '],
                         (string)($typeItems->first()?->testType?->description ?? ''))
                 ));
             @endphp
-            @if($typeDesc)
-            <div style="margin-top:8px;padding-top:6px;border-top:1px solid rgba(17,24,39,.12);font-size:9.5px;color:#6b7280;font-style:italic;line-height:1.35;">{{ $typeDesc }}</div>
+            @if($typeNote || $typeDesc)
+            <div style="margin-top:8px;padding-top:6px;border-top:1px solid rgba(17,24,39,.12);">
+                @if($typeNote)
+                <div style="font-size:9.5px;color:#374151;white-space:pre-wrap;margin-bottom:{{ $typeDesc ? '4px' : '0' }};"><strong>Notes:</strong> {{ $typeNote }}</div>
+                @endif
+                @if($typeDesc)
+                <div style="font-size:9.5px;color:#6b7280;font-style:italic;line-height:1.35;">{{ $typeDesc }}</div>
+                @endif
+            </div>
             @endif
 
         </div>
