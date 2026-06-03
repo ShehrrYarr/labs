@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\TestCategory;
 
 class TestOrderItem extends Model
 {
@@ -61,6 +62,11 @@ class TestOrderItem extends Model
     public function subTest()
     {
         return $this->belongsTo(LabSubTest::class, 'lab_sub_test_id');
+    }
+
+    public function testCategory()
+    {
+        return $this->belongsTo(TestCategory::class, 'test_category_id');
     }
 
     public function resultPostedByUser()

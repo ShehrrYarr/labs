@@ -101,8 +101,9 @@ public function index(Customer $customer)
     // Orders + assigned items (keep exact insertion order)
     $orders = TestOrder::with([
             'items' => function ($q) {
-                $q->reorder()        // ✅ removes any accidental ordering
-                  ->orderBy('id');   // ✅ pure insertion/creation order
+                $q->reorder()
+                  ->orderBy('sort_order_snapshot')
+                  ->orderBy('id');
             },
             'items.resultPostedByUser:id,name',
             'invoice.payments',
@@ -214,7 +215,8 @@ public function index(Customer $customer)
                         'type_price_snapshot'   => $typePrice,
 
                         'lab_test_id'           => null,
-                        'test_category_id'      => $s->test_category_id ?? null,
+                        // Fall back to parent LabTest's category so PDF groups them together
+                        'test_category_id'      => $s->test_category_id ?? $t->test_category_id ?? null,
                         'assigned_by_user_id'   => $authId,
 
                         'item_kind'             => $isHeader ? 'group_header' : 'sub',

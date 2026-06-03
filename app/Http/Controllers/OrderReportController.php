@@ -80,21 +80,11 @@ public function single(\App\Models\TestOrder $order, Request $request)
         'customer.user',
         'branch',
         'items' => function ($q) {
-            $q->leftJoin('lab_tests', 'lab_tests.id', '=', 'test_order_items.lab_test_id')
-              ->leftJoin('lab_sub_tests', 'lab_sub_tests.id', '=', 'test_order_items.lab_sub_test_id')
-
-              ->orderByRaw("
-                  CASE
-                    WHEN test_order_items.item_kind IN ('sub', 'subtest') THEN 1
-                    ELSE 0
-                  END
-              ")
-              ->orderByRaw("COALESCE(lab_tests.sort_order, 999999)")
-              ->orderByRaw("COALESCE(lab_sub_tests.sort_order, 999999)")
-              ->orderBy('test_order_items.id')
-              ->select('test_order_items.*');
+            $q->orderBy('test_order_items.sort_order_snapshot')
+              ->orderBy('test_order_items.id');
         },
         'items.labTest.testCategory',
+        'items.testCategory',
         'items.subTest',
         'items.testType',
         'items.resultPostedByUser',

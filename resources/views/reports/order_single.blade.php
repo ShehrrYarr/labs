@@ -200,13 +200,12 @@
     $categorySubtitles = []; // subtitle per category (from test_categories.subtitle)
 
     foreach ($typeItems as $it) {
-        $category = $it->labTest?->testCategory?->name;
-        $subtitle  = $it->labTest?->testCategory?->subtitle ?? null;
-
-        // ✅ CBC special case
-        if (!$category && $normalizedType === 'CBC') {
-            $category = 'Diff. Leuc Count (DLC)';
-        }
+        // For main items: use labTest's category.
+        // For sub/group_header items: labTest is null, so fall back to the
+        // direct testCategory relationship (populated via test_category_id).
+        $categoryObj = $it->labTest?->testCategory ?? $it->testCategory ?? null;
+        $category    = $categoryObj?->name ?? null;
+        $subtitle    = $categoryObj?->subtitle ?? null;
 
         // Fallback
         $category = $category ?: 'Other';
