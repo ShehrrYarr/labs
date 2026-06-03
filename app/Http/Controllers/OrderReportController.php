@@ -123,6 +123,8 @@ public function single(\App\Models\TestOrder $order, Request $request)
         )->values());
     }
 
+    $fontSize = max(7, min(18, (int) $request->input('font_size', 11)));
+
     $setting = LabSetting::instance();
 
     $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('reports.order_single', [
@@ -132,6 +134,7 @@ public function single(\App\Models\TestOrder $order, Request $request)
         'setting'        => $setting,
         'showHeader'     => $showHeader,
         'showFooter'     => $showFooter,
+        'fontSize'       => $fontSize,
     ])->setPaper('a4');
 
     return $pdf->stream('order-'.$order->id.'-report.pdf');

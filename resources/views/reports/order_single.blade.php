@@ -70,7 +70,7 @@
         body{
             margin: 0;
             font-family: DejaVu Sans, Arial, sans-serif;
-            font-size: 11px;
+            font-size: {{ $fontSize ?? 11 }}px;
             color: #111827;
             background-color: #dce9f7;
         }
@@ -156,17 +156,17 @@
             margin: 10px 0 6px;
         }
 
-        /* Table (COMPACT) */
+        /* Table (COMPACT) — em so it scales with body font-size */
         table.report{
             width: 100%;
             border-collapse: collapse;
-            font-size: 10.2px;
+            font-size: 0.93em;
         }
         table.report th{
             text-align: left;
             padding: 5px 6px;
             border-bottom: 1px solid rgba(17,24,39,.35);
-            font-size: 10px;
+            font-size: 0.91em;
         }
         table.report td{
             padding: 4px 6px;

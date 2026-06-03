@@ -697,8 +697,14 @@
                 </div>
             </div>
 
-            {{-- ── RIGHT: Header / Footer layout ── --}}
+            {{-- ── RIGHT: Font size + Header / Footer layout ── --}}
             <div style="flex:1;min-width:0;">
+                <div style="font-size:12px;font-weight:900;color:#475569;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">Font Size</div>
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;">
+                    <input type="number" id="reportFontSize" value="11" min="7" max="18"
+                           style="width:70px;padding:7px 10px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:14px;font-weight:700;text-align:center;outline:none;">
+                    <span style="font-size:13px;color:#64748b;">px &nbsp;(7 – 18)</span>
+                </div>
                 <div style="font-size:12px;font-weight:900;color:#475569;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">Layout</div>
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
 
@@ -811,8 +817,11 @@ function openReport(layout) {
         });
     }
 
+    var fontSize = parseInt(document.getElementById('reportFontSize').value, 10) || 11;
+    fontSize = Math.max(7, Math.min(18, fontSize));
+
     var sep = _reportBaseUrl.indexOf('?') === -1 ? '?' : '&';
-    var url = _reportBaseUrl + sep + 'layout=' + layout + typeParams;
+    var url = _reportBaseUrl + sep + 'layout=' + layout + typeParams + '&font_size=' + fontSize;
     window.open(url, '_blank');
     closeLayoutModal();
 }
