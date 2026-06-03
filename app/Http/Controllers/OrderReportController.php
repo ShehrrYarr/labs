@@ -95,6 +95,7 @@ public function single(\App\Models\TestOrder $order, Request $request)
               ->select('test_order_items.*');
         },
         'items.labTest.testCategory',
+        'items.labSubTest',
         'items.testType',
         'items.resultPostedByUser',
     ]);

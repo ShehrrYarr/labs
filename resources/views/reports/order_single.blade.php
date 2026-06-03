@@ -319,8 +319,17 @@
     $rangeText = preg_replace("/\n{3,}/", "\n\n", $rangeText); // prevent huge gaps
     $rangeText = trim($rangeText);
                             @endphp
+                            @php
+                                $testDesc = $it->labSubTest?->description ?? $it->labTest?->description ?? '';
+                                $testDesc = trim(strip_tags($testDesc));
+                            @endphp
                             <tr>
-                                <td>{{ $it->test_name_snapshot }}</td>
+                                <td>
+                                    {{ $it->test_name_snapshot }}
+                                    @if($testDesc)
+                                        <div style="font-size:9px;color:#6b7280;margin-top:2px;font-style:italic;line-height:1.3;">{{ $testDesc }}</div>
+                                    @endif
+                                </td>
                                 <td>
                                     @if($it->result_status === 'ready')
                                         {{ $it->result_text ?: '—' }}
