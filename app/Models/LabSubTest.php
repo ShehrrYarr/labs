@@ -23,11 +23,13 @@ class LabSubTest extends Model
         'test_instruction',
         'additional_notes',
         'is_active',
+        'is_group_header',
         'sort_order',
     ];
 protected $casts = [
-        'is_active' => 'boolean',
-        'sort_order' => 'integer',
+        'is_active'        => 'boolean',
+        'is_group_header'  => 'boolean',
+        'sort_order'       => 'integer',
     ];
     public function labTest()
     {

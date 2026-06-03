@@ -202,6 +202,8 @@ public function index(Customer $customer)
 
             // ✅ sub test rows (independent, also editable)
             foreach (($t->subTests ?? collect()) as $s) {
+                $isHeader = (bool)($s->is_group_header ?? false);
+
                 TestOrderItem::updateOrCreate(
                     [
                         'test_order_id'   => $order->id,
@@ -211,19 +213,20 @@ public function index(Customer $customer)
                         'test_type_id'          => $type->id,
                         'type_price_snapshot'   => $typePrice,
 
-                        'lab_test_id'           => null, // keep independent as you want
+                        'lab_test_id'           => null,
                         'test_category_id'      => $s->test_category_id ?? null,
                         'assigned_by_user_id'   => $authId,
 
-                        'item_kind'             => 'sub',
+                        'item_kind'             => $isHeader ? 'group_header' : 'sub',
 
                         'test_name_snapshot'    => $s->test_name,
                         'test_code_snapshot'    => $s->test_code,
-                        'unit_snapshot'         => $s->unit,
-                        'reference_range_snapshot' => $s->reference_range,
+                        'unit_snapshot'         => $isHeader ? null : $s->unit,
+                        'reference_range_snapshot' => $isHeader ? null : $s->reference_range,
                         'sort_order_snapshot'   => (int)($s->sort_order ?? 0),
 
-                        'result_status'         => 'pending',
+                        // Group headers are always "ready" — they have no result to enter
+                        'result_status'         => $isHeader ? 'ready' : 'pending',
                         'result_text'           => null,
                         'result_file'           => null,
                         'result_posted_at'      => null,
@@ -280,7 +283,7 @@ public function index(Customer $customer)
     //     // If all non-charge items are ready -> results_posted
     //     $order->load('items');
 
-    //     $nonCharge = $order->items->where('item_kind', '!=', 'charge');
+    //     $nonCharge = $order->items->whereNotIn('item_kind', ['charge', 'group_header']);
     //     $allReady = $nonCharge->count() > 0 && $nonCharge->every(fn($i) => $i->result_status === 'ready');
 
     //     $order->update([
@@ -328,7 +331,7 @@ public function index(Customer $customer)
 
     $order->load('items');
 
-    $nonCharge = $order->items->where('item_kind', '!=', 'charge');
+    $nonCharge = $order->items->whereNotIn('item_kind', ['charge', 'group_header']);
     $allReady  = $nonCharge->count() > 0
         && $nonCharge->every(fn($i) => $i->result_status === 'ready');
 
@@ -386,7 +389,7 @@ public function postTypeResult(Request $request, Customer $customer, TestOrder $
         foreach ($data['items'] as $itemData) {
             $item = $order->items()
                 ->where('id', $itemData['id'])
-                ->where('item_kind', '!=', 'charge')
+                ->whereNotIn('item_kind', ['charge', 'group_header'])
                 ->first();
             if (!$item) continue;
             $update = [
@@ -404,7 +407,7 @@ public function postTypeResult(Request $request, Customer $customer, TestOrder $
     });
 
     $order->load('items');
-    $nonCharge = $order->items->where('item_kind', '!=', 'charge');
+    $nonCharge = $order->items->whereNotIn('item_kind', ['charge', 'group_header']);
     $allReady  = $nonCharge->count() > 0 && $nonCharge->every(fn($i) => $i->result_status === 'ready');
     $order->update(['status' => $allReady ? 'results_posted' : 'in_progress']);
 

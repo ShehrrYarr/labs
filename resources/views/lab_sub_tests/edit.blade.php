@@ -155,6 +155,17 @@
                                 <input type="checkbox" name="is_active" value="1" {{ old('is_active', $subTest->is_active) ? 'checked' : '' }}>
                                 <span>Active</span>
                             </div>
+
+                            <div class="toggle" style="margin-top:10px;padding:10px 12px;border-radius:10px;background:#fffbeb;border:1px solid #fde68a;">
+                                <input type="checkbox" name="is_group_header" value="1" {{ old('is_group_header', $subTest->is_group_header) ? 'checked' : '' }}>
+                                <span style="color:#92400e;font-weight:900;">
+                                    Group Header
+                                    <div style="font-size:11px;font-weight:500;color:#78350f;margin-top:2px;">
+                                        Marks this as a bold section title (e.g. MOTILITY, COUNT).<br>
+                                        No result entry — used for visual grouping in the PDF report.
+                                    </div>
+                                </span>
+                            </div>
                         </div>
 
                         <div class="section">

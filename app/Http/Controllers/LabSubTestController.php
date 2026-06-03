@@ -91,6 +91,7 @@ class LabSubTestController extends Controller
 
             'sort_order'           => ['nullable', 'integer', 'min:0'],
             'is_active'            => ['nullable', 'boolean'],
+            'is_group_header'      => ['nullable', 'boolean'],
         ]);
 
         DB::transaction(function () use ($request, $data, $labTest) {
@@ -121,6 +122,7 @@ class LabSubTestController extends Controller
 
                 'sort_order'            => (int)($data['sort_order'] ?? 0),
                 'is_active'             => (bool)($data['is_active'] ?? true),
+                'is_group_header'       => (bool)($data['is_group_header'] ?? false),
             ]);
         });
 
@@ -173,6 +175,7 @@ class LabSubTestController extends Controller
 
             'sort_order'           => ['nullable', 'integer', 'min:0'],
             'is_active'            => ['nullable', 'boolean'],
+            'is_group_header'      => ['nullable', 'boolean'],
         ]);
 
         DB::transaction(function () use ($request, $data, $subTest) {
@@ -204,6 +207,7 @@ class LabSubTestController extends Controller
 
                 'sort_order'            => (int)($data['sort_order'] ?? 0),
                 'is_active'             => (bool)($data['is_active'] ?? false),
+                'is_group_header'       => (bool)($data['is_group_header'] ?? false),
             ]);
         });
 

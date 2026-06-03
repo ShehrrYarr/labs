@@ -306,25 +306,28 @@
                     </thead>
                     <tbody>
                         @foreach($items as $it)
+                            @if($it->item_kind === 'group_header')
+                                {{-- Bold section header spanning all columns --}}
+                                <tr style="background:#eef2ff;">
+                                    <td colspan="4" style="font-weight:900;font-size:{{ ($fontSize ?? 11) - 0.5 }}px;color:#1e3a8a;padding:5px 6px;border-bottom:1.5px solid #a5b4fc;letter-spacing:.3px;">
+                                        {{ $it->test_name_snapshot }}
+                                    </td>
+                                </tr>
+                            @else
                             @php
                                 $unit  = $it->unit_snapshot ?? $it->labTest?->unit ?? '';
-                                // $range = $it->reference_range_snapshot ?? $it->labTest?->reference_range ?? '';
-                                 $rangeText = (string)($it->reference_range_snapshot ?? $it->labTest?->reference_range ?? '');
-
-    // if it was stored with <br> or <p>, convert to plain text safely
-    $rangeText = strip_tags(str_replace(['<br>', '<br/>', '<br />', '</p>', '<p>'], ["\n", "\n", "\n", "\n", ""], $rangeText));
-
-    // normalize Windows newlines + remove extra blank lines
-    $rangeText = str_replace("\r\n", "\n", $rangeText);
-    $rangeText = preg_replace("/\n{3,}/", "\n\n", $rangeText); // prevent huge gaps
-    $rangeText = trim($rangeText);
-                            @endphp
-                            @php
-                                $testDesc = $it->subTest?->description ?? $it->labTest?->description ?? '';
-                                $testDesc = trim(strip_tags($testDesc));
+                                $rangeText = (string)($it->reference_range_snapshot ?? $it->labTest?->reference_range ?? '');
+                                $rangeText = strip_tags(str_replace(['<br>', '<br/>', '<br />', '</p>', '<p>'], ["\n", "\n", "\n", "\n", ""], $rangeText));
+                                $rangeText = str_replace("\r\n", "\n", $rangeText);
+                                $rangeText = preg_replace("/\n{3,}/", "\n\n", $rangeText);
+                                $rangeText = trim($rangeText);
+                                $testDesc  = $it->subTest?->description ?? $it->labTest?->description ?? '';
+                                $testDesc  = trim(strip_tags($testDesc));
+                                // Indent sub-items that follow a group header
+                                $indent = ($it->item_kind === 'sub') ? 'padding-left:14px;' : '';
                             @endphp
                             <tr>
-                                <td>
+                                <td style="{{ $indent }}">
                                     {{ $it->test_name_snapshot }}
                                     @if($testDesc)
                                         <div style="font-size:9px;color:#6b7280;margin-top:2px;font-style:italic;line-height:1.3;">{{ $testDesc }}</div>
@@ -338,11 +341,9 @@
                                     @endif
                                 </td>
                                 <td>{{ $unit }}</td>
-                                {{-- <td style="white-space: pre-wrap; line-height:1.1;">
-    {!! nl2br(e($range)) !!}
-</td> --}}
-<td><div class="range-cell">{{ $rangeText ?: '—' }}</div></td>
+                                <td><div class="range-cell">{{ $rangeText ?: '—' }}</div></td>
                             </tr>
+                            @endif
                         @endforeach
                     </tbody>
                 </table>

@@ -328,34 +328,43 @@
                                             </thead>
                                             <tbody>
                                             @foreach($resultItems as $idx => $it)
-                                                <input type="hidden" name="items[{{ $idx }}][id]" value="{{ $it->id }}">
-                                                <tr>
-                                                    <td>
-                                                        <div style="font-weight:900;color:#0f172a;">{{ $it->test_name_snapshot }}</div>
-                                                        @if($it->unit_snapshot)
-                                                            <div class="small">Unit: {{ $it->unit_snapshot }}</div>
-                                                        @endif
-                                                        @if($it->reference_range_snapshot)
-                                                            <div class="small" style="white-space:pre-wrap;">Ref: {{ \Illuminate\Support\Str::limit($it->reference_range_snapshot, 80) }}</div>
-                                                        @endif
-                                                    </td>
-                                                    <td>
-                                                        <textarea name="items[{{ $idx }}][result_text]"
-                                                                  placeholder="Result value...">{{ $it->result_text }}</textarea>
-                                                    </td>
-                                                    <td>
-                                                        @php $rs = $it->result_status ?? 'pending'; @endphp
-                                                        <span class="param-pill {{ $rs === 'ready' ? 'pill-ready' : ($rs === 'processing' ? 'pill-processing' : '') }}">
-                                                            {{ strtoupper($rs) }}
-                                                        </span>
-                                                        @if($it->result_posted_at)
-                                                            <div class="small">{{ optional($it->result_posted_at)->format('d-m-Y H:i') }}</div>
-                                                            @if($it->resultPostedByUser)
-                                                                <div class="small">By: {{ $it->resultPostedByUser->name }}</div>
+                                                @if($it->item_kind === 'group_header')
+                                                    {{-- Group header row: bold label, no input --}}
+                                                    <tr style="background:#f0f4ff;">
+                                                        <td colspan="3" style="font-weight:900;font-size:13px;color:#1e3a8a;padding:7px 8px;letter-spacing:.4px;text-transform:uppercase;border-bottom:2px solid #c7d7f7;">
+                                                            {{ $it->test_name_snapshot }}
+                                                        </td>
+                                                    </tr>
+                                                @else
+                                                    <input type="hidden" name="items[{{ $idx }}][id]" value="{{ $it->id }}">
+                                                    <tr>
+                                                        <td style="padding-left:{{ $it->item_kind === 'sub' ? '18px' : '8px' }};">
+                                                            <div style="font-weight:900;color:#0f172a;">{{ $it->test_name_snapshot }}</div>
+                                                            @if($it->unit_snapshot)
+                                                                <div class="small">Unit: {{ $it->unit_snapshot }}</div>
                                                             @endif
-                                                        @endif
-                                                    </td>
-                                                </tr>
+                                                            @if($it->reference_range_snapshot)
+                                                                <div class="small" style="white-space:pre-wrap;">Ref: {{ \Illuminate\Support\Str::limit($it->reference_range_snapshot, 80) }}</div>
+                                                            @endif
+                                                        </td>
+                                                        <td>
+                                                            <textarea name="items[{{ $idx }}][result_text]"
+                                                                      placeholder="Result value...">{{ $it->result_text }}</textarea>
+                                                        </td>
+                                                        <td>
+                                                            @php $rs = $it->result_status ?? 'pending'; @endphp
+                                                            <span class="param-pill {{ $rs === 'ready' ? 'pill-ready' : ($rs === 'processing' ? 'pill-processing' : '') }}">
+                                                                {{ strtoupper($rs) }}
+                                                            </span>
+                                                            @if($it->result_posted_at)
+                                                                <div class="small">{{ optional($it->result_posted_at)->format('d-m-Y H:i') }}</div>
+                                                                @if($it->resultPostedByUser)
+                                                                    <div class="small">By: {{ $it->resultPostedByUser->name }}</div>
+                                                                @endif
+                                                            @endif
+                                                        </td>
+                                                    </tr>
+                                                @endif
                                             @endforeach
                                             </tbody>
                                         </table>
@@ -411,28 +420,36 @@
                                             </thead>
                                             <tbody>
                                             @foreach($resultItems as $it)
-                                                <tr>
-                                                    <td>
-                                                        <div style="font-weight:900;">{{ $it->test_name_snapshot }}</div>
-                                                        @if($it->unit_snapshot)<div class="small">Unit: {{ $it->unit_snapshot }}</div>@endif
-                                                    </td>
-                                                    <td>
-                                                        @if($it->result_text)
-                                                            <div style="white-space:pre-wrap;">{{ $it->result_text }}</div>
-                                                        @else
-                                                            <span class="small">No result yet.</span>
-                                                        @endif
-                                                        @if($it->result_notes)
-                                                            <div class="small" style="color:#374151;"><b>Notes:</b> {{ $it->result_notes }}</div>
-                                                        @endif
-                                                    </td>
-                                                    <td>
-                                                        @php $rs = $it->result_status ?? 'pending'; @endphp
-                                                        <span class="param-pill {{ $rs === 'ready' ? 'pill-ready' : ($rs === 'processing' ? 'pill-processing' : '') }}">
-                                                            {{ strtoupper($rs) }}
-                                                        </span>
-                                                    </td>
-                                                </tr>
+                                                @if($it->item_kind === 'group_header')
+                                                    <tr style="background:#f0f4ff;">
+                                                        <td colspan="3" style="font-weight:900;font-size:13px;color:#1e3a8a;padding:7px 8px;letter-spacing:.4px;text-transform:uppercase;border-bottom:2px solid #c7d7f7;">
+                                                            {{ $it->test_name_snapshot }}
+                                                        </td>
+                                                    </tr>
+                                                @else
+                                                    <tr>
+                                                        <td style="padding-left:{{ $it->item_kind === 'sub' ? '18px' : '8px' }};">
+                                                            <div style="font-weight:900;">{{ $it->test_name_snapshot }}</div>
+                                                            @if($it->unit_snapshot)<div class="small">Unit: {{ $it->unit_snapshot }}</div>@endif
+                                                        </td>
+                                                        <td>
+                                                            @if($it->result_text)
+                                                                <div style="white-space:pre-wrap;">{{ $it->result_text }}</div>
+                                                            @else
+                                                                <span class="small">No result yet.</span>
+                                                            @endif
+                                                            @if($it->result_notes)
+                                                                <div class="small" style="color:#374151;"><b>Notes:</b> {{ $it->result_notes }}</div>
+                                                            @endif
+                                                        </td>
+                                                        <td>
+                                                            @php $rs = $it->result_status ?? 'pending'; @endphp
+                                                            <span class="param-pill {{ $rs === 'ready' ? 'pill-ready' : ($rs === 'processing' ? 'pill-processing' : '') }}">
+                                                                {{ strtoupper($rs) }}
+                                                            </span>
+                                                        </td>
+                                                    </tr>
+                                                @endif
                                             @endforeach
                                             </tbody>
                                         </table>
