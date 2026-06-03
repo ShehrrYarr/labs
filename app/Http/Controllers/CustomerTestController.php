@@ -382,7 +382,44 @@ public function postTypeResult(Request $request, Customer $customer, TestOrder $
         ->with('success', 'Results saved.');
 }
 
-  private function recalculateInvoice(TestOrder $order): void
+/** Admin: delete an entire order (items, invoice, payments) */
+public function destroyOrder(Customer $customer, TestOrder $order)
+{
+    if (auth()->user()->category !== 'admin') abort(403);
+    if ((int)$order->customer_id !== $customer->id) abort(404);
+
+    DB::transaction(function () use ($order) {
+        // Delete payments → invoice → items → order
+        if ($order->invoice) {
+            $order->invoice->payments()->delete();
+            $order->invoice->delete();
+        }
+        $order->items()->delete();
+        $order->delete();
+    });
+
+    return redirect()
+        ->route('customers.tests', $customer)
+        ->with('success', 'Order deleted.');
+}
+
+/** Admin: remove all items of one test type from an order and recalculate invoice */
+public function destroyTestType(Customer $customer, TestOrder $order, int $typeId)
+{
+    if (auth()->user()->category !== 'admin') abort(403);
+    if ((int)$order->customer_id !== $customer->id) abort(404);
+
+    DB::transaction(function () use ($order, $typeId) {
+        $order->items()->where('test_type_id', $typeId)->delete();
+        $this->recalculateInvoice($order);
+    });
+
+    return redirect()
+        ->to(route('customers.tests', $customer) . '?open_order=' . $order->id)
+        ->with('success', 'Test removed from order.');
+}
+
+private function recalculateInvoice(TestOrder $order): void
 {
     $order->loadMissing(['items', 'invoice.payments']);
 

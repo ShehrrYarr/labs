@@ -40,7 +40,9 @@ Route::resource('customers', CustomerController::class)->except(['show']);
 // Customer test ordering workflow
 Route::get('customers/{customer}/tests', [CustomerTestController::class, 'index'])->name('customers.tests');
 Route::post('customers/{customer}/orders', [CustomerTestController::class, 'storeOrder'])->name('customers.orders.store');
+Route::delete('customers/{customer}/orders/{order}', [CustomerTestController::class, 'destroyOrder'])->name('customers.orders.destroy');
 Route::post('customers/{customer}/orders/{order}/items', [CustomerTestController::class, 'storeItems'])->name('customers.orders.items.store');
+Route::delete('customers/{customer}/orders/{order}/types/{typeId}', [CustomerTestController::class, 'destroyTestType'])->name('customers.orders.type.destroy');
 Route::post('customers/{customer}/orders/{order}/discount', [CustomerTestController::class, 'updateDiscount'])->name('customers.orders.discount');
 Route::post('customers/{customer}/orders/{order}/payments', [CustomerTestController::class, 'storePayment'])->name('customers.orders.payments.store');
 Route::post('customers/{customer}/orders/{order}/items/{item}/result', [CustomerTestController::class, 'postResult'])

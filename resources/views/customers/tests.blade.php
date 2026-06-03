@@ -283,9 +283,23 @@
                                 <div class="type-result-group">
                                     <div class="type-result-header">
                                         <span class="type-result-name">{{ $typeName }}</span>
-                                        @if($allReady)
-                                            <span class="badge b-paid">ALL READY</span>
-                                        @endif
+                                        <div style="display:flex;align-items:center;gap:8px;">
+                                            @if($allReady)
+                                                <span class="badge b-paid">ALL READY</span>
+                                            @endif
+                                            @if(auth()->user()->category === 'admin')
+                                                <form method="POST"
+                                                      action="{{ route('customers.orders.type.destroy', ['customer' => $customer->id, 'order' => $order->id, 'typeId' => $gTypeId]) }}"
+                                                      onsubmit="return confirm('Remove {{ addslashes($typeName) }} from this order?')">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit"
+                                                            style="padding:3px 10px;border-radius:6px;border:1px solid #fca5a5;background:#fee2e2;color:#991b1b;font-size:11px;font-weight:700;cursor:pointer;">
+                                                        ✕ Remove
+                                                    </button>
+                                                </form>
+                                            @endif
+                                        </div>
                                     </div>
 
                                     @if(auth()->user()->category === 'admin')
@@ -498,6 +512,20 @@
                                 @endforelse
                                 </tbody>
                             </table>
+
+                            @if(auth()->user()->category === 'admin')
+                            <div class="divider"></div>
+                            <form method="POST"
+                                  action="{{ route('customers.orders.destroy', ['customer' => $customer->id, 'order' => $order->id]) }}"
+                                  onsubmit="return confirm('Delete Order #{{ $order->id }} permanently? This cannot be undone.')">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit"
+                                        style="padding:9px 18px;border-radius:10px;border:1px solid #fca5a5;background:#fee2e2;color:#991b1b;font-size:13px;font-weight:900;cursor:pointer;">
+                                    🗑 Delete This Order
+                                </button>
+                            </form>
+                            @endif
 
                         </div>
                     </div>
