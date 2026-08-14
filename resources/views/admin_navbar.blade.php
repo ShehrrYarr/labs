@@ -10,8 +10,8 @@
     <meta name="keywords" content="admin template, stack admin template, dashboard template, flat admin template, responsive admin template, web app">
     <meta name="author" content="PIXINVENT">
     <title>Al Ghani Lab</title>
-    <link rel="apple-touch-icon" href="../../../app-assets/images/ico/apple-icon-120.png">
-    <link rel="shortcut icon" type="image/x-icon" href="../../../app-assets/images/ico/favicon.ico">
+    <link rel="apple-touch-icon" href="{{ asset('app-assets') }}/images/ico/apple-icon-120.png">
+    <link rel="shortcut icon" type="image/x-icon" href="{{ asset('app-assets') }}/images/ico/favicon.ico">
     <link href="https://fonts.googleapis.com/css?family=Montserrat:300,300i,400,400i,500,500i%7COpen+Sans:300,300i,400,400i,600,600i,700,700i" rel="stylesheet">
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
         
@@ -23,31 +23,31 @@
 
 
     <!-- BEGIN: Vendor CSS-->
-    <link rel="stylesheet" type="text/css" href="../../../app-assets/vendors/css/vendors.min.css">
-    <link rel="stylesheet" type="text/css" href="../../../app-assets/vendors/css/pickers/daterange/daterangepicker.css">
-    <link rel="stylesheet" type="text/css" href="../../../app-assets/vendors/css/pickers/pickadate/pickadate.css">
-    <link rel="stylesheet" type="text/css" href="../../../app-assets/vendors/css/extensions/unslider.css">
-    <link rel="stylesheet" type="text/css" href="../../../app-assets/vendors/css/weather-icons/climacons.min.css">
-    <link rel="stylesheet" type="text/css" href="../../../app-assets/fonts/meteocons/style.css">
-    <link rel="stylesheet" type="text/css" href="../../../app-assets/vendors/css/charts/morris.css">
+    <link rel="stylesheet" type="text/css" href="{{ asset('app-assets') }}/vendors/css/vendors.min.css">
+    <link rel="stylesheet" type="text/css" href="{{ asset('app-assets') }}/vendors/css/pickers/daterange/daterangepicker.css">
+    <link rel="stylesheet" type="text/css" href="{{ asset('app-assets') }}/vendors/css/pickers/pickadate/pickadate.css">
+    <link rel="stylesheet" type="text/css" href="{{ asset('app-assets') }}/vendors/css/extensions/unslider.css">
+    <link rel="stylesheet" type="text/css" href="{{ asset('app-assets') }}/vendors/css/weather-icons/climacons.min.css">
+    <link rel="stylesheet" type="text/css" href="{{ asset('app-assets') }}/fonts/meteocons/style.css">
+    <link rel="stylesheet" type="text/css" href="{{ asset('app-assets') }}/vendors/css/charts/morris.css">
     <!-- END: Vendor CSS-->
-    <link rel="stylesheet" type="text/css" href="../../../app-assets/vendors/css/tables/datatable/datatables.min.css">
+    <link rel="stylesheet" type="text/css" href="{{ asset('app-assets') }}/vendors/css/tables/datatable/datatables.min.css">
     <!-- BEGIN: Theme CSS-->
-    <link rel="stylesheet" type="text/css" href="../../../app-assets/css/bootstrap.css">
-    <link rel="stylesheet" type="text/css" href="../../../app-assets/css/bootstrap-extended.css">
-    <link rel="stylesheet" type="text/css" href="../../../app-assets/css/colors.css">
-    <link rel="stylesheet" type="text/css" href="../../../app-assets/css/components.css">
+    <link rel="stylesheet" type="text/css" href="{{ asset('app-assets') }}/css/bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="{{ asset('app-assets') }}/css/bootstrap-extended.css">
+    <link rel="stylesheet" type="text/css" href="{{ asset('app-assets') }}/css/colors.css">
+    <link rel="stylesheet" type="text/css" href="{{ asset('app-assets') }}/css/components.css">
     <!-- END: Theme CSS-->
 
     <!-- BEGIN: Page CSS-->
-    <link rel="stylesheet" type="text/css" href="../../../app-assets/css/core/menu/menu-types/vertical-menu.css">
-    <link rel="stylesheet" type="text/css" href="../../../app-assets/css/core/colors/palette-gradient.css">
-    <link rel="stylesheet" type="text/css" href="../../../app-assets/fonts/simple-line-icons/style.css">
-    <link rel="stylesheet" type="text/css" href="../../../app-assets/css/pages/timeline.css">
+    <link rel="stylesheet" type="text/css" href="{{ asset('app-assets') }}/css/core/menu/menu-types/vertical-menu.css">
+    <link rel="stylesheet" type="text/css" href="{{ asset('app-assets') }}/css/core/colors/palette-gradient.css">
+    <link rel="stylesheet" type="text/css" href="{{ asset('app-assets') }}/fonts/simple-line-icons/style.css">
+    <link rel="stylesheet" type="text/css" href="{{ asset('app-assets') }}/css/pages/timeline.css">
     <!-- END: Page CSS-->
-    <link rel="stylesheet" type="text/css" href="../../../app-assets/css/pages/app-chat.css">
+    <link rel="stylesheet" type="text/css" href="{{ asset('app-assets') }}/css/pages/app-chat.css">
     <!-- BEGIN: Custom CSS-->
-    <link rel="stylesheet" type="text/css" href="../../../app-assets/css/style.css">
+    <link rel="stylesheet" type="text/css" href="{{ asset('app-assets') }}/css/style.css">
     <!-- END: Custom CSS-->
 
 </head>
@@ -206,7 +206,7 @@
                 <li class=" nav-item"><a href="#"><i class="feather icon-book-open"></i><span class="menu-title" data-i18n="Templates">Manage Customers</span></a>
                     <ul class="menu-content">
                         <li class="@if (\Request::is('customers')) active @endif"><a class="menu-item"
-                                href="/customers" data-i18n="1 columns">Customers</a>
+                                href="{{ route('customers.index') }}" data-i18n="1 columns">Customers</a>
                         </li>
                     </ul>
                 </li>
@@ -214,7 +214,7 @@
                 <li class=" nav-item"><a href="#"><i class="feather icon-book-open"></i><span class="menu-title" data-i18n="Templates">Manage Branches</span></a>
                     <ul class="menu-content">
                         <li class="@if (\Request::is('branches')) active @endif"><a class="menu-item"
-                                href="/branches" data-i18n="1 columns">Branches</a>
+                                href="{{ route('branches.index') }}" data-i18n="1 columns">Branches</a>
                         </li>
                     </ul>
                 </li>
@@ -240,16 +240,16 @@
                 <li class=" nav-item"><a href="#"><i class="feather icon-tv"></i><span class="menu-title" data-i18n="Templates">Settings</span></a>
                     <ul class="menu-content">
                         <li class="@if (\Request::is('test-types')) active @endif"><a class="menu-item"
-                                href="/test-types" data-i18n="1 columns">Test Types</a>
+                                href="{{ route('test-types.index') }}" data-i18n="1 columns">Test Types</a>
                         </li>
                         <li class="@if (\Request::is('equipment')) active @endif"><a class="menu-item"
-                                href="/equipment" data-i18n="1 columns">Equipments</a>
+                                href="{{ route('equipment.index') }}" data-i18n="1 columns">Equipments</a>
                         </li>
                         <li class="@if (\Request::is('test-categories')) active @endif"><a class="menu-item"
-                                href="/test-categories" data-i18n="1 columns">Test Categories</a>
+                                href="{{ route('test-categories.index') }}" data-i18n="1 columns">Test Categories</a>
                         </li>
                         <li class="@if (\Request::is('lab-tests')) active @endif"><a class="menu-item"
-                                href="/lab-tests" data-i18n="1 columns">Lab Tests</a>
+                                href="{{ route('lab-tests.index') }}" data-i18n="1 columns">Lab Tests</a>
                         </li>
                         <li class="@if (\Request::is('lab-settings')) active @endif"><a class="menu-item"
                                 href="{{ route('lab-settings.edit') }}" data-i18n="1 columns">Lab Settings</a>
@@ -275,28 +275,28 @@
 
 
     <!-- BEGIN: Vendor JS-->
-    <script src="../../../app-assets/vendors/js/vendors.min.js"></script>
+    <script src="{{ asset('app-assets') }}/vendors/js/vendors.min.js"></script>
     <!-- BEGIN Vendor JS-->
-    <script src="../../../app-assets/vendors/js/extensions/jquery.steps.min.js"></script>
-    <script src="../../../app-assets/vendors/js/pickers/dateTime/moment-with-locales.min.js"></script>
-    <script src="../../../app-assets/vendors/js/pickers/daterange/daterangepicker.js"></script>
-    <script src="../../../app-assets/vendors/js/pickers/pickadate/picker.js"></script>
-    <script src="../../../app-assets/vendors/js/pickers/pickadate/picker.date.js"></script>
-    <script src="../../../app-assets/vendors/js/forms/validation/jquery.validate.min.js"></script>
+    <script src="{{ asset('app-assets') }}/vendors/js/extensions/jquery.steps.min.js"></script>
+    <script src="{{ asset('app-assets') }}/vendors/js/pickers/dateTime/moment-with-locales.min.js"></script>
+    <script src="{{ asset('app-assets') }}/vendors/js/pickers/daterange/daterangepicker.js"></script>
+    <script src="{{ asset('app-assets') }}/vendors/js/pickers/pickadate/picker.js"></script>
+    <script src="{{ asset('app-assets') }}/vendors/js/pickers/pickadate/picker.date.js"></script>
+    <script src="{{ asset('app-assets') }}/vendors/js/forms/validation/jquery.validate.min.js"></script>
     <!-- BEGIN: Page Vendor JS-->
-    <script src="../../../app-assets/vendors/js/extensions/unslider-min.js"></script>
-    <script src="../../../app-assets/vendors/js/timeline/horizontal-timeline.js"></script>
+    <script src="{{ asset('app-assets') }}/vendors/js/extensions/unslider-min.js"></script>
+    <script src="{{ asset('app-assets') }}/vendors/js/timeline/horizontal-timeline.js"></script>
     <!-- END: Page Vendor JS-->
-    <script src="../../../app-assets/vendors/js/tables/datatable/datatables.min.js"></script>
+    <script src="{{ asset('app-assets') }}/vendors/js/tables/datatable/datatables.min.js"></script>
     <!-- BEGIN: Theme JS-->
-    <script src="../../../app-assets/js/core/app-menu.js"></script>
-    <script src="../../../app-assets/js/core/app.js"></script>
-    <script src="../../../app-assets/js/scripts/pages/app-chat.js"></script>
+    <script src="{{ asset('app-assets') }}/js/core/app-menu.js"></script>
+    <script src="{{ asset('app-assets') }}/js/core/app.js"></script>
+    <script src="{{ asset('app-assets') }}/js/scripts/pages/app-chat.js"></script>
     <!-- END: Theme JS-->
-    <script src="../../../app-assets/js/scripts/tables/datatables/datatable-basic.js"></script>
+    <script src="{{ asset('app-assets') }}/js/scripts/tables/datatables/datatable-basic.js"></script>
     <!-- BEGIN: Page JS-->
-    <script src="../../../app-assets/js/scripts/pages/dashboard-ecommerce.js"></script>
-    <script src="../../../app-assets/js/scripts/forms/wizard-steps.js"></script>
+    <script src="{{ asset('app-assets') }}/js/scripts/pages/dashboard-ecommerce.js"></script>
+    <script src="{{ asset('app-assets') }}/js/scripts/forms/wizard-steps.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
     <!-- END: Page JS-->

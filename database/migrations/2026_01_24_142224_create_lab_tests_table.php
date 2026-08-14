@@ -30,7 +30,7 @@ class CreateLabTestsTable extends Migration
             // Your existing dynamic equipment CRUD
             $table->foreignId('required_equipment_id')
                 ->nullable()
-                ->constrained('equipments')
+                ->constrained('equipment')
                 ->nullOnDelete();
 
             // ✅ same params

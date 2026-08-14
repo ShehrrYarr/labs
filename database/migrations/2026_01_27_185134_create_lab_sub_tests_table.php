@@ -33,7 +33,7 @@ class CreateLabSubTestsTable extends Migration
 
             $table->foreignId('required_equipment_id')
                 ->nullable()
-                ->constrained('equipments')
+                ->constrained('equipment')
                 ->nullOnDelete();
 
             $table->string('test_name');                 // e.g., WBC
