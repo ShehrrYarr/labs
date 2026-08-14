@@ -6,6 +6,7 @@
     $logoB64        = $setting->logoBase64();
     $compositeB64   = $setting->headerCompositeBase64();
     $watermarkB64   = $setting->watermarkCompositeBase64();
+    $reportBgColor  = $setting->report_background_color ?? '#dce9f7';
 
     // Bottom notice
     $bottomNotice = $setting->bottom_notice ?? '';
@@ -61,10 +62,10 @@
     <title>Order Report #{{ $order->id }}</title>
 
     <style>
-        @page { margin: 0; background-color: #dce9f7; }
+        @page { margin: 0; background-color: {{ $reportBgColor }}; }
 
         html {
-            background-color: #dce9f7;
+            background-color: {{ $reportBgColor }};
         }
 
         body{
@@ -72,7 +73,7 @@
             font-family: DejaVu Sans, Arial, sans-serif;
             font-size: {{ $fontSize ?? 11 }}px;
             color: #111827;
-            background-color: #dce9f7;
+            background-color: {{ $reportBgColor }};
         }
 
         /* One type = one page */

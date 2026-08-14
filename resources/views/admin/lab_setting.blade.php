@@ -201,6 +201,33 @@
             </div>
         </div>
 
+        {{-- ── REPORT BACKGROUND COLOR ── --}}
+        @php
+            $reportBgColor = $setting->report_background_color ?? '#dce9f7';
+        @endphp
+        <div class="section">
+            <div class="section-title">🎨 Lab Report Background Color</div>
+            <div class="muted" style="margin-bottom:14px;">Page background color used on the main lab report PDF.</div>
+
+            <div style="display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end;">
+                <div>
+                    <label>Background Color</label>
+                    <input type="color" name="report_background_color"
+                           value="{{ old('report_background_color', $reportBgColor) }}"
+                           style="width:60px;height:38px;padding:3px;border-radius:8px;cursor:pointer;">
+                </div>
+            </div>
+
+            {{-- Live preview --}}
+            <div style="margin-top:12px;padding:10px 16px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;">
+                <div style="font-size:11px;font-weight:700;color:#94a3b8;margin-bottom:6px;">Preview:</div>
+                <div id="reportBgPreview" style="
+                    height:60px;border-radius:6px;border:1px solid #e2e8f0;
+                    background-color:{{ $reportBgColor }};
+                "></div>
+            </div>
+        </div>
+
         {{-- ── FOOTER 2 — DOCTORS ── --}}
         <div class="section">
             <div class="section-title">👨‍⚕️ Footer — Doctor / Staff Names</div>
@@ -831,6 +858,16 @@ if (document.querySelectorAll('.doctor-row').length === 0) addDoctor();
             const el = document.querySelector('[name=' + name + ']');
             if (el) el.addEventListener('input', updateBnPreview), el.addEventListener('change', updateBnPreview);
         });
+})();
+
+/* ── Report background color live preview ── */
+(function () {
+    const colorInput = document.querySelector('[name=report_background_color]');
+    const preview     = document.getElementById('reportBgPreview');
+    if (!colorInput || !preview) return;
+    function updateBgPreview() { preview.style.backgroundColor = colorInput.value; }
+    colorInput.addEventListener('input', updateBgPreview);
+    colorInput.addEventListener('change', updateBgPreview);
 })();
 </script>
 

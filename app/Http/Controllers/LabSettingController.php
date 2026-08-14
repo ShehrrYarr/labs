@@ -37,6 +37,7 @@ class LabSettingController extends Controller
             'bottom_notice_align'   => ['nullable', 'in:left,center,right'],
             'bottom_notice_italic'  => ['nullable'],
             'bottom_notice_bold'    => ['nullable'],
+            'report_background_color' => ['nullable', 'string', 'max:20'],
             'logo'                  => ['nullable', 'image', 'max:2048'],
             'doctor_names.*'        => ['nullable', 'string', 'max:255'],
             'doctor_descs.*'        => ['nullable', 'string', 'max:500'],
@@ -83,6 +84,7 @@ class LabSettingController extends Controller
             'bottom_notice'        => $data['bottom_notice'] ?? null,
             'bottom_notice_style'  => $bottomNoticeStyle,
             'doctors'              => $doctors ?: null,
+            'report_background_color' => $data['report_background_color'] ?? '#dce9f7',
         ]);
 
         return redirect()->route('lab-settings.edit')->with('success', 'Lab settings saved.');

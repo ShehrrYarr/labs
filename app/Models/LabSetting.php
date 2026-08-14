@@ -10,6 +10,7 @@ class LabSetting extends Model
         'lab_name', 'lab_address', 'lab_email', 'lab_phone',
         'logo', 'footer_note', 'bottom_notice', 'bottom_notice_style', 'doctors',
         'header_images', 'header_canvas_json', 'watermark_canvas_json',
+        'report_background_color',
     ];
 
     protected $casts = [
