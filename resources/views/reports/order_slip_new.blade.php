@@ -5,7 +5,7 @@
     <title>Invoice Slip #{{ $order->id }}</title>
 
     <style>
-        @page { margin: 12px; }
+        @page { margin: 12px 12px 12px 20mm; }
         body {
             margin: 0;
             font-family: DejaVu Sans, Arial, sans-serif;
